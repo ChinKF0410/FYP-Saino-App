@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saino_force/ApiService.dart';
+import 'package:saino_force/services/auth/auth_service.dart';
 
 class VerifyEmailView extends StatefulWidget {
   const VerifyEmailView({super.key});
@@ -13,7 +14,8 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
 
   @override
   Widget build(BuildContext context) {
-    final String email = "user@example.com"; // This should be replaced with the actual user email from the currentUser object
+    final String email =
+        "user@example.com"; // This should be replaced with the actual user email from the currentUser object
 
     return Scaffold(
       appBar: AppBar(
@@ -23,23 +25,31 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
       ),
       body: Column(
         children: [
-          Text("We've sent an email verification to $email. Please check your inbox and click the link to verify."),
+          Text(
+              "We've sent an email verification to $email. Please check your inbox and click the link to verify."),
           SizedBox(height: 20),
           ElevatedButton(
             onPressed: () async {
               bool result = await _apiService.sendVerificationEmail(email);
               if (result) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Verification email sent successfully.')),
+                  const SnackBar(
+                      content: Text('Verification email sent successfully.')),
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to send verification email.')),
+                  const SnackBar(content: Text('Failed to send verification email.')),
                 );
               }
             },
-            child: Text('Resend Verification Email'),
+            child: const Text('Resend Verification Email'),
           ),
+          ElevatedButton(
+            onPressed: () async {
+              await AuthService.mssql().logout();
+            },
+            child: const Text('Logout'),
+          )
         ],
       ),
     );
