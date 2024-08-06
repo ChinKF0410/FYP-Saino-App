@@ -1,7 +1,6 @@
 const sql = require('mssql');
 const bcrypt = require('bcryptjs');
-const { sendVerificationEmail } = require('../services/emailService');
-const jwt = require('jsonwebtoken');
+
 const dbConfig = require('../config/config');
 
 // Initialize SQL connection pool
@@ -78,21 +77,6 @@ module.exports.register = async (req, res) => {
     }
 };
 
-module.exports.verifyEmail = async (req, res) => {
-    const { token } = req.query;
-    try {
-        const decoded = jwt.verify(token, 'your_jwt_secret_here');
-        const pool = await poolPromise;
-        await pool.request()
-            .input('userId', sql.Int, decoded.userId)
-            .query('UPDATE [User] SET UserEmailVerified = 1 WHERE UserID = @userId');
-
-        res.status(200).send('Email verified');
-    } catch (err) {
-        console.error('Email verification error:', err);
-        res.status(500).send('Email verification failed');
-    }
-};
 
 module.exports.logout = async (req, res) => {
     const { username } = req.body;
