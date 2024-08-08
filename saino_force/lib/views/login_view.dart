@@ -46,7 +46,7 @@ class _LoginViewState extends State<LoginView> {
       final user = AuthService.mssql().currentUser;
       devtools.log(user.toString());
       if (user != null) {
-        if (user.isEmailVerified) {
+        
           devtools.log('Login successful');
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Login successful')),
@@ -55,13 +55,7 @@ class _LoginViewState extends State<LoginView> {
             notesRoute, // replace 'notesRoute' with your actual route name for notes
             (route) => false, // Removes all previous routes
           );
-        } else {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            verifyEmailRoute,
-            (route) => false,
-            arguments: user.email, // Pass the email as argument
-          );
-        }
+        
       } else {
         devtools.log('Login failed');
         ScaffoldMessenger.of(context).showSnackBar(

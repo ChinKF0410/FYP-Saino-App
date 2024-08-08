@@ -7,8 +7,8 @@ import 'dart:developer' as devtools show log;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MSSQLAuthProvider implements AuthProvider {
-  //final String baseUrl = "http://10.0.2.2:3000/api";
-  final String baseUrl = "http://127.0.0.1:3000/api";
+  final String baseUrl = "http://10.0.2.2:3000/api";
+  //final String baseUrl = "http://127.0.0.1:3000/api";
 
   AuthUser? _currentUser;
 
@@ -39,9 +39,8 @@ class MSSQLAuthProvider implements AuthProvider {
 
         _currentUser = AuthUser(
           id: responseData['id'],
-          username: responseData['userName'],
+          username: responseData['username'],
           email: email,
-          isEmailVerified: responseData['emailVerified'] ?? false,
         );
 
         await _saveUserToPreferences(_currentUser!);
@@ -65,7 +64,6 @@ class MSSQLAuthProvider implements AuthProvider {
     await prefs.setInt('userId', user.id);
     await prefs.setString('username', user.username);
     await prefs.setString('email', user.email);
-    await prefs.setBool('isEmailVerified', user.isEmailVerified);
   }
 
   @override
@@ -88,13 +86,12 @@ class MSSQLAuthProvider implements AuthProvider {
       );
 
       devtools.log('Register API Response: ${response.statusCode} ${response.body}');
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         _currentUser = AuthUser(
           id: responseData['id'],
           username: responseData['username'],
           email: email,
-          isEmailVerified: false,
         );
         await _saveUserToPreferences(_currentUser!);
         return _currentUser!;
@@ -108,27 +105,6 @@ class MSSQLAuthProvider implements AuthProvider {
       throw GenericAuthException();
     }
   }
-
-@override
-Future<void> sendEmailVerification() async {
-  if (_currentUser != null && !_currentUser!.isEmailVerified) {
-    final response = await http.post(
-      Uri.parse('$baseUrl/send-verification-email'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'email': _currentUser!.email,
-      }),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed to send verification email');
-    }
-  } else {
-    throw Exception('No user logged in or user already verified');
-  }
-}
 
 
   @override
@@ -155,17 +131,14 @@ Future<void> sendEmailVerification() async {
     final userId = prefs.getInt('userId');
     final username = prefs.getString('username');
     final email = prefs.getString('email');
-    final isEmailVerified = prefs.getBool('isEmailVerified');
 
     if (userId != null &&
         username != null &&
-        email != null &&
-        isEmailVerified != null) {
+        email != null ) {
       return AuthUser(
         id: userId,
         username: username,
         email: email,
-        isEmailVerified: isEmailVerified,
       );
     }
     return null;

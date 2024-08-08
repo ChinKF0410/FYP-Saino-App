@@ -34,8 +34,6 @@ class AuthService implements AuthProvider {
     return user;
   }
 
-  @override
-  Future<void> sendEmailVerification() => provider.sendEmailVerification();
 
   @override
   Future<void> logout() async {
@@ -53,13 +51,11 @@ class AuthService implements AuthProvider {
     final id = prefs.getInt('userId');
     final username = prefs.getString('username');
     final email = prefs.getString('email');
-    final isEmailVerified = prefs.getBool('isEmailVerified');
     final loginTimestamp = prefs.getInt('loginTimestamp');
 
     if (id != null &&
         username != null &&
         email != null &&
-        isEmailVerified != null &&
         loginTimestamp != null) {
       final currentTime = DateTime.now().millisecondsSinceEpoch;
       final sessionDuration = currentTime - loginTimestamp;
@@ -71,7 +67,6 @@ class AuthService implements AuthProvider {
           id: id,
           username: username,
           email: email,
-          isEmailVerified: isEmailVerified,
         );
       } else {
         await _clearUserFromPreferences();
@@ -97,7 +92,6 @@ class AuthService implements AuthProvider {
     prefs.setInt('userId', user.id);
     prefs.setString('username', user.username);
     prefs.setString('email', user.email);
-    prefs.setBool('isEmailVerified', user.isEmailVerified);
     prefs.setInt('loginTimestamp', DateTime.now().millisecondsSinceEpoch);
   }
 
@@ -106,7 +100,6 @@ class AuthService implements AuthProvider {
     prefs.remove('userId');
     prefs.remove('username');
     prefs.remove('email');
-    prefs.remove('isEmailVerified');
     prefs.remove('loginTimestamp');
   }
 }

@@ -21,7 +21,7 @@ module.exports.login = async (req, res) => {
         const pool = await poolPromise;
         const result = await pool.request()
             .input('email', sql.VarChar, email)
-            .query('SELECT UserID, Username, Password, UserEmailVerified FROM [User] WHERE Email = @email');
+            .query('SELECT UserID, Username, Password FROM [User] WHERE Email = @email');
         console.log('Query result:', result);
 
         if (result.recordset.length > 0) {
@@ -33,7 +33,6 @@ module.exports.login = async (req, res) => {
                 res.status(200).json({
                     id: user.UserID,
                     username: user.Username,
-                    emailVerified: user.UserEmailVerified === 1 // Assuming SQL Server returns 1 for true
                 });
             } else {
                 res.status(401).send('Invalid email or password');
@@ -63,13 +62,11 @@ module.exports.register = async (req, res) => {
                 .input('username', sql.VarChar, username)
                 .input('email', sql.VarChar, email)
                 .input('password', sql.VarChar, hashedPassword)
-                .input('emailVerified', sql.Bit, 0)
-                .query('INSERT INTO [User] (Username, Email, Password, UserEmailVerified) OUTPUT INSERTED.UserID, INSERTED.Username VALUES (@username, @email, @password, @emailVerified)');
+                .query('INSERT INTO [User] (Username, Email, Password) OUTPUT INSERTED.UserID, INSERTED.Username VALUES (@username, @email, @password)');
 
             const user = result.recordset[0];
-            await sendVerificationEmail(email, user.UserID);
 
-            res.status(201).json({ id: user.UserID, username: user.Username, emailVerified: false });
+            res.status(201).json({ id: user.UserID, username: user.Username });
         }
     } catch (err) {
         console.error('Register Error: ', err);

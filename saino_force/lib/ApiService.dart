@@ -59,28 +59,4 @@ class ApiService {
     }
   }
 
-  Future<bool> sendVerificationEmail(String email) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/send-verification-email'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'email': email,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        devtools.log("Verification email sent successfully");
-        return true;
-      } else {
-        devtools.log("Failed to send verification email: ${response.body}");
-        return false;
-      }
-    } catch (e) {
-      devtools.log('Caught error: $e');
-      return false;
-    }
-  }
 }

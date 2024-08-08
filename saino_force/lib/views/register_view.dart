@@ -70,8 +70,7 @@ class _RegisterViewState extends State<RegisterView> {
         password: password,
       );
 
-      await AuthService.mssql().sendEmailVerification();
-      Navigator.of(context).pushNamed(verifyEmailRoute);
+
     } on WeakPasswordAuthException {
       devtools.log('Weak password');
       await showErrorDialog(context, 'Weak password');

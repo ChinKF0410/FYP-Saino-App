@@ -4,7 +4,6 @@ import 'package:saino_force/services/auth/auth_service.dart';
 import 'package:saino_force/views/login_view.dart';
 import 'package:saino_force/views/notes_view.dart';
 import 'package:saino_force/views/register_view.dart';
-import 'package:saino_force/views/verifyEmail_view.dart';
 import 'dart:developer' as devtools show log;
 
 void main() {
@@ -20,7 +19,6 @@ void main() {
         loginRoute: (context) => const LoginView(),
         registerRoute: (context) => const RegisterView(),
         notesRoute: (context) => const NoteView(),
-        verifyEmailRoute: (context) => const VerifyEmailView(),
       },
     ),
   );
@@ -42,13 +40,10 @@ class HomePage extends StatelessWidget {
 
             final user = AuthService.mssql().currentUser;
             if (user != null) {
-              if (user.isEmailVerified) {
+
                 devtools.log("3");
                 return const NoteView();
-              } else {
-                devtools.log("4");
-                return const VerifyEmailView();
-              }
+              
             } else {
               devtools.log("out");
               return const LoginView();
