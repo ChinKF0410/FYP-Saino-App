@@ -46,16 +46,14 @@ class _LoginViewState extends State<LoginView> {
       final user = AuthService.mssql().currentUser;
       devtools.log(user.toString());
       if (user != null) {
-        
-          devtools.log('Login successful');
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login successful')),
-          );
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            notesRoute, // replace 'notesRoute' with your actual route name for notes
-            (route) => false, // Removes all previous routes
-          );
-        
+        devtools.log('Login successful');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login successful')),
+        );
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          homeRoute, 
+          (route) => false, // Removes all previous routes
+        );
       } else {
         devtools.log('Login failed');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -91,42 +89,71 @@ class _LoginViewState extends State<LoginView> {
         backgroundColor: const Color.fromARGB(255, 43, 42, 42),
         foregroundColor: Colors.white,
       ),
-      body: Column(
-        children: [
-          TextField(
-            controller: _email,
-            decoration: const InputDecoration(hintText: 'Email'),
-            keyboardType: TextInputType.emailAddress,
-            enableSuggestions: false,
-            autocorrect: false,
-          ),
-          TextField(
-            controller: _password,
-            decoration: const InputDecoration(hintText: 'Password'),
-            obscureText: true,
-            enableSuggestions: false,
-            autocorrect: false,
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-          Align(
-            alignment: Alignment.center,
-            child: ElevatedButton(
-              onPressed: _login,
-              child: const Text('Login'),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Email:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                registerRoute,
-                (route) => false,
-              );
-            },
-            child: const Text('Not Yet Registered?'),
-          ),
-        ],
+            const SizedBox(height: 4),
+            SizedBox(
+              width: double.infinity,
+              height: 40,
+              child: TextField(
+                controller: _email,
+                style: const TextStyle(fontSize: 12),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.emailAddress,
+                enableSuggestions: false,
+                autocorrect: false,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Password:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            SizedBox(
+              width: double.infinity,
+              height: 40,
+              child: TextField(
+                controller: _password,
+                style: const TextStyle(fontSize: 12),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
+                enableSuggestions: false,
+                autocorrect: false,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.center,
+              child: ElevatedButton(
+                onPressed: _login,
+                child: const Text('Login'),
+              ),
+            ),
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    registerRoute,
+                    (_) => false,
+                  );
+                },
+                child: const Text('Not Yet Registered? Register Here.'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
