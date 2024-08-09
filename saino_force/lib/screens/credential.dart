@@ -9,6 +9,8 @@ import '../widgets/holder_card.dart';
 import 'package:intl/intl.dart';
 
 class Credential extends StatefulWidget {
+  const Credential({super.key});
+
   @override
   _CredentialState createState() => _CredentialState();
 }

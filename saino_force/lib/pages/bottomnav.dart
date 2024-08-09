@@ -6,7 +6,7 @@ import 'package:saino_force/pages/home.dart';
 import 'package:saino_force/pages/scan.dart';
 import 'package:saino_force/pages/search.dart';
 import 'package:saino_force/pages/settings.dart';
-import 'package:saino_force/widget/widget_support.dart';
+import 'package:saino_force/widgets/widget_support.dart';
 
 class BottomNav extends StatefulWidget {
   const BottomNav({super.key});

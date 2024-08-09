@@ -1,5 +1,5 @@
-import 'package:credentials/models/holder.dart';
-import 'package:credentials/models/credentialModel.dart';
+import 'package:saino_force/models/holder.dart';
+import 'package:saino_force/models/credentialModel.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -31,7 +31,7 @@ class CredentialDetails with ChangeNotifier {
     print('Sending holders: $_holders');
     print('Sending credential: $_credential');
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:5000/holders/addHolderAndCredential'),
+      Uri.parse('http://10.0.2.2:3000/holders/addHolderAndCredential'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'holders': _holders

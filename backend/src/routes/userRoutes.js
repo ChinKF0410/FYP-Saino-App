@@ -12,5 +12,7 @@ router.post('/send-verification-email', (req, res, next) => {
 }, sendVerificationEmail);
 */
 router.post('/logout', logout);
+router.post('/addHolderAndCredential', addHolderAndCredential);
+
 
 module.exports = router;

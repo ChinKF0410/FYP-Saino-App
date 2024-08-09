@@ -1,6 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:saino_force/widget/widget_support.dart';
+import 'package:saino_force/widgets/widget_support.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});

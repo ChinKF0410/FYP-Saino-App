@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:saino_force/widget/widget_support.dart'; // Assuming this is where AppWidget is defined
+import 'package:saino_force/widgets/widget_support.dart'; // Assuming this is where AppWidget is defined
 
 class Search extends StatefulWidget {
   const Search({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:saino_force/widget/widget_support.dart';
+import 'package:saino_force/widgets/widget_support.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 

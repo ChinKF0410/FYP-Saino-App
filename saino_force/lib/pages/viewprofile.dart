@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:saino_force/widget/widget_support.dart';
+import 'package:saino_force/widgets/widget_support.dart';
 
 class ViewProfilePage extends StatefulWidget {
   const ViewProfilePage({super.key});

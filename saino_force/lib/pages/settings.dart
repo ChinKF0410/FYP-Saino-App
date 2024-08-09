@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saino_force/services/auth/auth_service.dart';
-import 'package:saino_force/widget/widget_support.dart';
+import 'package:saino_force/widgets/widget_support.dart';
 import 'package:saino_force/constant/routes.dart'; // Ensure this import for the loginRoute
 import 'dart:developer' as devtools show log;
 
