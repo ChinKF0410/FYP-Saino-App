@@ -1,6 +1,5 @@
 const sql = require('mssql');
 const bcrypt = require('bcryptjs');
-
 const dbConfig = require('../config/config');
 
 // Initialize SQL connection pool
@@ -41,7 +40,7 @@ module.exports.login = async (req, res) => {
             res.status(401).send('Invalid email or password');
         }
     } catch (err) {
-        console.error('Login Error: ', err);
+        console.error('Login Error1: ', err);
         res.status(500).send('Server error');
     }
 };

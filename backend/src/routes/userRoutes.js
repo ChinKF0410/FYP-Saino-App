@@ -1,5 +1,6 @@
 const express = require('express');
 const { login, register, /*verifyEmail,*/ logout } = require('../controllers/userController');
+const { addHolderAndCredential} = require('../controllers/holdersController');
 //const { sendVerificationEmail } = require('../services/emailService')
 const router = express.Router();
 

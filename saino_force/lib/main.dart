@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
         initialRoute: homeRoute,
         routes: {
           homeRoute: (context) => const HomePage(),
+          bottomNavRoute: (context) => const BottomNav(),
           loginRoute: (context) => const LoginView(),
           registerRoute: (context) => const RegisterView(),
           notesRoute: (context) => const NoteView(),
@@ -69,7 +70,7 @@ class HomePage extends StatelessWidget {
               devtools.log(user.username);
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  homeRoute,
+                  bottomNavRoute,
                   (route) => false,
                 );
               });
