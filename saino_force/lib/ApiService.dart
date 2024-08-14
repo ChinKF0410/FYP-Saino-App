@@ -85,4 +85,30 @@ class ApiService {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>?> searchQRCode(String qrCode) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/search-qrcode'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'qrHashCode': qrCode,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        devtools.log("QR Code data retrieved successfully");
+        return responseData;
+      } else {
+        devtools.log("Failed to retrieve QR Code data: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      devtools.log('Caught error: $e');
+      return null;
+    }
+  }
 }

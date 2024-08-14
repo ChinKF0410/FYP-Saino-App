@@ -1,4 +1,3 @@
-// routes.dart
 const String loginRoute = '/login/';
 const String registerRoute = '/register/';
 const String notesRoute = '/notes/';
@@ -9,4 +8,4 @@ const String accountRoute = '/account/';
 const String settingsRoute = '/settings/';
 const String credentialRoute = '/credential/';
 const String bottomNavRoute = '/bottomnav/';
-const String qrCodeScannerRoute = '/qr_code_scanner/';
+const String viewCVRoute = '/viewcv/'; // Add this route

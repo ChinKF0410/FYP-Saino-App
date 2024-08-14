@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:saino_force/constant/routes.dart';
 import 'package:saino_force/services/auth/auth_service.dart';
-import 'package:saino_force/services/qr_code_scanner.dart';
+import 'package:saino_force/services/qr_code_scanner.dart';  // Ensure this import is correct
 import 'package:saino_force/views/login_view.dart';
 import 'package:saino_force/views/notes_view.dart';
 import 'package:saino_force/views/register_view.dart';
@@ -12,7 +12,6 @@ import 'package:saino_force/pages/search.dart';
 import 'package:saino_force/pages/settings.dart';
 import 'package:saino_force/providers/credential_details.dart';
 import 'package:saino_force/screens/credential.dart';
-import 'dart:developer' as devtools show log;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,12 +36,11 @@ class MyApp extends StatelessWidget {
           bottomNavRoute: (context) => const BottomNav(),
           loginRoute: (context) => const LoginView(),
           registerRoute: (context) => const RegisterView(),
-          notesRoute: (context) => const NoteView(),
+          notesRoute: (context) => const NotesView(),
           searchRoute: (context) => const Search(),
           accountRoute: (context) => const Account(),
           settingsRoute: (context) => const Settings(),
           credentialRoute: (context) => const Credential(),
-          qrCodeScannerRoute: (context) => QrCodeScanner(), // New Credential route
         },
       ),
     );
@@ -58,34 +56,28 @@ class HomePage extends StatelessWidget {
       body: FutureBuilder(
         future: AuthService.mssql().initialize(),
         builder: (context, snapshot) {
-          devtools.log("1");
-
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.connectionState == ConnectionState.done) {
-            devtools.log("2");
-
             final user = AuthService.mssql().currentUser;
             if (user != null && user.email.isNotEmpty) {
-              devtools.log(user.username);
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  qrCodeScannerRoute,
+                  notesRoute, // Navigate to the QR code scanner
                   (route) => false,
                 );
               });
-              return const SizedBox.shrink(); // Return an empty widget as the navigation is in progress
+              return const SizedBox.shrink();
             } else {
-              devtools.log("out");
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
                   loginRoute,
                   (route) => false,
                 );
               });
-              return const SizedBox.shrink(); // Return an empty widget as the navigation is in progress
+              return const SizedBox.shrink();
             }
           } else if (snapshot.hasError) {
             return const Center(

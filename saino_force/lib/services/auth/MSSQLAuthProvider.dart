@@ -33,7 +33,8 @@ class MSSQLAuthProvider implements AuthProvider {
         }),
       );
 
-      devtools.log('Login API Response: ${response.statusCode} ${response.body}');
+      devtools
+          .log('Login API Response: ${response.statusCode} ${response.body}');
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
 
@@ -85,7 +86,8 @@ class MSSQLAuthProvider implements AuthProvider {
         }),
       );
 
-      devtools.log('Register API Response: ${response.statusCode} ${response.body}');
+      devtools.log(
+          'Register API Response: ${response.statusCode} ${response.body}');
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         _currentUser = AuthUser(
@@ -131,9 +133,7 @@ class MSSQLAuthProvider implements AuthProvider {
     final username = prefs.getString('username');
     final email = prefs.getString('email');
 
-    if (userId != null &&
-        username != null &&
-        email != null ) {
+    if (userId != null && username != null && email != null) {
       return AuthUser(
         id: userId,
         username: username,
@@ -169,7 +169,8 @@ class MSSQLAuthProvider implements AuthProvider {
         body: jsonEncode(qrData),
       );
 
-      devtools.log('Generate QRCode API Response: ${response.statusCode} ${response.body}');
+      devtools.log(
+          'Generate QRCode API Response: ${response.statusCode} ${response.body}');
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         devtools.log('QR Code Hash: ${responseData['qrHash']}');
@@ -180,6 +181,32 @@ class MSSQLAuthProvider implements AuthProvider {
       }
     } catch (e) {
       devtools.log('Generate QRCode Error: $e');
+      throw GenericAuthException();
+    }
+  }
+
+  Future<Map<String, dynamic>?> searchQRCode(String qrCode) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/search-qrcode'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'qrHashCode': qrCode,
+        }),
+      );
+
+      devtools.log(
+          'Search QRCode API Response: ${response.statusCode} ${response.body}');
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return responseData;
+      } else {
+        throw GenericAuthException();
+      }
+    } catch (e) {
+      devtools.log('Search QRCode Error: $e');
       throw GenericAuthException();
     }
   }
