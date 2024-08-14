@@ -125,8 +125,7 @@ module.exports.searchQRCode = async (req, res) => {
         //notes: Fetch data from the SoftSkill table based on the IntelIDs.
         const workExperience = await fetchRelatedData('Work', 'WorkExpID', splitIds(qrPermissionData.WorkExpIDs));
         //notes: Fetch data from the Work table based on the WorkExpIDs.
-        const profile = qrPermissionData.PerID ? await fetchRelatedData('Profile', 'PerID', [qrPermissionData.PerID]) : null;
-        //notes: Fetch data from the Profile table based on the PerID, if available.
+        const profile = qrPermissionData.PerID ? await fetchRelatedData('Profile', 'PerID',splitIds(qrPermissionData.PerID)): null;        //notes: Fetch data from the Profile table based on the PerID, if available.
 
         // Step 4: Combine all data into a single response object
         const responseData = {
