@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:saino_force/constant/routes.dart';
 import 'package:saino_force/services/auth/auth_service.dart';
+import 'package:saino_force/services/qr_code_scanner.dart';
 import 'package:saino_force/views/login_view.dart';
 import 'package:saino_force/views/notes_view.dart';
 import 'package:saino_force/views/register_view.dart';
@@ -40,7 +41,8 @@ class MyApp extends StatelessWidget {
           searchRoute: (context) => const Search(),
           accountRoute: (context) => const Account(),
           settingsRoute: (context) => const Settings(),
-          credentialRoute: (context) => const Credential(), // New Credential route
+          credentialRoute: (context) => const Credential(),
+          qrCodeScannerRoute: (context) => QrCodeScanner(), // New Credential route
         },
       ),
     );
@@ -70,7 +72,7 @@ class HomePage extends StatelessWidget {
               devtools.log(user.username);
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  notesRoute,
+                  qrCodeScannerRoute,
                   (route) => false,
                 );
               });

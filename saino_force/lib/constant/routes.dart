@@ -9,3 +9,4 @@ const String accountRoute = '/account/';
 const String settingsRoute = '/settings/';
 const String credentialRoute = '/credential/';
 const String bottomNavRoute = '/bottomnav/';
+const String qrCodeScannerRoute = '/qr_code_scanner/';
