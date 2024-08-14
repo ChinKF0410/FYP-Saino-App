@@ -70,7 +70,7 @@ class HomePage extends StatelessWidget {
               devtools.log(user.username);
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  bottomNavRoute,
+                  notesRoute,
                   (route) => false,
                 );
               });

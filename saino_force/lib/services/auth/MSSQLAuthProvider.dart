@@ -106,7 +106,6 @@ class MSSQLAuthProvider implements AuthProvider {
     }
   }
 
-
   @override
   Future<void> logout() async {
     _currentUser = null;
@@ -142,5 +141,46 @@ class MSSQLAuthProvider implements AuthProvider {
       );
     }
     return null;
+  }
+
+  Future<Map<String, dynamic>?> generateQRCode({
+    required String userID,
+    required String perID,
+    required String eduBacID,
+    required String cerID,
+    required String intelID,
+    required String workExpID,
+  }) async {
+    try {
+      final qrData = {
+        'userID': userID,
+        'PerID': perID,
+        'EduBacID': eduBacID,
+        'CerID': cerID,
+        'IntelID': intelID,
+        'WorkExpID': workExpID,
+      };
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/generate-qrcode'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(qrData),
+      );
+
+      devtools.log('Generate QRCode API Response: ${response.statusCode} ${response.body}');
+      if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        devtools.log('QR Code Hash: ${responseData['qrHash']}');
+        devtools.log('QR Code Image Base64: ${responseData['qrCodeImage']}');
+        return responseData;
+      } else {
+        throw GenericAuthException();
+      }
+    } catch (e) {
+      devtools.log('Generate QRCode Error: $e');
+      throw GenericAuthException();
+    }
   }
 }

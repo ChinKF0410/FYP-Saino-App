@@ -44,11 +44,18 @@ module.exports.generateQRCode = async (req, res) => {
             .query(`
                 INSERT INTO QRPermission 
                 (UserID, PerID, EduBacIDs, CerIDs, IntelIDs, WorkExpIDs, QRHashCode, ExpireDate, QRCodeImage) 
+                OUTPUT INSERTED.QRCodeImage
                 VALUES (@userID, @PerID, @EduBacIDs, @CerIDs, @IntelIDs, @WorkExpIDs, @QRHashCode, DATEADD(DAY, 30, GETDATE()), @QRCodeImage);
             `);
 
-        // Step 5: Respond with the QR code hash
-        res.status(201).json({ qrHash });
+        // Step 5: Convert the binary QRCodeImage to a base64 string
+        const qrCodeImageBase64 = result.recordset[0].QRCodeImage.toString('base64');
+
+        // Step 6: Respond with the base64 string of the QR code image
+        res.status(201).json({
+            qrHash,
+            qrCodeImage: qrCodeImageBase64
+        });
     } catch (err) {
         console.error('QR Code Generation Error: ', err);
         res.status(500).send('Server error');

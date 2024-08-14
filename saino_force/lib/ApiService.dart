@@ -32,7 +32,8 @@ class ApiService {
     }
   }
 
-  Future<bool> registerUser(String username, String email, String password) async {
+  Future<bool> registerUser(
+      String username, String email, String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/register'),
@@ -59,4 +60,29 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>?> generateQRCode(
+      Map<String, String> qrData) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/generate-qrcode'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(qrData),
+      );
+
+      if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        devtools
+            .log("QR Code generated successfully: ${responseData['qrHash']}");
+        return responseData;
+      } else {
+        devtools.log("Failed to generate QR Code: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      devtools.log('Caught error: $e');
+      return null;
+    }
+  }
 }
