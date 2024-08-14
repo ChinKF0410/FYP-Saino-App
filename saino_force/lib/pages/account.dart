@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:saino_force/constant/routes.dart';
+import 'package:saino_force/views/showQRCode_view.dart';
 import 'package:saino_force/widgets/widget_support.dart';
 import 'createcredential.dart';
 import 'viewprofile.dart';
@@ -90,6 +92,12 @@ class _AccountState extends State<Account> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ViewProfilePage()),
+            );
+          }
+          else if (text == 'View Created Credential'){
+             Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ShowQRCodeView()),
             );
           }
           // Add other conditions for other buttons if necessary

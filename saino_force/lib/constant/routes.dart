@@ -8,4 +8,5 @@ const String accountRoute = '/account/';
 const String settingsRoute = '/settings/';
 const String credentialRoute = '/credential/';
 const String bottomNavRoute = '/bottomnav/';
-const String viewCVRoute = '/viewcv/'; // Add this route
+const String viewCVRoute = '/viewcv/'; 
+const String showQRCodeViewRoute = '/ShowQRCodeView/';

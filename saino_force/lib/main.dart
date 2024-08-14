@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:saino_force/constant/routes.dart';
 import 'package:saino_force/services/auth/auth_service.dart';
-import 'package:saino_force/services/qr_code_scanner.dart';  // Ensure this import is correct
+import 'package:saino_force/services/qr_code_scanner.dart'; // Ensure this import is correct
 import 'package:saino_force/views/login_view.dart';
 import 'package:saino_force/views/notes_view.dart';
 import 'package:saino_force/views/register_view.dart';
@@ -12,6 +12,8 @@ import 'package:saino_force/pages/search.dart';
 import 'package:saino_force/pages/settings.dart';
 import 'package:saino_force/providers/credential_details.dart';
 import 'package:saino_force/screens/credential.dart';
+import 'package:saino_force/views/showQRCode_view.dart';
+import 'dart:developer' as devtools show log;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +43,7 @@ class MyApp extends StatelessWidget {
           accountRoute: (context) => const Account(),
           settingsRoute: (context) => const Settings(),
           credentialRoute: (context) => const Credential(),
+          showQRCodeViewRoute: (context) => const ShowQRCodeView(),
         },
       ),
     );
@@ -63,9 +66,11 @@ class HomePage extends StatelessWidget {
           } else if (snapshot.connectionState == ConnectionState.done) {
             final user = AuthService.mssql().currentUser;
             if (user != null && user.email.isNotEmpty) {
+              devtools.log(user.id.toString());
+
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  notesRoute, // Navigate to the QR code scanner
+                  showQRCodeViewRoute, // Navigate to the QR code scanner
                   (route) => false,
                 );
               });

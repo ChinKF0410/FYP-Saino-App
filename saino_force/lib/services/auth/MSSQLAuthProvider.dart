@@ -210,4 +210,32 @@ class MSSQLAuthProvider implements AuthProvider {
       throw GenericAuthException();
     }
   }
+
+Future<List<Map<String, dynamic>>> fetchQRCodesByUserId(int userId) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/fetch-qrcodes'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, int>{
+        'userID': userId,
+      }),
+    );
+
+    devtools.log(
+        'Fetch QR Codes by UserID API Response: ${response.statusCode} ${response.body}');
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      return List<Map<String, dynamic>>.from(responseData['qrCodes']);
+    } else {
+      return [];
+    }
+  } catch (e) {
+    devtools.log('Fetch QR Codes Error: $e');
+    return [];
+  }
+}
+
+
 }

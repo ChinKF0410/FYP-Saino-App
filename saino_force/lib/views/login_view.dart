@@ -51,7 +51,7 @@ class _LoginViewState extends State<LoginView> {
           const SnackBar(content: Text('Login successful')),
         );
         Navigator.of(context).pushNamedAndRemoveUntil(
-          homeRoute,
+          bottomNavRoute,
           (route) => false, // Removes all previous routes
         );
       } else {
