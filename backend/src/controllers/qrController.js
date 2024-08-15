@@ -113,6 +113,7 @@ module.exports.searchQRCode = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+
 module.exports.fetchQRCodesByUserId = async (req, res) => {
     const { userID } = req.body;
 

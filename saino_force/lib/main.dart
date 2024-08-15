@@ -70,7 +70,7 @@ class HomePage extends StatelessWidget {
 
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  showQRCodeViewRoute, // Navigate to the QR code scanner
+                  bottomNavRoute, // Navigate to the QR code scanner
                   (route) => false,
                 );
               });
