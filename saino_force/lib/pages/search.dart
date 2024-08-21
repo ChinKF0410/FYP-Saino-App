@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:saino_force/services/auth/mssqlauthprovider.dart'; // Assuming this is your correct import path
+import 'package:saino_force/services/auth/mssqlauthprovider.dart';
+import 'package:saino_force/views/viewDetails.dart';
+import 'dart:developer' as devtools show log;
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -52,6 +54,22 @@ class _SearchState extends State<Search> {
     );
   }
 
+  void _navigateToDetails(int userId) async {
+    try {
+      final userDetails = await _authProvider.fetchTalentDetails(userId);
+      if (userDetails != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ViewDetails(data: userDetails)),
+        );
+      } else {
+        _showErrorDialog('Failed to load user details.');
+      }
+    } catch (e) {
+      _showErrorDialog('Error fetching user details.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,7 +82,6 @@ class _SearchState extends State<Search> {
           children: [
             Row(
               children: [
-                // Dropdown for selecting search type
                 DropdownButton<String>(
                   value: searchType,
                   onChanged: (String? newValue) {
@@ -81,7 +98,6 @@ class _SearchState extends State<Search> {
                   }).toList(),
                 ),
                 const SizedBox(width: 10),
-                // Search bar
                 Expanded(
                   child: TextField(
                     onChanged: (value) {
@@ -94,7 +110,6 @@ class _SearchState extends State<Search> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                // Search button
                 ElevatedButton(
                   onPressed: _performSearch,
                   child: const Text('Search'),
@@ -113,16 +128,16 @@ class _SearchState extends State<Search> {
                   itemCount: searchResults.length,
                   itemBuilder: (context, index) {
                     final result = searchResults[index];
-                    return ListTile(
-                      title: Text(
-                        searchType == 'Education'
-                            ? result['InstituteName']
-                            : result['InteHighlight'],
-                      ),
-                      subtitle: Text(
-                        searchType == 'Education'
-                            ? result['FieldOfStudy']
-                            : result['InteDescription'],
+                    return Card(
+                      child: ListTile(
+                        title: Text(result['profile']['Name'] ?? 'Unknown'),
+                        subtitle: Text(
+                          'Age: ${result['profile']['Age']}, Email: ${result['profile']['Email_Address']}',
+                        ),
+                        onTap: () {
+                          devtools.log(result['UserID'].toString());
+                          _navigateToDetails(result['UserID']);
+                        },
                       ),
                     );
                   },

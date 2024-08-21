@@ -212,62 +212,88 @@ class MSSQLAuthProvider implements AuthProvider {
     }
   }
 
-Future<List<Map<String, dynamic>>> fetchQRCodesByUserId(int userId) async {
-  try {
-    final response = await http.post(
-      Uri.parse('$baseUrl/fetch-qrcodes'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, int>{
-        'userID': userId,
-      }),
-    );
+  Future<List<Map<String, dynamic>>> fetchQRCodesByUserId(int userId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/fetch-qrcodes'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, int>{
+          'userID': userId,
+        }),
+      );
 
-    devtools.log(
-        'Fetch QR Codes by UserID API Response: ${response.statusCode} ${response.body}');
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      return List<Map<String, dynamic>>.from(responseData['qrCodes']);
-    } else {
+      devtools.log(
+          'Fetch QR Codes by UserID API Response: ${response.statusCode} ${response.body}');
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return List<Map<String, dynamic>>.from(responseData['qrCodes']);
+      } else {
+        return [];
+      }
+    } catch (e) {
+      devtools.log('Fetch QR Codes Error: $e');
       return [];
     }
-  } catch (e) {
-    devtools.log('Fetch QR Codes Error: $e');
-    return [];
   }
-}
-Future<List<Map<String, dynamic>>> searchTalent({
-  required String searchType, // "education" or "skills"
-  required String searchQuery,
-}) async {
-  try {
-    final response = await http.post(
-      Uri.parse('$baseUrl/search-talent'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'searchType': searchType.toUpperCase(),
-        'searchQuery': searchQuery.toUpperCase(),
-      }),
-    );
 
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      if (responseData != null && responseData.isNotEmpty) {
-        return List<Map<String, dynamic>>.from(responseData);
+  Future<List<Map<String, dynamic>>> searchTalent({
+    required String searchType, // "education" or "skills"
+    required String searchQuery,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/search-talent'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'searchType': searchType.toUpperCase(),
+          'searchQuery': searchQuery.toUpperCase(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData != null && responseData.isNotEmpty) {
+          return List<Map<String, dynamic>>.from(responseData);
+        } else {
+          return []; // No matching talent found
+        }
       } else {
-        return []; // No matching talent found
+        throw Exception('Server error: ${response.statusCode}');
       }
-    } else {
-      throw Exception('Server error: ${response.statusCode}');
+    } catch (e) {
+      devtools.log('Search Talent Error: $e');
+      throw Exception('An error occurred while searching for talent.');
     }
-  } catch (e) {
-    devtools.log('Search Talent Error: $e');
-    throw Exception('An error occurred while searching for talent.');
   }
-}
 
+  // New function to fetch detailed information based on UserID
+  Future<Map<String, dynamic>?> fetchTalentDetails(int userId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/showDetails'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, int>{
+          'userID': userId,
+        }),
+      );
 
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        devtools.log(
+            'Fetch Talent Details API Response: ${response.statusCode} ${response.body}');
+        return responseData;
+      } else {
+        throw Exception('Failed to retrieve talent details: ${response.body}');
+      }
+    } catch (e) {
+      devtools.log('Fetch Talent Details Error: $e');
+      throw Exception('An error occurred while fetching talent details.');
+    }
+  }
 }

@@ -3,8 +3,6 @@ import 'package:http/http.dart' as http;
 import 'dart:developer' as devtools show log;
 
 class ApiService {
-  //final String baseUrl = "http://10.0.2.2:3000/api";
-  //final String baseUrl = "http://172.20.10.3:3000/api";
   final String baseUrl = "http://127.0.0.1:3000/api";
 
   Future<Map<String, dynamic>?> loginUser(String email, String password) async {
@@ -114,6 +112,7 @@ class ApiService {
     }
   }
 
+  // Updated function for searching talent
   Future<List<Map<String, dynamic>>> searchTalent({
     required String searchType, // "education" or "skills"
     required String searchQuery,
@@ -143,6 +142,33 @@ class ApiService {
     } catch (e) {
       devtools.log('Search Talent Error: $e');
       throw Exception('An error occurred while searching for talent.');
+    }
+  }
+
+  // New function to fetch detailed information based on UserID
+  Future<Map<String, dynamic>?> fetchTalentDetails(int userId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/showDetails'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, int>{
+          'userID': userId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        devtools.log("Talent details retrieved successfully");
+        return responseData;
+      } else {
+        devtools.log("Failed to retrieve talent details: ${response.body}");
+        return null;
+      }
+    } catch (e) {
+      devtools.log('Caught error: $e');
+      return null;
     }
   }
 }
