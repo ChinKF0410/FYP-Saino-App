@@ -61,6 +61,7 @@ class ViewCV extends StatelessWidget {
     if (profile == null) return const SizedBox.shrink();
     return _buildInfoBox([
       'Name: ${profile['Name']}',
+      'Age: ${profile['Age']}',
       'Email: ${profile['Email_Address']}',
       'Phone: ${profile['Mobile_Number']}',
       'Address: ${profile['Address']}',

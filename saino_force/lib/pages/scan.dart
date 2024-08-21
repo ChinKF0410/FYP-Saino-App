@@ -13,15 +13,34 @@ class Scan extends StatefulWidget {
   State<Scan> createState() => _ScanState();
 }
 
-class _ScanState extends State<Scan> {
+class _ScanState extends State<Scan> with WidgetsBindingObserver {
   final MSSQLAuthProvider _authProvider = MSSQLAuthProvider();
   final MobileScannerController _scannerController = MobileScannerController();
   bool _isScanning = true;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _scanQRCode(); // Start scanning when the widget is initialized
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _scannerController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !_isScanning) {
+      devtools.log('App resumed, resuming scanning');
+      _resumeScanning();
+    } else if (state == AppLifecycleState.paused) {
+      devtools.log('App paused, stopping scanning');
+      _stopScanning();
+    }
   }
 
   void _scanQRCode() {
@@ -79,7 +98,8 @@ class _ScanState extends State<Scan> {
           context,
           MaterialPageRoute(builder: (context) => ViewCV(data: qrData)),
         ).then((_) {
-          _resumeScanning(); // Resume scanning after returning from ViewCV page
+          // Resume scanning when returning from the ViewCV page
+          _resumeScanning();
         });
       } else {
         _showErrorDialog('Invalid or Expired CV QR Code');

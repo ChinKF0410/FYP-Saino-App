@@ -29,14 +29,12 @@ module.exports.search = async (req, res) => {
         if (searchType.toLowerCase() === 'education') {
             query = `
                 SELECT * FROM Education 
-                WHERE UPPER(InstituteName) LIKE '%' + @searchTerm + '%' 
-                AND isPublic = 1
+                WHERE UPPER(InstituteName) LIKE '%' + @searchTerm + '%'
             `;
         } else if (searchType.toLowerCase() === 'skills') {
             query = `
                 SELECT * FROM Skills 
-                WHERE UPPER(InteHighlight) LIKE '%' + @searchTerm + '%' 
-                AND isPublic = 1
+                WHERE UPPER(InteHighlight) LIKE '%' + @searchTerm + '%'
             `;
         } else {
             return res.status(400).json({ error: 'Invalid searchType. Must be "education" or "skills".' });
