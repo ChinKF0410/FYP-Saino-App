@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MSSQLAuthProvider implements AuthProvider {
   final String baseUrl = "http://10.0.2.2:3000/api";
   //final String baseUrl = "http://127.0.0.1:3000/api";
+  //final String baseUrl = "http://172.20.10.3:3000/api";
 
   AuthUser? _currentUser;
 
@@ -234,6 +235,37 @@ Future<List<Map<String, dynamic>>> fetchQRCodesByUserId(int userId) async {
   } catch (e) {
     devtools.log('Fetch QR Codes Error: $e');
     return [];
+  }
+}
+Future<List<Map<String, dynamic>>> searchTalent({
+  required String searchType, // "education" or "skills"
+  required String searchQuery,
+}) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/search-talent'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'searchType': searchType.toUpperCase(),
+        'searchQuery': searchQuery.toUpperCase(),
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      if (responseData != null && responseData.isNotEmpty) {
+        return List<Map<String, dynamic>>.from(responseData);
+      } else {
+        return []; // No matching talent found
+      }
+    } else {
+      throw Exception('Server error: ${response.statusCode}');
+    }
+  } catch (e) {
+    devtools.log('Search Talent Error: $e');
+    throw Exception('An error occurred while searching for talent.');
   }
 }
 

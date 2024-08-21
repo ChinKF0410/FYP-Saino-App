@@ -9,6 +9,12 @@ class ViewCV extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop(); // Navigate back when the button is pressed
+          },
+        ),
         title: const Text('View CV'),
       ),
       body: SingleChildScrollView(
@@ -123,6 +129,7 @@ class ViewCV extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10.0),
       padding: const EdgeInsets.all(20.0),
+      width: double.infinity, // Make the box take up full width
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10.0),

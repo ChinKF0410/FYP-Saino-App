@@ -17,7 +17,7 @@ const getLatestCredentialID = async () => {
 const addHolderAndCredential = (req, res) => {
 
   const { holders: newHolders, credential } = req.body;
-  
+  console.log("hshs");
   if (Array.isArray(newHolders)) {
     holders.push(...newHolders);
   } else if (newHolders && newHolders.name && newHolders.email && newHolders.phoneNo && newHolders.description && newHolders.address) {

@@ -55,6 +55,15 @@ module.exports.generateQRCode = async (req, res) => {
     }
 };
 
+const formatDate = (datetime) => {
+    if (!datetime) return null;
+    const date = new Date(datetime);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
 module.exports.searchQRCode = async (req, res) => {
     const { qrHashCode } = req.body;
 
@@ -95,9 +104,24 @@ module.exports.searchQRCode = async (req, res) => {
 
         const education = await fetchRelatedData('Education', 'EduBacID', splitIds(qrPermissionData.EduBacIDs));
         const qualification = await fetchRelatedData('Qualification', 'CerID', splitIds(qrPermissionData.CerIDs));
-        const softSkill = await fetchRelatedData('SoftSkill', 'IntelID', splitIds(qrPermissionData.IntelIDs));
+        const softSkill = await fetchRelatedData('Skills', 'IntelID', splitIds(qrPermissionData.IntelIDs));
         const workExperience = await fetchRelatedData('Work', 'WorkExpID', splitIds(qrPermissionData.WorkExpIDs));
         const profile = qrPermissionData.PerID ? await fetchRelatedData('Profile', 'PerID', splitIds(qrPermissionData.PerID)) : null;
+
+        // Format dates to 'YYYY-MM-DD'
+        education.forEach(edu => {
+            edu.EduStartDate = formatDate(edu.EduStartDate);
+            edu.EduEndDate = formatDate(edu.EduEndDate);
+        });
+
+        qualification.forEach(quali => {
+            quali.CerAcquiredDate = formatDate(quali.CerAcquiredDate);
+        });
+
+        workExperience.forEach(work => {
+            work.WorkStartDate = formatDate(work.WorkStartDate);
+            work.WorkEndDate = formatDate(work.WorkEndDate);
+        });
 
         const responseData = {
             profile: profile ? profile[0] : null,
@@ -113,6 +137,7 @@ module.exports.searchQRCode = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+
 
 module.exports.fetchQRCodesByUserId = async (req, res) => {
     const { userID } = req.body;

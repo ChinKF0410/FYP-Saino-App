@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:developer' as devtools show log;
 
 class ApiService {
+  //final String baseUrl = "http://10.0.2.2:3000/api";
+  //final String baseUrl = "http://172.20.10.3:3000/api";
   final String baseUrl = "http://127.0.0.1:3000/api";
 
   Future<Map<String, dynamic>?> loginUser(String email, String password) async {
@@ -109,6 +111,38 @@ class ApiService {
     } catch (e) {
       devtools.log('Caught error: $e');
       return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> searchTalent({
+    required String searchType, // "education" or "skills"
+    required String searchQuery,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/search-talent'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'searchType': searchType.toUpperCase(),
+          'searchQuery': searchQuery.toUpperCase(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData != null && responseData.isNotEmpty) {
+          return List<Map<String, dynamic>>.from(responseData);
+        } else {
+          return []; // No matching talent found
+        }
+      } else {
+        throw Exception('Server error: ${response.statusCode}');
+      }
+    } catch (e) {
+      devtools.log('Search Talent Error: $e');
+      throw Exception('An error occurred while searching for talent.');
     }
   }
 }

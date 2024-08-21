@@ -31,7 +31,7 @@ class CredentialDetails with ChangeNotifier {
     print('Sending holders: $_holders');
     print('Sending credential: $_credential');
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:3000/holders/addHolderAndCredential'),
+      Uri.parse('http://10.0.2.2:3000/api/addHolderAndCredential'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'holders': _holders
@@ -53,12 +53,12 @@ class CredentialDetails with ChangeNotifier {
     if (response.statusCode == 201) {
       _holders = [];
       _credential = null;
-      final message = json.decode(response.body)['message'];
-      print('Success: $message');
+      // final message = json.decode(response.body)['message'];
+      // print('Success: $message');
       return true;
     } else {
-      final message = json.decode(response.body)['message'];
-      print('Failed: $message');
+      // final message = json.decode(response.body)['message'];
+      // print('Failed: $message');
       return false;
     }
   }
