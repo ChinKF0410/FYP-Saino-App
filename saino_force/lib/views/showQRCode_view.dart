@@ -5,7 +5,7 @@ import 'dart:developer' as devtools show log;
 import 'package:saino_force/services/auth/auth_service.dart';
 
 class ShowQRCodeView extends StatefulWidget {
-  const ShowQRCodeView({Key? key}) : super(key: key);
+  const ShowQRCodeView({super.key});
 
   @override
   _ShowQRCodeViewState createState() => _ShowQRCodeViewState();

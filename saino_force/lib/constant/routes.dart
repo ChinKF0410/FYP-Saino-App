@@ -10,3 +10,4 @@ const String credentialRoute = '/credential/';
 const String bottomNavRoute = '/bottomnav/';
 const String viewCVRoute = '/viewcv/'; 
 const String showQRCodeViewRoute = '/ShowQRCodeView/';
+const String scanRoute = '/scan/';

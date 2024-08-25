@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ViewDetails extends StatelessWidget {
   final Map<String, dynamic> data;
 
-  const ViewDetails({Key? key, required this.data}) : super(key: key);
+  const ViewDetails({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class ViewDetails extends StatelessWidget {
             _buildWorkSection(data['workExperience']),
             _buildSectionTitle(Icons.star, 'Qualifications'),
             _buildQualificationSection(data['qualification']),
-            _buildSectionTitle(Icons.lightbulb, 'Soft Skills'),
+            _buildSectionTitle(Icons.lightbulb, 'Skills'),
             _buildSoftSkillsSection(data['skills']),
           ],
         ),

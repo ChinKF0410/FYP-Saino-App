@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ViewCV extends StatelessWidget {
   final Map<String, dynamic> data;
 
-  const ViewCV({Key? key, required this.data}) : super(key: key);
+  const ViewCV({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {

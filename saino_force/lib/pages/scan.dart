@@ -17,35 +17,34 @@ class _ScanState extends State<Scan> with WidgetsBindingObserver {
   final MSSQLAuthProvider _authProvider = MSSQLAuthProvider();
   final MobileScannerController _scannerController = MobileScannerController();
   bool _isScanning = true;
+  bool _isScannerDisposed = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _scanQRCode(); // Start scanning when the widget is initialized
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     _scannerController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && !_isScanning) {
-      devtools.log('App resumed, resuming scanning');
-      _resumeScanning();
-    } else if (state == AppLifecycleState.paused) {
-      devtools.log('App paused, stopping scanning');
-      _stopScanning();
-    }
-  }
-
-  void _scanQRCode() {
-    if (_isScanning) {
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+      _scannerController.stop();
+      setState(() {
+        _isScannerDisposed = true;
+      });
+    } else if (state == AppLifecycleState.resumed && _isScannerDisposed) {
       _scannerController.start();
+      setState(() {
+        _isScannerDisposed = false;
+        _isScanning = true;
+      });
     }
   }
 

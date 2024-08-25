@@ -3,6 +3,7 @@ import 'package:saino_force/models/credentialModel.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:developer' as devtools show log;
 
 class CredentialDetails with ChangeNotifier {
   List<Holder> _holders = [];
@@ -28,8 +29,8 @@ class CredentialDetails with ChangeNotifier {
   }
 
   Future<bool> sendHolders() async {
-    print('Sending holders: $_holders');
-    print('Sending credential: $_credential');
+    devtools.log('Sending holders: $_holders');
+    devtools.log('Sending credential: $_credential');
     final response = await http.post(
       Uri.parse('http://10.0.2.2:3000/api/addHolderAndCredential'),
       headers: {'Content-Type': 'application/json'},

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:saino_force/widgets/widget_support.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:developer' as devtools show log;
+
 
 Future<void> createCredential(Map<String, String> credentialData) async {
   final response = await http.post(
@@ -13,9 +15,9 @@ Future<void> createCredential(Map<String, String> credentialData) async {
   );
 
   if (response.statusCode == 200) {
-    print('Credential created successfully');
+    devtools.log('Credential created successfully');
   } else {
-    print('Failed to create credential');
+    devtools.log('Failed to create credential');
   }
 }
 

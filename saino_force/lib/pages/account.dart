@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:saino_force/constant/routes.dart';
 import 'package:saino_force/views/showQRCode_view.dart';
 import 'package:saino_force/widgets/widget_support.dart';
 import 'createcredential.dart';

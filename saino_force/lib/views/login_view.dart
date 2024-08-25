@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:saino_force/services/auth/auth_service.dart';
 import 'package:saino_force/services/auth/auth_exception.dart';
-import 'dart:developer' as devtools show log;
 import 'package:saino_force/utilities/show_error_dialog.dart';
 import 'package:saino_force/constant/routes.dart';
+import 'dart:developer' as devtools show log;
+import 'package:saino_force/widgets/widget_support.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -21,12 +22,12 @@ class _LoginViewState extends State<LoginView> {
     _email = TextEditingController();
     _password = TextEditingController();
     super.initState();
-    devtools.log("ABC - initState called");
+    devtools.log("LoginView - initState called");
   }
 
   @override
   void dispose() {
-    devtools.log("DEF - dispose called");
+    devtools.log("LoginView - dispose called");
     _email.dispose();
     _password.dispose();
     super.dispose();
@@ -50,10 +51,16 @@ class _LoginViewState extends State<LoginView> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login successful')),
         );
+
+//-------------------------------------------------------------------------------
+
         Navigator.of(context).pushNamedAndRemoveUntil(
           bottomNavRoute,
-          (route) => false, // Removes all previous routes
+          (route) => false,
         );
+
+//-------------------------------------------------------------------------------
+
       } else {
         devtools.log('Login failed');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -85,71 +92,109 @@ class _LoginViewState extends State<LoginView> {
     devtools.log("Building LoginView Widget");
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
-        backgroundColor: const Color.fromARGB(255, 43, 42, 42),
-        foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_outlined, color: Colors.black),
+          onPressed: () {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+                  bottomNavRoute,
+                  (_) => false,
+                );
+          },
+        ),
+        title: Text(
+          "Login",
+          style: AppWidget.boldTextFieldStyle(),
+        ),
+        backgroundColor: const Color.fromARGB(255, 188, 203, 228),
+        centerTitle: true,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: Container(
+        padding: const EdgeInsets.only(top: 20.0),
+        alignment: Alignment.topCenter,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Email:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            _buildTextField(
+              controller: _email,
+              labelText: 'Email Address',
+              icon: Icons.email_outlined,
+              isPassword: false,
             ),
-            const SizedBox(height: 4),
-            SizedBox(
-              width: double.infinity,
-              height: 40,
-              child: TextField(
-                controller: _email,
-                style: const TextStyle(fontSize: 12),
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                enableSuggestions: false,
-                autocorrect: false,
+            const SizedBox(height: 20.0),
+            _buildTextField(
+              controller: _password,
+              labelText: 'Password',
+              icon: Icons.lock_outline,
+              isPassword: true,
+            ),
+            const SizedBox(height: 20.0),
+            _buildButton('Login', Icons.login_outlined, _login),
+            const SizedBox(height: 15.0),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  registerRoute,
+                  (_) => false,
+                );
+              },
+              child: const Text(
+                'Not Yet Registered? Register Here.',
+                style: TextStyle(fontSize: 14, color: Colors.blueAccent),
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'Password:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            SizedBox(
-              width: double.infinity,
-              height: 40,
-              child: TextField(
-                controller: _password,
-                style: const TextStyle(fontSize: 12),
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-                enableSuggestions: false,
-                autocorrect: false,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.center,
-              child: ElevatedButton(
-                onPressed: _login,
-                child: const Text('Login'),
-              ),
-            ),
-            Center(
-              child: TextButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    registerRoute,
-                    (_) => false,
-                  );
-                },
-                child: const Text('Not Yet Registered? Register Here.'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String labelText,
+    required IconData icon,
+    required bool isPassword,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword,
+        style: const TextStyle(fontSize: 14),
+        decoration: InputDecoration(
+          labelText: labelText,
+          prefixIcon: Icon(icon),
+          border: const OutlineInputBorder(),
+        ),
+        keyboardType: isPassword
+            ? TextInputType.visiblePassword
+            : TextInputType.emailAddress,
+        enableSuggestions: !isPassword,
+        autocorrect: !isPassword,
+      ),
+    );
+  }
+
+  Widget _buildButton(String text, IconData icon, VoidCallback onPressed) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+          minimumSize: const Size.fromHeight(56.0),
+        ),
+        onPressed: onPressed,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Icon(icon),
+            Expanded(
+              child: Text(
+                text,
+                textAlign: TextAlign.center,
+                style: AppWidget.accountStyle(),
               ),
             ),
           ],

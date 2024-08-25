@@ -4,7 +4,7 @@ import '../models/holder.dart';
 class HolderCard extends StatefulWidget {
   final Holder holder;
 
-  HolderCard(this.holder);
+  const HolderCard(this.holder, {super.key});
 
   @override
   _HolderCardState createState() => _HolderCardState();
@@ -68,7 +68,7 @@ class _HolderCardState extends State<HolderCard> {
           if (_isExpanded)
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Container(
+              child: SizedBox(
                 height: 300, // Adjust the height as needed
                 child: SingleChildScrollView(
                   child: Form(
@@ -93,7 +93,7 @@ class _HolderCardState extends State<HolderCard> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         TextFormField(
                           controller: _emailController,
                           decoration: const InputDecoration(
@@ -113,7 +113,7 @@ class _HolderCardState extends State<HolderCard> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         TextFormField(
                           controller: _phoneNoController,
                           decoration: const InputDecoration(
@@ -132,7 +132,7 @@ class _HolderCardState extends State<HolderCard> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         TextFormField(
                           controller: _descriptionController,
                           decoration: const InputDecoration(
@@ -147,7 +147,7 @@ class _HolderCardState extends State<HolderCard> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         TextFormField(
                           controller: _addressController,
                           decoration: const InputDecoration(
@@ -162,7 +162,7 @@ class _HolderCardState extends State<HolderCard> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
@@ -177,7 +177,7 @@ class _HolderCardState extends State<HolderCard> {
                               });
                             }
                           },
-                          child: Text('Save'),
+                          child: const Text('Save'),
                         ),
                       ],
                     ),
