@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart';
 import 'dart:convert';
 import 'dart:developer' as devtools show log;
-import 'package:saino_force/services/auth/auth_service.dart';
 
 class ShowQRCodeView extends StatefulWidget {
   const ShowQRCodeView({super.key});
@@ -30,8 +29,8 @@ class _ShowQRCodeViewState extends State<ShowQRCodeView> {
     });
 
     try {
-      // Get the current user
-      final user = AuthService.mssql().currentUser;
+      // Get the current user directly from MSSQLAuthProvider
+      final user = _authProvider.currentUser;
 
       if (user != null) {
         devtools.log('Fetching QR Codes for UserID: ${user.id}');
@@ -93,7 +92,7 @@ class _ShowQRCodeViewState extends State<ShowQRCodeView> {
                       itemCount: qrCodes.length,
                       itemBuilder: (context, index) {
                         final qrCode = qrCodes[index];
-                        if(qrCode['expireDate'] == null){
+                        if (qrCode['expireDate'] == null) {
                           devtools.log("NULL");
                         }
                         final expireDate = DateTime.parse(qrCode['expireDate']);

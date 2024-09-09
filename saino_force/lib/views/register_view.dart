@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:saino_force/services/auth/auth_service.dart';
+import 'package:saino_force/services/auth/MSSQLAuthProvider.dart'; // Import MSSQLAuthProvider directly
 import 'package:saino_force/services/auth/auth_exception.dart';
 import 'dart:developer' as devtools show log;
 import 'package:saino_force/utilities/show_error_dialog.dart';
@@ -19,6 +19,7 @@ class _RegisterViewState extends State<RegisterView> {
   late final TextEditingController _confirmEmail;
   late final TextEditingController _password;
   late final TextEditingController _confirmPassword;
+  final MSSQLAuthProvider _authProvider = MSSQLAuthProvider(); // Directly use MSSQLAuthProvider
 
   @override
   void initState() {
@@ -44,7 +45,7 @@ class _RegisterViewState extends State<RegisterView> {
     if (password.length < 8) {
       return 'Password must be at least 8 characters long';
     }
-    if (!RegExp(r'^(?=.[a-z])(?=.[A-Z])').hasMatch(password)) {
+    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])').hasMatch(password)) {
       return 'Password must contain at least one uppercase and one lowercase letter';
     }
     return null;
@@ -63,7 +64,7 @@ class _RegisterViewState extends State<RegisterView> {
     }
 
     if (password != confirmPassword) {
-      await showErrorDialog(context, 'Password do not match.');
+      await showErrorDialog(context, 'Passwords do not match.');
       return;
     }
 
@@ -74,7 +75,7 @@ class _RegisterViewState extends State<RegisterView> {
     }
 
     try {
-      await AuthService.mssql().register(
+      await _authProvider.register(
         username: username,
         email: email,
         password: password,
@@ -151,7 +152,7 @@ class _RegisterViewState extends State<RegisterView> {
             const SizedBox(height: 20.0),
             _buildTextField(
               controller: _confirmPassword,
-              labelText: ' Confirm Password',
+              labelText: 'Confirm Password',
               icon: Icons.lock_outline,
               isPassword: true,
             ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:saino_force/services/auth/auth_service.dart';
+import 'package:saino_force/services/auth/MSSQLAuthProvider.dart'; // Import MSSQLAuthProvider directly
 import 'package:saino_force/services/auth/auth_exception.dart';
 import 'package:saino_force/utilities/show_error_dialog.dart';
 import 'package:saino_force/constant/routes.dart';
@@ -16,6 +16,7 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
+  final MSSQLAuthProvider _authProvider = MSSQLAuthProvider(); // Directly use MSSQLAuthProvider
 
   @override
   void initState() {
@@ -39,12 +40,12 @@ class _LoginViewState extends State<LoginView> {
     devtools.log("Trying to log in with email: $email");
 
     try {
-      await AuthService.mssql().login(
+      await _authProvider.login(
         email: email,
         password: password,
       );
 
-      final user = AuthService.mssql().currentUser;
+      final user = _authProvider.currentUser; // Access currentUser directly from MSSQLAuthProvider
       devtools.log(user.toString());
       if (user != null) {
         devtools.log('Login successful');
@@ -52,15 +53,10 @@ class _LoginViewState extends State<LoginView> {
           const SnackBar(content: Text('Login successful')),
         );
 
-//-------------------------------------------------------------------------------
-
         Navigator.of(context).pushNamedAndRemoveUntil(
           bottomNavRoute,
           (route) => false,
         );
-
-//-------------------------------------------------------------------------------
-
       } else {
         devtools.log('Login failed');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -96,9 +92,9 @@ class _LoginViewState extends State<LoginView> {
           icon: const Icon(Icons.arrow_back_outlined, color: Colors.black),
           onPressed: () {
             Navigator.of(context).pushNamedAndRemoveUntil(
-                  bottomNavRoute,
-                  (_) => false,
-                );
+              bottomNavRoute,
+              (_) => false,
+            );
           },
         ),
         title: Text(

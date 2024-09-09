@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:saino_force/constant/routes.dart';
 import 'package:saino_force/pages/scan.dart';
-import 'package:saino_force/services/auth/auth_service.dart';
+import 'package:saino_force/services/auth/MSSQLAuthProvider.dart'; // Import MSSQLAuthProvider directly
 import 'package:saino_force/views/login_view.dart';
 import 'package:saino_force/views/notes_view.dart';
 import 'package:saino_force/views/register_view.dart';
@@ -56,32 +56,28 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final MSSQLAuthProvider authProvider = MSSQLAuthProvider(); // Directly use MSSQLAuthProvider
+
     return Scaffold(
       body: FutureBuilder(
-        future: AuthService.mssql().initialize(),
+        future: authProvider.initialize(), // Call initialize on MSSQLAuthProvider
         builder: (context, snapshot) {
-          //AuthService.mssql().logout();
-
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.connectionState == ConnectionState.done) {
-            final user = AuthService.mssql().currentUser;
-
-//-------------------------------------------------------------------------------
+            final user = authProvider.currentUser; // Access currentUser from MSSQLAuthProvider
 
             if (user != null && user.email.isNotEmpty) {
               devtools.log(user.id.toString());
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  bottomNavRoute, // Navigate to the QR code scanner
+                  bottomNavRoute,
                   (route) => false,
                 );
               });
               return const SizedBox.shrink();
-
-//-------------------------------------------------------------------------------
             } else {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
@@ -91,8 +87,6 @@ class HomePage extends StatelessWidget {
               });
               return const SizedBox.shrink();
             }
-
-//-------------------------------------------------------------------------------
           } else if (snapshot.hasError) {
             return const Center(
               child: Text('Error initializing the app'),
