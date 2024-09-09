@@ -24,11 +24,6 @@ class _NotesViewState extends State<NotesView> {
     super.dispose();
   }
 
-  void _scanQRCode() {
-    if (_isScanning) {
-      _scannerController.start();
-    }
-  }
 
   void _stopScanning() {
     _scannerController.stop();
