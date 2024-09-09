@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saino_force/services/auth/MSSQLAuthProvider.dart';
 import 'package:saino_force/services/auth/auth_service.dart';
 import 'package:saino_force/widgets/widget_support.dart';
 import 'package:saino_force/constant/routes.dart'; // Ensure this import for the loginRoute
@@ -12,6 +13,8 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  final MSSQLAuthProvider _authProvider = MSSQLAuthProvider();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +62,8 @@ class _SettingsState extends State<Settings> {
             const SizedBox(height: 15.0),
             _buildButton('Terms & Conditions', Icons.access_alarm),
             const SizedBox(height: 15.0),
-            _buildButton('Logout', Icons.logout_outlined, _showLogoutConfirmationDialog),
+            _buildButton(
+                'Logout', Icons.logout_outlined, _showLogoutConfirmationDialog),
           ],
         ),
       ),
@@ -92,9 +96,10 @@ class _SettingsState extends State<Settings> {
       ),
     );
   }
+
   Future<void> _logOut() async {
     try {
-      await AuthService.mssql().logout();
+      await _authProvider.logout();
       devtools.log('Logout successful');
     } catch (e) {
       devtools.log('Logout Error: $e');
