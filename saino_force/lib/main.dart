@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:saino_force/constant/routes.dart';
+import 'package:saino_force/pages/changePasswd.dart';
 import 'package:saino_force/pages/scan.dart';
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart'; // Import MSSQLAuthProvider directly
 import 'package:saino_force/views/login_view.dart';
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
           credentialRoute: (context) => const Credential(),
           showQRCodeViewRoute: (context) => const ShowQRCodeView(),
           scanRoute: (context) => const Scan(),
+          changePasswdRoute: (context) => const ChangePasswdView(),
         },
       ),
     );

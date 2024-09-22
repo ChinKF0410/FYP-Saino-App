@@ -10,7 +10,7 @@ const dbConfig = {
         enableArithAbort: true,
         connectTimeout: 30000,
         requestTimeout: 30000,
-    },
+    },  
     port: 1433,
 };
 

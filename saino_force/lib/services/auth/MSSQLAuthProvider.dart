@@ -296,4 +296,75 @@ class MSSQLAuthProvider implements AuthProvider {
       throw Exception('An error occurred while fetching talent details.');
     }
   }
+
+  Future<bool> verifyPassword({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/verifyPassword'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      devtools.log(
+          'Verify Password API Response: ${response.statusCode} ${response.body}');
+      if (response.statusCode == 200) {
+        return true;
+      } else if (response.statusCode == 401) {
+        return false;
+      } else {
+        throw GenericAuthException();
+      }
+    } catch (e) {
+      devtools.log('Verify Password Error: $e');
+      throw GenericAuthException();
+    }
+  }
+
+  // Change Password
+  Future<void> changePassword({
+    required String email,
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      if (newPassword.isEmpty || oldPassword.isEmpty) {
+        throw GenericAuthException();
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/changePassword'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'oldPassword': oldPassword,
+          'newPassword': newPassword,
+        }),
+      );
+
+      devtools.log(
+          'Change Password API Response: ${response.statusCode} ${response.body}');
+      if (response.statusCode != 200) {
+        if (response.statusCode == 401) {
+          throw WrongPasswordAuthException();
+        } else if (response.statusCode == 404) {
+          throw UserNotFoundAuthException();
+        } else {
+          throw GenericAuthException();
+        }
+      }
+    } catch (e) {
+      devtools.log('Change Password Error: $e');
+      throw GenericAuthException();
+    }
+  }
 }

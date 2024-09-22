@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saino_force/pages/changePasswd.dart';
 import 'package:saino_force/views/showQRCode_view.dart';
 import 'package:saino_force/widgets/widget_support.dart';
 import '../services/auth/MSSQLAuthProvider.dart';
@@ -15,7 +16,7 @@ class Account extends StatefulWidget {
 
 class _AccountState extends State<Account> {
   final MSSQLAuthProvider _authProvider = MSSQLAuthProvider();
-  String _profilePictureUrl = 'https://via.placeholder.com/150';
+  final String _profilePictureUrl = 'https://via.placeholder.com/150';
   String _accountName = "User"; // Default username if not found
 
   @override
@@ -104,7 +105,8 @@ class _AccountState extends State<Account> {
           if (text == 'Create Credentials') {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const CreateCredentialPage()),
+              MaterialPageRoute(
+                  builder: (context) => const CreateCredentialPage()),
             );
           } else if (text == 'View Profile') {
             Navigator.push(
@@ -115,6 +117,11 @@ class _AccountState extends State<Account> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ShowQRCodeView()),
+            );
+          } else if (text == 'Change Password') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ChangePasswdView()),
             );
           }
         },

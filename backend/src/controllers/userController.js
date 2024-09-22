@@ -79,3 +79,65 @@ module.exports.logout = async (req, res) => {
     console.log(`Logging out user: ${username}`);
     res.status(200).send('Logout successful');
 };
+
+module.exports.verifyPassword = async (req, res) => {
+    const { email, password } = req.body;
+    console.log(`Password verification attempt for: ${email}`);
+
+    try {
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('email', sql.VarChar, email)
+            .query('SELECT Password FROM [User] WHERE Email = @email');
+
+        if (result.recordset.length > 0) {
+            const user = result.recordset[0];
+            const isPasswordValid = await bcrypt.compare(password, user.Password);
+
+            if (isPasswordValid) {
+                res.status(200).send('Password verified');
+            } else {
+                res.status(401).send('Incorrect password');
+            }
+        } else {
+            res.status(404).send('User not found');
+        }
+    } catch (err) {
+        console.error('Error verifying password:', err);
+        res.status(500).send('Server error');
+    }
+};
+
+module.exports.changePassword = async (req, res) => {
+    const { email, oldPassword, newPassword } = req.body;
+    console.log(`Password change attempt for: ${email}`);
+
+    try {
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('email', sql.VarChar, email)
+            .query('SELECT Password FROM [User] WHERE Email = @email');
+
+        if (result.recordset.length > 0) {
+            const user = result.recordset[0];
+            const isPasswordValid = await bcrypt.compare(oldPassword, user.Password);
+
+            if (isPasswordValid) {
+                const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+                await pool.request()
+                    .input('email', sql.VarChar, email)
+                    .input('newPassword', sql.VarChar, hashedNewPassword)
+                    .query('UPDATE [User] SET Password = @newPassword WHERE Email = @email');
+
+                res.status(200).send('Password updated successfully');
+            } else {
+                res.status(401).send('Incorrect old password');
+            }
+        } else {
+            res.status(404).send('User not found');
+        }
+    } catch (err) {
+        console.error('Error changing password:', err);
+        res.status(500).send('Server error');
+    }
+};
