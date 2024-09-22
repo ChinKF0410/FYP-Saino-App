@@ -44,7 +44,8 @@ dependencies:
   image: ^3.0.1
   qr_bar_code_scanner_dialog: ^0.0.5
   qr_code_tools: ^0.1.0
-  
+  path_provider: ^2.0.9
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -16,7 +16,8 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
-  final MSSQLAuthProvider _authProvider = MSSQLAuthProvider(); // Directly use MSSQLAuthProvider
+  final MSSQLAuthProvider _authProvider =
+      MSSQLAuthProvider(); // Directly use MSSQLAuthProvider
 
   @override
   void initState() {
@@ -44,8 +45,9 @@ class _LoginViewState extends State<LoginView> {
         email: email,
         password: password,
       );
-
-      final user = _authProvider.currentUser; // Access currentUser directly from MSSQLAuthProvider
+      await _authProvider.initialize(); // Ensure initialization is completed
+      final user = _authProvider
+          .currentUser; // Access currentUser directly from MSSQLAuthProvider
       devtools.log(user.toString());
       if (user != null) {
         devtools.log('Login successful');

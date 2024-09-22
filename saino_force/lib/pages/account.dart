@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:saino_force/pages/changePasswd.dart';
 import 'package:saino_force/views/showQRCode_view.dart';
@@ -16,8 +18,8 @@ class Account extends StatefulWidget {
 
 class _AccountState extends State<Account> {
   final MSSQLAuthProvider _authProvider = MSSQLAuthProvider();
-  final String _profilePictureUrl = 'https://via.placeholder.com/150';
   String _accountName = "User"; // Default username if not found
+  Uint8List? _profilePictureBytes; // Store profile picture as bytes
 
   @override
   void initState() {
@@ -27,17 +29,29 @@ class _AccountState extends State<Account> {
 
   Future<void> _loadCurrentUser() async {
     await _authProvider.initialize(); // Ensure initialization is completed
-
     final user = _authProvider.currentUser;
 
     if (user != null) {
       devtools.log("Username: ${user.username}");
 
-      setState(() {
-        _accountName = user.username;
-        // Assuming you get the profile picture URL as part of the user data
-        // _profilePictureUrl = user.profilePictureUrl ?? _profilePictureUrl;
-      });
+      // Fetch profile data to get the profile picture
+      final profileData = await _authProvider.getProfile(user.id);
+      devtools.log(profileData.toString());
+      if (profileData != null) {
+        setState(() {
+          _accountName = user.username;
+          // Check if the profile picture exists and is not empty
+          if (profileData['Photo'] != null && profileData['Photo'].isNotEmpty) {
+            devtools.log('Profile picture exists, decoding...');
+            _profilePictureBytes = base64Decode(profileData['Photo']);
+          } else {
+            devtools.log('No profile picture available.');
+            _profilePictureBytes = null;
+          }
+        });
+      } else {
+        devtools.log("Failed to fetch profile data.");
+      }
     } else {
       devtools.log("No user logged in or username is null.");
     }
@@ -69,7 +83,9 @@ class _AccountState extends State<Account> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             CircleAvatar(
-              backgroundImage: NetworkImage(_profilePictureUrl),
+              backgroundImage: _profilePictureBytes != null
+                  ? MemoryImage(_profilePictureBytes!)
+                  : const NetworkImage('https://via.placeholder.com/150'),
               maxRadius: 75,
             ),
             const SizedBox(height: 14.0),
@@ -79,8 +95,7 @@ class _AccountState extends State<Account> {
             ),
             const SizedBox(height: 20.0),
             _buildButton('View Profile', Icons.person_outline),
-            const SizedBox(height: 15.0),
-            _buildButton('Change Details', Icons.edit),
+
             const SizedBox(height: 15.0),
             _buildButton('Change Password', Icons.lock_outline),
             const SizedBox(height: 15.0),

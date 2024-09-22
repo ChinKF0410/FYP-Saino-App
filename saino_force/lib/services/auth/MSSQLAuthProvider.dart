@@ -367,4 +367,60 @@ class MSSQLAuthProvider implements AuthProvider {
       throw GenericAuthException();
     }
   }
+
+// Fetch profile data using POST and send userID in the body
+  Future<Map<String, dynamic>?> getProfile(int userID) async {
+    try {
+      // Use POST instead of GET and pass userID in the body
+      final response = await http.post(
+        Uri.parse('$baseUrl/getProfile'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, int>{
+          'userID': userID,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        devtools.log('Profile fetched successfully for userID: $userID');
+        return jsonDecode(response.body); // Return profile data
+      } else {
+        devtools.log(
+            'Failed to fetch profile for userID $userID: ${response.statusCode}');
+        devtools.log(response.body); // Log response for debugging
+        return null;
+      }
+    } catch (e) {
+      devtools.log('Error fetching profile for userID $userID: $e');
+      return null;
+    }
+  }
+
+// Save the profile data for the user with the given userID using POST
+  Future<bool> saveProfile(int userID, Map<String, dynamic> profileData) async {
+    profileData['userID'] = userID; // Include the userID in the profile data
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/saveProfile'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(profileData),
+      );
+
+      if (response.statusCode == 200) {
+        devtools.log('Profile saved successfully for userID: $userID');
+        return true;
+      } else {
+        devtools.log(
+            'Failed to save profile for userID $userID: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      devtools.log('Error saving profile for userID $userID: $e');
+      return false;
+    }
+  }
 }
