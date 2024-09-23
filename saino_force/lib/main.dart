@@ -75,7 +75,7 @@ class HomePage extends StatelessWidget {
               devtools.log(user.id.toString());
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  bottomNavRoute,
+                  scanRoute,
                   (route) => false,
                 );
               });

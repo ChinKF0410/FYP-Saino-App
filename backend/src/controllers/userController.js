@@ -141,3 +141,81 @@ module.exports.changePassword = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+
+
+module.exports.getProfile = async (req, res) => {
+    const { userID } = req.body;
+
+    if (!userID) {
+        return res.status(400).send({ message: "userID is required" });
+    }
+
+    try {
+        const pool = await poolPromise;
+
+        const result = await pool.request()
+            .input('userID', sql.Int, userID)
+            .query(`
+          SELECT Nickname, Surname, Lastname, Age, MobilePhone, ProfilePic
+          FROM User_Profile
+          WHERE UserID = @userID
+        `);
+
+        if (result.recordset.length === 0) {
+            return res.status(404).send({ message: "Profile not found" + userID });
+        }
+
+        const profile = result.recordset[0];
+        if (profile.ProfilePic) {
+            profile.Photo = Buffer.from(profile.ProfilePic).toString('base64');
+        }
+        res.status(200).send(profile);
+    } catch (error) {
+        res.status(500).send({ message: "Error fetching profile", error });
+    }
+};
+
+// Save or update profile details
+module.exports.saveProfile = async (req, res) => {
+    const { userID, nickname, surname, lastname, age, mobilePhone, photo } = req.body;
+
+    if (!userID || !nickname || !surname || !lastname || !mobilePhone || age == null) {
+        return res.status(400).send({ message: "All fields are required" });
+    }
+
+    try {
+        const pool = await poolPromise;
+
+        const profilePicBuffer = photo ? Buffer.from(photo, 'base64') : null;
+        await pool.request()
+            .input('userID', sql.Int, userID)
+            .input('nickname', sql.VarChar(255), nickname)
+            .input('surname', sql.VarChar(255), surname)
+            .input('lastname', sql.VarChar(255), lastname)
+            .input('age', sql.Int, age)
+            .input('mobilePhone', sql.VarChar(255), mobilePhone)
+            .input('profilePic', sql.VarBinary(sql.MAX), profilePicBuffer)
+            .query(`
+            IF EXISTS (SELECT 1 FROM User_Profile WHERE UserID = @userID)
+            BEGIN
+                UPDATE User_Profile
+                SET Nickname = @nickname,
+                    Surname = @surname,
+                    Lastname = @lastname,
+                    Age = @age,
+                    MobilePhone = @mobilePhone,
+                    ProfilePic = @profilePic
+                WHERE UserID = @userID;
+            END
+            ELSE
+            BEGIN
+                INSERT INTO User_Profile (UserID, Nickname, Surname, Lastname, Age, MobilePhone, ProfilePic)
+                VALUES (@userID, @nickname, @surname, @lastname, @age, @mobilePhone, @profilePic);
+            END
+        `);
+
+        res.status(200).send({ message: "Profile updated successfully" });
+    } catch (error) {
+        res.status(500).send({ message: "Error updating profile", error });
+    }
+};

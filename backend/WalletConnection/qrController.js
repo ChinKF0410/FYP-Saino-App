@@ -1,7 +1,7 @@
 const sql = require('mssql');
 const crypto = require('crypto');
 const QRCode = require('qrcode');
-const dbConfig = require('../config/config');
+const dbConfig = require('./dbConfigWallet');
 
 // Initialize SQL connection pool
 let poolPromise = sql.connect(dbConfig)
@@ -103,7 +103,7 @@ module.exports.searchQRCode = async (req, res) => {
         };
 
         const education = await fetchRelatedData('Education', 'EduBacID', splitIds(qrPermissionData.EduBacIDs));
-        const qualification = await fetchRelatedData('Qualification', 'CerID', splitIds(qrPermissionData.CerIDs));
+        const qualification = await fetchRelatedData('Qualification', 'QuaID', splitIds(qrPermissionData.CerIDs));
         const softSkill = await fetchRelatedData('Skills', 'IntelID', splitIds(qrPermissionData.IntelIDs));
         const workExperience = await fetchRelatedData('Work', 'WorkExpID', splitIds(qrPermissionData.WorkExpIDs));
         const profile = qrPermissionData.PerID ? await fetchRelatedData('Profile', 'PerID', splitIds(qrPermissionData.PerID)) : null;

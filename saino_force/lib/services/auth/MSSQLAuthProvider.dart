@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MSSQLAuthProvider implements AuthProvider {
   final String baseUrl = "http://10.0.2.2:3000/api";
+  final String toWalletDB = "http://10.0.2.2:3001/api/wallet";
   //final String baseUrl = "http://127.0.0.1:3000/api";
   //final String baseUrl = "http://172.20.10.3:3000/api";
 
@@ -125,6 +126,11 @@ class MSSQLAuthProvider implements AuthProvider {
 
   @override
   Future<void> initialize() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final userId = prefs.getInt('userId');
+    devtools.log("Backend Working");
+    devtools.log(userId.toString());
     _currentUser = await _getUserFromPreferences();
   }
 
@@ -163,7 +169,7 @@ class MSSQLAuthProvider implements AuthProvider {
       };
 
       final response = await http.post(
-        Uri.parse('$baseUrl/generate-qrcode'),
+        Uri.parse('$toWalletDB/generate-qrcode'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -189,7 +195,7 @@ class MSSQLAuthProvider implements AuthProvider {
   Future<Map<String, dynamic>?> searchQRCode(String qrCode) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/search-qrcode'),
+        Uri.parse('$toWalletDB/search-qrcode'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -215,7 +221,7 @@ class MSSQLAuthProvider implements AuthProvider {
   Future<List<Map<String, dynamic>>> fetchQRCodesByUserId(int userId) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/fetch-qrcodes'),
+        Uri.parse('$toWalletDB/fetch-qrcodes'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

@@ -90,15 +90,6 @@ class _LoginViewState extends State<LoginView> {
     devtools.log("Building LoginView Widget");
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_outlined, color: Colors.black),
-          onPressed: () {
-            Navigator.of(context).pushNamedAndRemoveUntil(
-              bottomNavRoute,
-              (_) => false,
-            );
-          },
-        ),
         title: Text(
           "Login",
           style: AppWidget.boldTextFieldStyle(),

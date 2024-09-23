@@ -30,8 +30,9 @@ class _ShowQRCodeViewState extends State<ShowQRCodeView> {
 
     try {
       // Get the current user directly from MSSQLAuthProvider
+      await _authProvider.initialize();
       final user = _authProvider.currentUser;
-
+      devtools.log("Check UserID");
       if (user != null) {
         devtools.log('Fetching QR Codes for UserID: ${user.id}');
         final qrCodeData = await _authProvider.fetchQRCodesByUserId(user.id);
