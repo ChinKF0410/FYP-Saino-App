@@ -1,11 +1,8 @@
-// ignore_for_file: library_private_types_in_public_api
-
-import 'package:saino_force/models/credentialModel.dart';
-
-import 'package:saino_force/models/holder.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:saino_force/constant/routes.dart';
+import 'package:saino_force/models/credentialModel.dart';
+import 'package:saino_force/models/holder.dart';
 import '../providers/credential_details.dart';
 import '../widgets/holder_card.dart';
 import 'package:intl/intl.dart';
@@ -58,7 +55,7 @@ class _CredentialState extends State<Credential> {
                   return null;
                 },
               ),
-              const SizedBox(height: 10), // Add some spacing
+              SizedBox(height: 10), // Add some spacing
               const Row(
                 children: [
                   Expanded(
@@ -91,7 +88,7 @@ class _CredentialState extends State<Credential> {
                   ),
                 ],
               ),
-              const SizedBox(height: 10), // Add some spacing
+              SizedBox(height: 10), // Add some spacing
               Expanded(
                 child: ListView.builder(
                   itemCount: holderProvider.holder.length,
@@ -105,7 +102,7 @@ class _CredentialState extends State<Credential> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddHolderDialog(context, holderProvider),
-        child: const Icon(Icons.add),
+        child: Icon(Icons.add),
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -113,6 +110,7 @@ class _CredentialState extends State<Credential> {
           onPressed: () async {
             DateTime now = DateTime.now();
             String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+            ;
             if (_formKey.currentState!.validate()) {
               holderProvider.addCredential(CredentialModel(
                 credentialType: _credentialTypeController.text,
@@ -122,16 +120,20 @@ class _CredentialState extends State<Credential> {
               bool success = await holderProvider.sendHolders();
               if (success) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Holders sent successfully')),
+                  SnackBar(content: Text('Holders sent successfully')),
+                );
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  accountRoute,
+                  (route) => false,
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Failed to send holders')),
+                  SnackBar(content: Text('Failed to send holders')),
                 );
               }
             }
           },
-          child: const Text('Send'),
+          child: Text('Send'),
         ),
       ),
     );
@@ -139,28 +141,28 @@ class _CredentialState extends State<Credential> {
 
   void _showAddHolderDialog(
       BuildContext context, CredentialDetails holderProvider) {
-    final formKey = GlobalKey<FormState>();
-    final nameController = TextEditingController();
-    final emailController = TextEditingController();
-    final phoneController = TextEditingController();
-    final descriptionController = TextEditingController();
-    final addressController = TextEditingController();
+    final _formKey = GlobalKey<FormState>();
+    final _nameController = TextEditingController();
+    final _emailController = TextEditingController();
+    final _phoneController = TextEditingController();
+    final _descriptionController = TextEditingController();
+    final _didController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Add New Holder'),
+        title: Text('Add New Holder'),
         content: SingleChildScrollView(
           child: Container(
             constraints:
-                const BoxConstraints(minWidth: 300), // Adjust min width as needed
+                BoxConstraints(minWidth: 300), // Adjust min width as needed
             child: Form(
-              key: formKey,
+              key: _formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextFormField(
-                    controller: nameController,
+                    controller: _nameController,
                     decoration: const InputDecoration(
                       labelText: 'Name',
                       errorStyle: TextStyle(color: Colors.red),
@@ -177,9 +179,9 @@ class _CredentialState extends State<Credential> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   TextFormField(
-                    controller: emailController,
+                    controller: _emailController,
                     decoration: const InputDecoration(
                       labelText: 'Email',
                       errorStyle: TextStyle(color: Colors.red),
@@ -197,9 +199,9 @@ class _CredentialState extends State<Credential> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   TextFormField(
-                    controller: phoneController,
+                    controller: _phoneController,
                     decoration: const InputDecoration(
                       labelText: 'Phone No',
                       errorStyle: TextStyle(color: Colors.red),
@@ -216,9 +218,9 @@ class _CredentialState extends State<Credential> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   TextFormField(
-                    controller: descriptionController,
+                    controller: _descriptionController,
                     decoration: const InputDecoration(
                       labelText: 'Description',
                       errorStyle: TextStyle(color: Colors.red),
@@ -231,17 +233,17 @@ class _CredentialState extends State<Credential> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   TextFormField(
-                    controller: addressController,
+                    controller: _didController,
                     decoration: const InputDecoration(
-                      labelText: 'Address',
+                      labelText: 'wallet id',
                       errorStyle: TextStyle(color: Colors.red),
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Please enter Holder's address";
+                        return "Please enter Holder's wallet id";
                       }
                       return null;
                     },
@@ -256,22 +258,22 @@ class _CredentialState extends State<Credential> {
             onPressed: () {
               Navigator.of(ctx).pop();
             },
-            child: const Text('Cancel'),
+            child: Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
-              if (formKey.currentState!.validate()) {
+              if (_formKey.currentState!.validate()) {
                 holderProvider.addHolder(Holder(
-                  name: nameController.text,
-                  email: emailController.text,
-                  phoneNo: phoneController.text,
-                  description: descriptionController.text,
-                  address: addressController.text,
+                  name: _nameController.text,
+                  email: _emailController.text,
+                  phoneNo: _phoneController.text,
+                  description: _descriptionController.text,
+                  did: _didController.text,
                 ));
                 Navigator.of(ctx).pop();
               }
             },
-            child: const Text('Add'),
+            child: Text('Add'),
           ),
         ],
       ),

@@ -88,8 +88,21 @@ class MSSQLAuthProvider implements AuthProvider {
         }),
       );
 
+      final response2 = await http.post(
+        Uri.parse('$baseUrl/createWalletandDID'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'username': username,
+          'password': password,
+        }),
+      );
       devtools.log(
           'Register API Response: ${response.statusCode} ${response.body}');
+      devtools.log(
+          'Register Wallet In SAINO API Response: ${response2.statusCode} ${response2.body}');
+     
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         _currentUser = AuthUser(

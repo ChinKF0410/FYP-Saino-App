@@ -12,7 +12,6 @@ import 'package:saino_force/pages/bottomnav.dart';
 import 'package:saino_force/pages/search.dart';
 import 'package:saino_force/pages/settings.dart';
 import 'package:saino_force/providers/credential_details.dart';
-import 'package:saino_force/screens/credential.dart';
 import 'package:saino_force/views/showQRCode_view.dart';
 import 'dart:developer' as devtools show log;
 
@@ -43,7 +42,6 @@ class MyApp extends StatelessWidget {
           searchRoute: (context) => const Search(),
           accountRoute: (context) => const Account(),
           settingsRoute: (context) => const Settings(),
-          credentialRoute: (context) => const Credential(),
           showQRCodeViewRoute: (context) => const ShowQRCodeView(),
           scanRoute: (context) => const Scan(),
           changePasswdRoute: (context) => const ChangePasswdView(),
@@ -75,7 +73,7 @@ class HomePage extends StatelessWidget {
               devtools.log(user.id.toString());
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  scanRoute,
+                  bottomNavRoute,
                   (route) => false,
                 );
               });

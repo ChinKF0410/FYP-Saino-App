@@ -4,7 +4,7 @@ import '../models/holder.dart';
 class HolderCard extends StatefulWidget {
   final Holder holder;
 
-  const HolderCard(this.holder, {super.key});
+  HolderCard(this.holder);
 
   @override
   _HolderCardState createState() => _HolderCardState();
@@ -17,7 +17,7 @@ class _HolderCardState extends State<HolderCard> {
   late TextEditingController _emailController;
   late TextEditingController _phoneNoController;
   late TextEditingController _descriptionController;
-  late TextEditingController _addressController;
+  late TextEditingController _didController;
 
   @override
   void initState() {
@@ -26,7 +26,7 @@ class _HolderCardState extends State<HolderCard> {
     _phoneNoController = TextEditingController(text: widget.holder.phoneNo);
     _descriptionController =
         TextEditingController(text: widget.holder.description);
-    _addressController = TextEditingController(text: widget.holder.address);
+    _didController = TextEditingController(text: widget.holder.did);
     super.initState();
   }
 
@@ -36,7 +36,7 @@ class _HolderCardState extends State<HolderCard> {
     _emailController.dispose();
     _phoneNoController.dispose();
     _descriptionController.dispose();
-    _addressController.dispose();
+    _didController.dispose();
     super.dispose();
   }
 
@@ -68,7 +68,7 @@ class _HolderCardState extends State<HolderCard> {
           if (_isExpanded)
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: SizedBox(
+              child: Container(
                 height: 300, // Adjust the height as needed
                 child: SingleChildScrollView(
                   child: Form(
@@ -93,7 +93,7 @@ class _HolderCardState extends State<HolderCard> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         TextFormField(
                           controller: _emailController,
                           decoration: const InputDecoration(
@@ -113,7 +113,7 @@ class _HolderCardState extends State<HolderCard> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         TextFormField(
                           controller: _phoneNoController,
                           decoration: const InputDecoration(
@@ -132,7 +132,7 @@ class _HolderCardState extends State<HolderCard> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         TextFormField(
                           controller: _descriptionController,
                           decoration: const InputDecoration(
@@ -147,22 +147,22 @@ class _HolderCardState extends State<HolderCard> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         TextFormField(
-                          controller: _addressController,
+                          controller: _didController,
                           decoration: const InputDecoration(
-                            labelText: 'Wallet Address',
+                            labelText: 'Wallet ID',
                             errorStyle: TextStyle(color: Colors.red),
                             border: OutlineInputBorder(),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Please enter Holder's address";
+                              return "Please enter Holder's wallet id";
                             }
                             return null;
                           },
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
@@ -172,12 +172,12 @@ class _HolderCardState extends State<HolderCard> {
                                 widget.holder.phoneNo = _phoneNoController.text;
                                 widget.holder.description =
                                     _descriptionController.text;
-                                widget.holder.address = _addressController.text;
+                                widget.holder.did = _didController.text;
                                 _isExpanded = false;
                               });
                             }
                           },
-                          child: const Text('Save'),
+                          child: Text('Save'),
                         ),
                       ],
                     ),

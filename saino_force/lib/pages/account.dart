@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:saino_force/pages/changePasswd.dart';
+import 'package:saino_force/pages/credential.dart';
 import 'package:saino_force/views/showQRCode_view.dart';
 import 'package:saino_force/widgets/widget_support.dart';
 import '../services/auth/MSSQLAuthProvider.dart';
-import 'createcredential.dart';
 import 'viewprofile.dart';
 import 'dart:developer' as devtools show log;
 
@@ -95,7 +95,6 @@ class _AccountState extends State<Account> {
             ),
             const SizedBox(height: 20.0),
             _buildButton('View Profile', Icons.person_outline),
-
             const SizedBox(height: 15.0),
             _buildButton('Change Password', Icons.lock_outline),
             const SizedBox(height: 15.0),
@@ -120,8 +119,7 @@ class _AccountState extends State<Account> {
           if (text == 'Create Credentials') {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => const CreateCredentialPage()),
+              MaterialPageRoute(builder: (context) => Credential()),
             );
           } else if (text == 'View Profile') {
             Navigator.push(
@@ -131,7 +129,7 @@ class _AccountState extends State<Account> {
           } else if (text == 'View Created Credentials') {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ShowQRCodeView()),
+              MaterialPageRoute(builder: (context) => Credential()),
             );
           } else if (text == 'Change Password') {
             Navigator.push(

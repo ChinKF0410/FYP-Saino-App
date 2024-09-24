@@ -8,8 +8,8 @@ const dbConfig = {
         encrypt: true,
         trustServerCertificate: true,
         enableArithAbort: true,
-        connectTimeout: 30000,
-        requestTimeout: 30000,
+        connectTimeout: 50000,
+        requestTimeout: 50000,
     },  
     port: 1433,
 };

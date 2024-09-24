@@ -3,12 +3,12 @@ class Holder {
   String email;
   String phoneNo;
   String description;
-  String address;
+  String did;
 
   Holder(
       {required this.name,
       required this.email,
       required this.phoneNo,
       required this.description,
-      required this.address});
+      required this.did});
 }
