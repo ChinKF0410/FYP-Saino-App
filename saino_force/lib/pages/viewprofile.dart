@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:developer' as devtools show log;
 
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart';
+import 'package:saino_force/utilities/show_error_dialog.dart';
 
 class ViewProfilePage extends StatefulWidget {
   const ViewProfilePage({super.key});
@@ -17,6 +18,7 @@ class ViewProfilePage extends StatefulWidget {
 class _ViewProfilePageState extends State<ViewProfilePage> {
   final MSSQLAuthProvider _authProvider = MSSQLAuthProvider();
   bool _isEditing = false;
+  bool _isLoading = true;  // New loading flag
   XFile? _imageFile;
   Uint8List? _tempImageBytes;
   final ImagePicker _picker = ImagePicker();
@@ -33,7 +35,22 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
     _initializeAndFetchProfile();
   }
 
+  @override
+  void dispose() {
+    _nicknameController.dispose();
+    _surnameController.dispose();
+    _lastnameController.dispose();
+    _ageController.dispose();
+    _mobilePhoneController.dispose();
+    super.dispose();
+  }
+
   Future<void> _initializeAndFetchProfile() async {
+    if (!mounted) return;  // Ensure widget is still in the tree
+    setState(() {
+      _isLoading = true;  // Start loading
+    });
+
     await _authProvider.initialize();
     final user = _authProvider.currentUser;
 
@@ -41,7 +58,8 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
       _userID = user.id;
 
       final profileData = await _authProvider.getProfile(_userID!);
-      if (profileData != null) {
+      
+      if (profileData != null && mounted) {
         setState(() {
           _nicknameController.text = profileData['Nickname'] ?? '';
           _surnameController.text = profileData['Surname'] ?? '';
@@ -55,9 +73,25 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
             _tempImageBytes = null;
           }
         });
+      } else {
+        // User not found or profileData is null, show error dialog and navigate back
+        if (mounted) {
+          await showErrorDialog(context, 'User Not Found');
+          Navigator.of(context).pop(); // Navigate back to the previous page
+        }
       }
     } else {
       devtools.log('UserID not found');
+      if (mounted) {
+        await showErrorDialog(context, 'User Not Found');
+        Navigator.of(context).pop(); // Navigate back to the previous page
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;  // End loading
+      });
     }
   }
 
@@ -82,10 +116,10 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
     };
 
     final success = await _authProvider.saveProfile(_userID!, profileData);
-    if (success) {
+    if (success && mounted) {
       setState(() {
         _isEditing = false;
-        _tempImageBytes = imageBytes;  // Set the new image after save
+        _tempImageBytes = imageBytes; // Set the new image after save
       });
     }
   }
@@ -105,10 +139,12 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
                     source: ImageSource.gallery,
                     imageQuality: 80,
                   );
-                  setState(() {
-                    _imageFile = pickedFile;
-                    _tempImageBytes = null;  // Temporarily clear current image
-                  });
+                  if (mounted) {
+                    setState(() {
+                      _imageFile = pickedFile;
+                      _tempImageBytes = null; // Temporarily clear current image
+                    });
+                  }
                   Navigator.of(context).pop();
                 },
               ),
@@ -120,10 +156,12 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
                     source: ImageSource.camera,
                     imageQuality: 80,
                   );
-                  setState(() {
-                    _imageFile = pickedFile;
-                    _tempImageBytes = null;  // Temporarily clear current image
-                  });
+                  if (mounted) {
+                    setState(() {
+                      _imageFile = pickedFile;
+                      _tempImageBytes = null; // Temporarily clear current image
+                    });
+                  }
                   Navigator.of(context).pop();
                 },
               ),
@@ -154,64 +192,66 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            InkWell(
-              onTap: _isEditing ? () => _showImagePicker(context) : null,
-              child: CircleAvatar(
-                radius: 80.0,
-                backgroundImage: _imageFile != null
-                    ? FileImage(File(_imageFile!.path))
-                    : _tempImageBytes != null
-                        ? MemoryImage(_tempImageBytes!)
-                        : null,
-                child: _imageFile == null && _tempImageBytes == null
-                    ? const Icon(Icons.camera_alt, size: 80.0)
-                    : null,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())  // Show loader while loading
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  InkWell(
+                    onTap: _isEditing ? () => _showImagePicker(context) : null,
+                    child: CircleAvatar(
+                      radius: 80.0,
+                      backgroundImage: _imageFile != null
+                          ? FileImage(File(_imageFile!.path))
+                          : _tempImageBytes != null
+                              ? MemoryImage(_tempImageBytes!)
+                              : null,
+                      child: _imageFile == null && _tempImageBytes == null
+                          ? const Icon(Icons.camera_alt, size: 80.0)
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(height: 30.0),
+                  _buildTextField("Nickname", _nicknameController, _isEditing),
+                  _buildTextField("Surname", _surnameController, _isEditing),
+                  _buildTextField("Last Name", _lastnameController, _isEditing),
+                  _buildTextField("Age", _ageController, _isEditing,
+                      keyboardType: TextInputType.number),
+                  _buildTextField("Mobile Phone", _mobilePhoneController, _isEditing),
+                  const SizedBox(height: 20.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_isEditing) {
+                        _saveProfileData();
+                      } else {
+                        setState(() {
+                          _isEditing = true;
+                        });
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF171B63),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 60.0,
+                        vertical: 15.0,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                    child: Text(
+                      _isEditing ? 'Save' : 'Edit',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15.0,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 30.0),
-            _buildTextField("Nickname", _nicknameController, _isEditing),
-            _buildTextField("Surname", _surnameController, _isEditing),
-            _buildTextField("Last Name", _lastnameController, _isEditing),
-            _buildTextField("Age", _ageController, _isEditing,
-                keyboardType: TextInputType.number),
-            _buildTextField("Mobile Phone", _mobilePhoneController, _isEditing),
-            const SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: () {
-                if (_isEditing) {
-                  _saveProfileData();
-                } else {
-                  setState(() {
-                    _isEditing = true;
-                  });
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF171B63),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 60.0,
-                  vertical: 15.0,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              child: Text(
-                _isEditing ? 'Save' : 'Edit',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15.0,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
