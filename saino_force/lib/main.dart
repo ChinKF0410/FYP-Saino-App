@@ -5,7 +5,7 @@ import 'package:saino_force/pages/changePasswd.dart';
 import 'package:saino_force/pages/scan.dart';
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart'; // Import MSSQLAuthProvider directly
 import 'package:saino_force/views/login_view.dart';
-import 'package:saino_force/views/notes_view.dart';
+// import 'package:saino_force/views/notes_view.dart';
 import 'package:saino_force/views/register_view.dart';
 import 'package:saino_force/pages/account.dart';
 import 'package:saino_force/pages/bottomnav.dart';
@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
           bottomNavRoute: (context) => const BottomNav(),
           loginRoute: (context) => const LoginView(),
           registerRoute: (context) => const RegisterView(),
-          notesRoute: (context) => const NotesView(),
+          // notesRoute: (context) => const NotesView(),
           searchRoute: (context) => const Search(),
           accountRoute: (context) => const Account(),
           settingsRoute: (context) => const Settings(),

@@ -428,10 +428,10 @@ packages:
     dependency: "direct main"
     description:
       name: mobile_scanner
-      sha256: b8c0e9afcfd52534f85ec666f3d52156f560b5e6c25b1e3d4fe2087763607926
+      sha256: d234581c090526676fd8fab4ada92f35c6746e3fb4f05a399665d75a399fb760
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.1"
+    version: "5.2.3"
   mssql_connection:
     dependency: "direct main"
     description:
@@ -584,14 +584,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
-  qr_code_tools:
-    dependency: "direct main"
-    description:
-      name: qr_code_tools
-      sha256: "79b693f312d99b9917585e409678969e4d2d2d32f9bd43650290cd719486964e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.0"
   shared_preferences:
     dependency: "direct main"
     description:

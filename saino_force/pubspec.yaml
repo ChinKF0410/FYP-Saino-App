@@ -39,11 +39,10 @@ dependencies:
   carousel_slider: ^4.0.0
   curved_labeled_navigation_bar: ^2.0.2
   provider: ^6.0.3
-  mobile_scanner: ^5.1.1
+  mobile_scanner: ^5.2.3
   image_picker: ^0.8.4+7
   image: ^3.0.1
   qr_bar_code_scanner_dialog: ^0.0.5
-  qr_code_tools: ^0.1.0
   path_provider: ^2.0.9
 
 dev_dependencies:

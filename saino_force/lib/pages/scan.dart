@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:developer' as devtools show log;
-import 'package:qr_code_tools/qr_code_tools.dart';
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart';
 import 'package:saino_force/views/viewCV.dart';
 
@@ -66,27 +65,18 @@ class _ScanState extends State<Scan> with WidgetsBindingObserver {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      final qrCode = await _processQRCodeFromImage(pickedFile);
-      if (qrCode != null) {
-        _stopScanning();
-        _sendQRCodeToAPI(qrCode);
-      }
-    }
-  }
-
-  Future<String?> _processQRCodeFromImage(XFile file) async {
-    try {
-      final qrCodeValue = await QrCodeToolsPlugin.decodeFrom(file.path);
-      if (qrCodeValue != null) {
-        devtools.log('QR Code value: $qrCodeValue');
-        return qrCodeValue;
+      final imagePath = pickedFile.path;
+      final barcodeCapture = await _scannerController.analyzeImage(imagePath);
+      if (barcodeCapture != null && barcodeCapture.barcodes.isNotEmpty) {
+        final qrCode = barcodeCapture.barcodes.first.rawValue;
+        devtools.log("\n\n QR Code: $qrCode\n\n");
+        if (qrCode != null) {
+          devtools.log('QR Code value: $qrCode');
+          _sendQRCodeToAPI(qrCode);
+        }
       } else {
         devtools.log('No QR Code found in the image.');
-        return null;
       }
-    } catch (e) {
-      devtools.log('Error processing QR Code from image: $e');
-      return null;
     }
   }
 
@@ -97,7 +87,6 @@ class _ScanState extends State<Scan> with WidgetsBindingObserver {
           context,
           MaterialPageRoute(builder: (context) => ViewCV(data: qrData)),
         ).then((_) {
-          // Resume scanning when returning from the ViewCV page
           _resumeScanning();
         });
       } else {
@@ -119,7 +108,7 @@ class _ScanState extends State<Scan> with WidgetsBindingObserver {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _resumeScanning(); // Resume scanning after dismissing the dialog
+                _resumeScanning();
               },
               child: const Text('OK'),
             ),
@@ -139,7 +128,6 @@ class _ScanState extends State<Scan> with WidgetsBindingObserver {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // QR Code Scanner Box
             SizedBox(
               height: 300,
               width: 300,
@@ -152,9 +140,9 @@ class _ScanState extends State<Scan> with WidgetsBindingObserver {
                       final String? qrCode = barcode.rawValue;
                       if (qrCode != null) {
                         devtools.log('QR Code scanned: $qrCode');
-                        _stopScanning(); // Stop scanning immediately
-                        _sendQRCodeToAPI(qrCode); // Send the QR code to API
-                        break; // Stop processing other barcodes
+                        _stopScanning();
+                        _sendQRCodeToAPI(qrCode);
+                        break;
                       }
                     }
                   }
