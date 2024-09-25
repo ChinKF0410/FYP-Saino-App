@@ -16,6 +16,11 @@ let poolPromise = sql.connect(dbConfig)
     process.exit(1);
   });
 
+  // Function to wait for a specified number of milliseconds
+    async function wait(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
 // Run this function to create connection
 async function Connection(req, res) {
     const { username, holderEmail } = req.body;
@@ -74,8 +79,11 @@ async function createConnection(jwtToken) {
 async function sendConnection(invitation, holder, issuer) {
     try {
         console.log("\n\nsendConnection started");
+        console.log(invitation);
+        console.log(holder);
+        console.log(issuer);
         const response = await axios.post(
-            `http://localhost:3001/api/wallet/receiveConnection`,
+            `http://localhost:3009/api/wallet/receiveConnection`,
             { invitation, holder, issuer }
         );
         console.log("\n\nsendConnection Ended");
@@ -155,6 +163,9 @@ async function handleConnection(authToken, username, holderEmail) {
 
             // Send connection to holder Node.js
             const connectionResponse = await sendConnection(conn_inv, holderEmail, username);
+
+            // Wait for 5 seconds
+            await wait(5000);
 
             // Check the message in the response to determine the status
             if (connectionResponse.message === 'Holder received the connection') {

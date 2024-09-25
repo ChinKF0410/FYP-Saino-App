@@ -18,12 +18,7 @@ class _SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_outlined, color: Colors.black),
-          onPressed: () {
-            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-          },
-        ),
+        // Removed the leading property to remove the back button
         title: Text(
           "Settings",
           style: AppWidget.boldTextFieldStyle(),

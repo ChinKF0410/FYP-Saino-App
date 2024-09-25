@@ -36,9 +36,9 @@ class CredentialDetails with ChangeNotifier {
     final user = authProvider.currentUser;
     devtools.log('Sending holders: $_holders');
     devtools.log('Sending credential: $_credential');
-
+    devtools.log((user?.email).toString());
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:3000/api/createCredential'),
+      Uri.parse('http://10.0.2.2:3010/api/createCredential'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'user': user?.username,
@@ -58,7 +58,7 @@ class CredentialDetails with ChangeNotifier {
       }),
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 499) {
       _holders = [];
       _credential = null;
       final message = json.decode(response.body)['message'];

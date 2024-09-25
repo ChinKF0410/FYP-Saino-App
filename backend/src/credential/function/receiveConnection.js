@@ -138,7 +138,4 @@ async function getWalletData(email) {
 
 
 
-
-
-
 module.exports = { receiveConnection };

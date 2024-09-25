@@ -57,7 +57,8 @@ let poolPromise = sql.connect(dbConfig)
             const firstRecord = records[0]; // Get the first record
             console.log('First record:', firstRecord);
     
-            const credExId = firstRecord.cred_ex_record.cred_ex_id; // Extract the credential exchange ID
+            const credExId = firstRecord.cred_ex_record.cred_ex_id;
+            console.log("\n\n\n Exchange ID: \n" + credExId + "\n\n\n"); // Extract the credential exchange ID
     const requestUrl= `http://localhost:7011/issue-credential-2.0/records/${credExId}/store`;
     console.log(requestUrl);
             // Step 2: Store the credential
@@ -121,3 +122,4 @@ async function getAuthToken(walletID) {
 }
 
 module.exports = { receiveOffer };
+

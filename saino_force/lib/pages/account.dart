@@ -32,14 +32,15 @@ class _AccountState extends State<Account> {
     final user = _authProvider.currentUser;
 
     if (user != null) {
+      final profileData = await _authProvider.getProfile(user.id);
+
       devtools.log("Username: ${user.username}");
 
       // Fetch profile data to get the profile picture
-      final profileData = await _authProvider.getProfile(user.id);
       devtools.log(profileData.toString());
       if (profileData != null) {
         setState(() {
-          _accountName = user.username;
+          _accountName = profileData['Nickname'];
           // Check if the profile picture exists and is not empty
           if (profileData['Photo'] != null && profileData['Photo'].isNotEmpty) {
             devtools.log('Profile picture exists, decoding...');
@@ -61,12 +62,7 @@ class _AccountState extends State<Account> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_outlined, color: Colors.black),
-          onPressed: () {
-            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-          },
-        ),
+        // Removed the leading property to remove the back button
         title: Text(
           "Account",
           style: AppWidget.boldTextFieldStyle(),
@@ -115,17 +111,23 @@ class _AccountState extends State<Account> {
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
           minimumSize: const Size.fromHeight(56.0),
         ),
-        onPressed: () {
+        onPressed: () async {
           if (text == 'Create Credentials') {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => Credential()),
             );
           } else if (text == 'View Profile') {
-            Navigator.push(
+            // Wait for result from ViewProfilePage
+            final result = await Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ViewProfilePage()),
             );
+
+            // If profile was updated (result is true), reload account data
+            if (result == true) {
+              _loadCurrentUser(); // Refresh user data
+            }
           } else if (text == 'View Created Credentials') {
             Navigator.push(
               context,

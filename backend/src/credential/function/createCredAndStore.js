@@ -221,8 +221,8 @@ async function sendMessage(holderEmail) {
         // Example: Call the external Node.js project endpoint
         console.log("\n\n\Store Offer:\n");
         const response = await axios.post(
-            'http://localhost:3001/api/wallet/receiveOffer',  // Replace with the actual URL of the other Node.js project
-            {holderEmail}
+            'http://localhost:3009/api/wallet/receiveOffer',  // Replace with the actual URL of the other Node.js project
+            {holderEmail}   
         );
         console.log('Message sent successfully:', response.data);
     } catch (error) {

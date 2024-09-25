@@ -18,7 +18,7 @@ class ViewProfilePage extends StatefulWidget {
 class _ViewProfilePageState extends State<ViewProfilePage> {
   final MSSQLAuthProvider _authProvider = MSSQLAuthProvider();
   bool _isEditing = false;
-  bool _isLoading = true;  // New loading flag
+  bool _isLoading = true; // New loading flag
   XFile? _imageFile;
   Uint8List? _tempImageBytes;
   final ImagePicker _picker = ImagePicker();
@@ -46,9 +46,9 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
   }
 
   Future<void> _initializeAndFetchProfile() async {
-    if (!mounted) return;  // Ensure widget is still in the tree
+    if (!mounted) return; // Ensure widget is still in the tree
     setState(() {
-      _isLoading = true;  // Start loading
+      _isLoading = true; // Start loading
     });
 
     await _authProvider.initialize();
@@ -58,7 +58,7 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
       _userID = user.id;
 
       final profileData = await _authProvider.getProfile(_userID!);
-      
+
       if (profileData != null && mounted) {
         setState(() {
           _nicknameController.text = profileData['Nickname'] ?? '';
@@ -74,27 +74,26 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
           }
         });
       } else {
-        // User not found or profileData is null, show error dialog and navigate back
-        if (mounted) {
-          await showErrorDialog(context, 'User Not Found');
-          Navigator.of(context).pop(); // Navigate back to the previous page
-        }
+        // No profile data found, log the message, but don't navigate back
+        devtools.log(
+            'No profile data found for user $_userID. User can create a new profile.');
+        // Fields remain empty, allowing the user to fill them in
       }
     } else {
       devtools.log('UserID not found');
       if (mounted) {
         await showErrorDialog(context, 'User Not Found');
+        // Navigate back only if there's no user at all
         Navigator.of(context).pop(); // Navigate back to the previous page
       }
     }
 
     if (mounted) {
       setState(() {
-        _isLoading = false;  // End loading
+        _isLoading = false; // End loading
       });
     }
   }
-
   Future<void> _saveProfileData() async {
     if (_userID == null) {
       devtools.log('Cannot save, userID is null');
@@ -121,6 +120,8 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
         _isEditing = false;
         _tempImageBytes = imageBytes; // Set the new image after save
       });
+      // Return true to indicate that the profile was updated
+      Navigator.pop(context, true);
     }
   }
 
@@ -183,7 +184,7 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(
+        title: const Text(
           'Profile',
           style: TextStyle(
             color: Colors.black,
@@ -193,7 +194,8 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())  // Show loader while loading
+          ? const Center(
+              child: CircularProgressIndicator()) // Show loader while loading
           : SingleChildScrollView(
               padding: const EdgeInsets.all(20.0),
               child: Column(
@@ -219,7 +221,8 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
                   _buildTextField("Last Name", _lastnameController, _isEditing),
                   _buildTextField("Age", _ageController, _isEditing,
                       keyboardType: TextInputType.number),
-                  _buildTextField("Mobile Phone", _mobilePhoneController, _isEditing),
+                  _buildTextField(
+                      "Mobile Phone", _mobilePhoneController, _isEditing),
                   const SizedBox(height: 20.0),
                   ElevatedButton(
                     onPressed: () {
