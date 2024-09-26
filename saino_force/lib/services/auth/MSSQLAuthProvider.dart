@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MSSQLAuthProvider implements AuthProvider {
   final String baseUrl = "http://10.0.2.2:3010/api";
   final String toWalletDB = "http://10.0.2.2:3009/api/wallet";
-  //final String baseUrl = "http://192.168.1.9:3010/api";
+  //final String baseUrl = "http://10.0.2.2:3010/api";
   //final String baseUrl = "http://172.20.10.3:3010/api";
 
   AuthUser? _currentUser;
@@ -23,7 +23,7 @@ class MSSQLAuthProvider implements AuthProvider {
       if (email.isEmpty || password.isEmpty) {
         throw GenericAuthException();
       }
-
+      devtools.log("Anything");
       final response = await http.post(
         Uri.parse('$baseUrl/login'),
         headers: <String, String>{
@@ -308,6 +308,7 @@ class MSSQLAuthProvider implements AuthProvider {
             'Fetch Talent Details API Response: ${response.statusCode} ${response.body}');
         return responseData;
       } else {
+        devtools.log("Fail to Fetch Talent");
         throw Exception('Failed to retrieve talent details: ${response.body}');
       }
     } catch (e) {
@@ -416,8 +417,8 @@ class MSSQLAuthProvider implements AuthProvider {
     }
   }
 
-// Save the profile data for the user with the given userID using POST
-  Future<bool> saveProfile(int userID, Map<String, dynamic> profileData) async {
+  Future<Map<String, dynamic>> saveProfile(
+      int userID, Map<String, dynamic> profileData) async {
     profileData['userID'] = userID; // Include the userID in the profile data
 
     try {
@@ -431,15 +432,26 @@ class MSSQLAuthProvider implements AuthProvider {
 
       if (response.statusCode == 200) {
         devtools.log('Profile saved successfully for userID: $userID');
-        return true;
+        return {'success': true, 'message': 'Profile saved successfully'};
       } else {
+        // Try to parse the message from the backend response
+        final responseJson = jsonDecode(response.body);
+        String errorMessage =
+            responseJson['message'] ?? 'Unknown error occurred';
+
         devtools.log(
-            'Failed to save profile for userID $userID: ${response.statusCode}');
-        return false;
+            'Failed to save profile for userID $userID: ${response.statusCode}, $errorMessage');
+        return {
+          'success': false,
+          'message': errorMessage
+        }; // Return only the 'message'
       }
     } catch (e) {
       devtools.log('Error saving profile for userID $userID: $e');
-      return false;
+      return {
+        'success': false,
+        'message': 'An error occurred while saving the profile'
+      };
     }
   }
 

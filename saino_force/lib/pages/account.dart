@@ -35,8 +35,7 @@ class _AccountState extends State<Account> {
 
       devtools.log("Username: ${user.username}");
 
-      // Fetch profile data to get the profile picture
-      devtools.log(profileData.toString());
+
       if (profileData != null) {
         setState(() {
           _accountName = profileData['Nickname'];

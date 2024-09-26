@@ -16,7 +16,6 @@ module.exports.search = async (req, res) => {
     try {
         const { searchType, searchQuery } = req.body;
 
-        // Check if searchType and searchQuery are provided
         if (!searchType || !searchQuery) {
             return res.status(400).json({ error: 'searchType and searchQuery are required' });
         }
@@ -28,16 +27,16 @@ module.exports.search = async (req, res) => {
 
         if (searchType.toLowerCase() === 'education') {
             query = `
-                SELECT UserID, EduBacID, InstituteName, LevelEdu, FieldOfStudy, EduStartDate, EduEndDate 
-                FROM Education 
-                WHERE UPPER(InstituteName) LIKE '%' + @searchTerm + '%'
-            `;
+                    SELECT UserID, EduBacID, InstituteName, LevelEdu, FieldOfStudy, EduStartDate, EduEndDate 
+                    FROM Education 
+                    WHERE UPPER(InstituteName) LIKE '%' + @searchTerm + '%'
+                `;
         } else if (searchType.toLowerCase() === 'skills') {
             query = `
-                SELECT UserID, IntelID, InteHighlight, InteDescription 
-                FROM Skills 
-                WHERE UPPER(InteHighlight) LIKE '%' + @searchTerm + '%'
-            `;
+                    SELECT UserID, IntelID, InteHighlight, InteDescription 
+                    FROM Skills 
+                    WHERE UPPER(InteHighlight) LIKE '%' + @searchTerm + '%'
+                `;
         } else {
             return res.status(400).json({ error: 'Invalid searchType. Must be "education" or "skills".' });
         }
@@ -53,10 +52,10 @@ module.exports.search = async (req, res) => {
         // Retrieve Profile details based on UserID
         const userIds = searchResults.recordset.map(result => result.UserID);
         const profileQuery = `
-            SELECT UserID, Name, Age, Email_Address 
-            FROM Profile 
-            WHERE UserID IN (${userIds.join(',')})
-        `;
+                SELECT UserID, Name, Age, Email_Address 
+                FROM Profile 
+                WHERE UserID IN (${userIds.join(',')})
+            `;
         const profileResults = await pool.request().query(profileQuery);
 
         // Map the profile details to the corresponding results
@@ -66,10 +65,13 @@ module.exports.search = async (req, res) => {
         }, {});
 
         // Combine the search results with their respective profile information
-        const combinedResults = searchResults.recordset.map(result => ({
-            ...result,
-            profile: profiles[result.UserID]
-        }));
+        // Filter out results where the profile is null or undefined
+        const combinedResults = searchResults.recordset
+            .map(result => ({
+                ...result,
+                profile: profiles[result.UserID]
+            }))
+            .filter(result => result.profile); // Remove entries with no profile
 
         res.status(200).json(combinedResults);
     } catch (err) {
@@ -77,6 +79,7 @@ module.exports.search = async (req, res) => {
         res.status(500).json({ error: 'Server error. Please try again later.' });
     }
 };
+
 
 
 module.exports.showDetails = async (req, res) => {
@@ -127,16 +130,16 @@ module.exports.showDetails = async (req, res) => {
             .input('userID', sql.Int, userID)
             .query(skillsQuery);
 
-        // Fetch Qualification information
-        const qualificationQuery = `
-            SELECT CerID, CerTitle, CerIssuer, CerDescription, 
+        // Fetch Certification information (replacing Qualification with Certification)
+        const certificationQuery = `
+            SELECT CerID, CerName, CerEmail, CerType, CerIssuer, CerDescription, 
             CONVERT(VARCHAR(10), CerAcquiredDate, 120) AS CerAcquiredDate 
-            FROM Qualification 
-            WHERE UserID = @userID
+            FROM Certification 
+            WHERE userID = @userID
         `;
-        const qualificationResult = await pool.request()
+        const certificationResult = await pool.request()
             .input('userID', sql.Int, userID)
-            .query(qualificationQuery);
+            .query(certificationQuery);
 
         // Fetch Work Experience information
         const workExperienceQuery = `
@@ -155,7 +158,7 @@ module.exports.showDetails = async (req, res) => {
             profile: userDetails,
             education: educationResult.recordset,
             skills: skillsResult.recordset,
-            qualification: qualificationResult.recordset,
+            certification: certificationResult.recordset,  // Updated here
             workExperience: workExperienceResult.recordset,
         };
 

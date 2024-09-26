@@ -21,10 +21,12 @@ class _SearchState extends State<Search> {
 
   void _performSearch() async {
     try {
+      devtools.log("Searching");
       final results = await _authProvider.searchTalent(
         searchType: searchType,
         searchQuery: searchQuery,
       );
+      devtools.log((results.toString()));
       setState(() {
         searchResults = results;
         errorMessage = results.isEmpty ? 'No results found.' : null;
@@ -60,7 +62,8 @@ class _SearchState extends State<Search> {
       if (userDetails != null) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ViewDetails(data: userDetails)),
+          MaterialPageRoute(
+              builder: (context) => ViewDetails(data: userDetails)),
         );
       } else {
         _showErrorDialog('Failed to load user details.');

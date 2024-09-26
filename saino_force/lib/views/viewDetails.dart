@@ -28,8 +28,8 @@ class ViewDetails extends StatelessWidget {
             _buildEducationSection(data['education']),
             _buildSectionTitle(Icons.work, 'Work Experience'),
             _buildWorkSection(data['workExperience']),
-            _buildSectionTitle(Icons.star, 'Qualifications'),
-            _buildQualificationSection(data['qualification']),
+            _buildSectionTitle(Icons.star, 'Certifications'),
+            _buildCertificationSection(data['certification']),
             _buildSectionTitle(Icons.lightbulb, 'Skills'),
             _buildSoftSkillsSection(data['skills']),
           ],
@@ -102,9 +102,9 @@ class ViewDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildQualificationSection(List<dynamic> qualification) {
+  Widget _buildCertificationSection(List<dynamic> certification) {
     return Column(
-      children: qualification.map((quali) {
+      children: certification.map((quali) {
         return _buildInfoBox([
           'Title: ${quali['CerTitle']}',
           'Issuer: ${quali['CerIssuer']}',
