@@ -20,6 +20,7 @@ class _RegisterViewState extends State<RegisterView> {
   late final TextEditingController _password;
   late final TextEditingController _confirmPassword;
   final MSSQLAuthProvider _authProvider = MSSQLAuthProvider(); // Directly use MSSQLAuthProvider
+  bool _isLoading = false; // Loading state
 
   @override
   void initState() {
@@ -74,6 +75,10 @@ class _RegisterViewState extends State<RegisterView> {
       return;
     }
 
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
     try {
       await _authProvider.register(
         username: username,
@@ -85,7 +90,6 @@ class _RegisterViewState extends State<RegisterView> {
         homeRoute,
         (_) => false,
       );
-
     } on WeakPasswordAuthException {
       devtools.log('Weak password');
       await showErrorDialog(context, 'Weak password');
@@ -94,6 +98,10 @@ class _RegisterViewState extends State<RegisterView> {
       await showErrorDialog(context, 'Email already in use');
     } on GenericAuthException {
       await showErrorDialog(context, 'Registration Error');
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
     }
   }
 
@@ -157,7 +165,9 @@ class _RegisterViewState extends State<RegisterView> {
               isPassword: true,
             ),
             const SizedBox(height: 20.0),
-            _buildButton('Register', Icons.app_registration_outlined, _register),
+            _isLoading
+                ? const CircularProgressIndicator()
+                : _buildButton('Register', Icons.app_registration_outlined, _register),
             const SizedBox(height: 15.0),
             TextButton(
               onPressed: () {
@@ -211,7 +221,7 @@ class _RegisterViewState extends State<RegisterView> {
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
           minimumSize: const Size.fromHeight(56.0),
         ),
-        onPressed: onPressed,
+        onPressed: _isLoading ? null : onPressed, // Disable button when loading
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
