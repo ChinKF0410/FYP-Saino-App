@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/holder.dart';
-
 class HolderCard extends StatefulWidget {
   final Holder holder;
+  final VoidCallback onDelete; // Callback for delete
 
-  HolderCard(this.holder);
+  HolderCard({required this.holder, required this.onDelete});
 
   @override
   _HolderCardState createState() => _HolderCardState();
@@ -47,7 +47,8 @@ class _HolderCardState extends State<HolderCard> {
         children: [
           ListTile(
             title: Text(
-                widget.holder.name.isEmpty ? 'No Name' : widget.holder.name),
+              widget.holder.name.isEmpty ? 'No Name' : widget.holder.name,
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -68,119 +69,126 @@ class _HolderCardState extends State<HolderCard> {
           if (_isExpanded)
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Container(
-                height: 300, // Adjust the height as needed
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          controller: _nameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Name',
-                            errorStyle: TextStyle(color: Colors.red),
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Please enter Holder's name";
-                            }
-                            final nameRegex = RegExp(r"^[a-zA-Z\s'-]+$");
-                            if (!nameRegex.hasMatch(value)) {
-                              return 'Please enter valid Name';
-                            }
-                            return null;
-                          },
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Name',
+                          errorStyle: TextStyle(color: Colors.red),
+                          border: OutlineInputBorder(),
                         ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          controller: _emailController,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            errorStyle: TextStyle(color: Colors.red),
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Please enter Holder's Email";
-                            }
-                            final emailRegex = RegExp(
-                                r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-                            if (!emailRegex.hasMatch(value)) {
-                              return 'Please enter a valid email address';
-                            }
-                            return null;
-                          },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter Holder's name";
+                          }
+                          final nameRegex = RegExp(r"^[a-zA-Z\s'-]+$");
+                          if (!nameRegex.hasMatch(value)) {
+                            return 'Please enter valid Name';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                          errorStyle: TextStyle(color: Colors.red),
+                          border: OutlineInputBorder(),
                         ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          controller: _phoneNoController,
-                          decoration: const InputDecoration(
-                            labelText: 'Phone No',
-                            errorStyle: TextStyle(color: Colors.red),
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Please enter Holder's phone No";
-                            }
-                            final phoneregex = RegExp(r'^(\+6)?01[0-9]{8,9}$');
-                            if (!phoneregex.hasMatch(value)) {
-                              return 'Please enter a valid phone number';
-                            }
-                            return null;
-                          },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter Holder's Email";
+                          }
+                          final emailRegex = RegExp(
+                              r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                          if (!emailRegex.hasMatch(value)) {
+                            return 'Please enter a valid email address';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      TextFormField(
+                        controller: _phoneNoController,
+                        decoration: const InputDecoration(
+                          labelText: 'Phone No',
+                          errorStyle: TextStyle(color: Colors.red),
+                          border: OutlineInputBorder(),
                         ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          controller: _descriptionController,
-                          decoration: const InputDecoration(
-                            labelText: 'Description',
-                            errorStyle: TextStyle(color: Colors.red),
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter some description';
-                            }
-                            return null;
-                          },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter Holder's phone No";
+                          }
+                          final phoneregex = RegExp(r'^(\+6)?01[0-9]{8,9}$');
+                          if (!phoneregex.hasMatch(value)) {
+                            return 'Please enter a valid phone number';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      TextFormField(
+                        controller: _descriptionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          errorStyle: TextStyle(color: Colors.red),
+                          border: OutlineInputBorder(),
                         ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          controller: _didController,
-                          decoration: const InputDecoration(
-                            labelText: 'Wallet ID',
-                            errorStyle: TextStyle(color: Colors.red),
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Please enter Holder's wallet id";
-                            }
-                            return null;
-                          },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter some description';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      TextFormField(
+                        controller: _didController,
+                        decoration: const InputDecoration(
+                          labelText: 'Wallet ID',
+                          errorStyle: TextStyle(color: Colors.red),
+                          border: OutlineInputBorder(),
                         ),
-                        SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              setState(() {
-                                widget.holder.name = _nameController.text;
-                                widget.holder.email = _emailController.text;
-                                widget.holder.phoneNo = _phoneNoController.text;
-                                widget.holder.description =
-                                    _descriptionController.text;
-                                widget.holder.did = _didController.text;
-                                _isExpanded = false;
-                              });
-                            }
-                          },
-                          child: Text('Save'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter Holder's wallet id";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      // Save button
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              widget.holder.name = _nameController.text;
+                              widget.holder.email = _emailController.text;
+                              widget.holder.phoneNo = _phoneNoController.text;
+                              widget.holder.description =
+                                  _descriptionController.text;
+                              widget.holder.did = _didController.text;
+                              _isExpanded = false;
+                            });
+                          }
+                        },
+                        child: Text('Save'),
+                      ),
+                      SizedBox(height: 10),
+                      // Delete button
+                      ElevatedButton(
+                        onPressed: widget.onDelete, // Call onDelete callback
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red, // Delete button color
                         ),
-                      ],
-                    ),
+                        child: Text('Delete'),
+                      ),
+                    ],
                   ),
                 ),
               ),

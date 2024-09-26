@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:saino_force/pages/changePasswd.dart';
 import 'package:saino_force/pages/credential.dart';
-import 'package:saino_force/views/showQRCode_view.dart';
 import 'package:saino_force/widgets/widget_support.dart';
 import '../services/auth/MSSQLAuthProvider.dart';
 import 'viewprofile.dart';
@@ -116,7 +115,7 @@ class _AccountState extends State<Account> {
             // Wait for result from Credential page
             final result = await Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Credential()),
+              MaterialPageRoute(builder: (context) =>  const Credential()),
             );
 
             // If credential was created, reinitialize the account page

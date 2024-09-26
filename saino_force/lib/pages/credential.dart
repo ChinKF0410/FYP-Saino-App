@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:saino_force/constant/routes.dart';
 import 'package:saino_force/models/credentialModel.dart';
 import 'package:saino_force/models/holder.dart';
+import 'package:saino_force/pages/account.dart';
 import '../providers/credential_details.dart';
 import '../widgets/holder_card.dart';
 import 'package:intl/intl.dart';
+
+
 
 class Credential extends StatefulWidget {
   const Credential({super.key});
@@ -17,7 +19,7 @@ class Credential extends StatefulWidget {
 class _CredentialState extends State<Credential> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _credentialTypeController;
-
+  bool _isLoading = false; // Track the loading state
   @override
   void initState() {
     super.initState();
@@ -55,7 +57,7 @@ class _CredentialState extends State<Credential> {
                   return null;
                 },
               ),
-              SizedBox(height: 10), // Add some spacing
+              SizedBox(height: 10),
               const Row(
                 children: [
                   Expanded(
@@ -88,12 +90,20 @@ class _CredentialState extends State<Credential> {
                   ),
                 ],
               ),
-              SizedBox(height: 10), // Add some spacing
+              SizedBox(height: 10),
               Expanded(
                 child: ListView.builder(
-                  itemCount: holderProvider.holder.length,
-                  itemBuilder: (ctx, index) =>
-                      HolderCard(holderProvider.holder[index]),
+                  itemCount: holderProvider.holders.length,
+                  itemBuilder: (ctx, index) {
+                    final holder = holderProvider.holders[index];
+                    return HolderCard(
+                      holder: holder,
+                      onDelete: () {
+                        // Show confirmation dialog before deletion
+                        _confirmDeleteHolder(context, holderProvider, holder);
+                      },
+                    );
+                  },
                 ),
               ),
             ],
@@ -107,36 +117,79 @@ class _CredentialState extends State<Credential> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ElevatedButton(
-          onPressed: () async {
-            DateTime now = DateTime.now();
-            String formattedDate = DateFormat('yyyy-MM-dd').format(now);
-
-            if (_formKey.currentState!.validate()) {
-              holderProvider.addCredential(CredentialModel(
-                credentialType: _credentialTypeController.text,
-                issuancedate: formattedDate,
-              ));
-
-              bool success = await holderProvider.sendHolders();
-              if (success) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Holders sent successfully')),
-                );
-
-                // Navigate back to the Account page and pass a true value
-                Navigator.pop(
-                    context, true); // Return true for successful creation
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Failed to send holders')),
-                );
-              }
-            }
-          },
-          child: Text('Send'),
+          onPressed: _isLoading
+              ? null
+              : () => _sendHolders(holderProvider), // Disable when loading
+          child: _isLoading
+              ? const CircularProgressIndicator(
+                  // Show spinner when loading
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                )
+              : Text('Send'), // Show 'Send' when not loading
         ),
       ),
     );
+  }
+
+  void _confirmDeleteHolder(
+      BuildContext context, CredentialDetails holderProvider, Holder holder) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Delete Holder'),
+        content: Text('Are you sure you want to delete this holder?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(), // Dismiss dialog
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                holderProvider.removeHolder(holder);
+              });
+              Navigator.of(ctx).pop(); // Close the dialog
+            },
+            child: Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _sendHolders(CredentialDetails holderProvider) async {
+    setState(() {
+      _isLoading = true; // Set loading to true when the function starts
+    });
+
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+
+    if (_formKey.currentState!.validate()) {
+      holderProvider.addCredential(CredentialModel(
+        credentialType: _credentialTypeController.text,
+        issuancedate: formattedDate,
+      ));
+
+      bool success = await holderProvider.sendHolders();
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Holders sent successfully')),
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Account()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to send holders')),
+        );
+      }
+    }
+
+    setState(() {
+      _isLoading = false; // Set loading to false when the function ends
+    });
   }
 
   void _showAddHolderDialog(
