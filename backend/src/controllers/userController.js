@@ -219,3 +219,60 @@ module.exports.saveProfile = async (req, res) => {
         res.status(500).send({ message: "Error updating profile", error });
     }
 };
+
+
+module.exports.saveFeedback = async (req, res) => {
+    const { userID, username, userEmail, title, description } = req.body;
+    console.log("saveFeedBack Working");
+    // Validate required fields
+    console.log(userID);
+
+    console.log(username);
+
+    console.log(userEmail);
+
+    console.log(title);
+
+    console.log(description);
+
+    if (!userID || !username || !userEmail || !title || !description) {
+        return res.status(400).send({ message: "All fields are required" });
+    }
+    console.log("Checked Input");
+
+    try {
+        const pool = await poolPromise;
+
+        // Insert or update the feedback in the database
+        console.log("calling database");
+
+        await pool.request()
+            .input('userID', sql.Int, userID)
+            .input('username', sql.NVarChar(255), username)
+            .input('userEmail', sql.NVarChar(255), userEmail)
+            .input('title', sql.NVarChar(255), title)
+            .input('description', sql.NVarChar(sql.MAX), description)
+            .query(`
+            IF EXISTS (SELECT 1 FROM Feedback WHERE UserID = @userID AND Title = @title)
+            BEGIN
+                UPDATE Feedback
+                SET Description = @description,
+                    Username = @username,
+                    UserEmail = @userEmail
+                WHERE UserID = @userID AND Title = @title;
+            END
+            ELSE
+            BEGIN
+                INSERT INTO Feedback (UserID, Username, UserEmail, Title, Description)
+                VALUES (@userID, @username, @userEmail, @title, @description);
+            END
+        `);
+        console.log("saveFeedBack Success");
+
+        res.status(200).send({ message: "Feedback submitted successfully" });
+    } catch (error) {
+        console.log("saveFeedBack Fail");
+        console.log(error);
+        res.status(500).send({ message: "Error submitting feedback", error });
+    }
+};

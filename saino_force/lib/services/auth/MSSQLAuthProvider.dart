@@ -102,7 +102,7 @@ class MSSQLAuthProvider implements AuthProvider {
           'Register API Response: ${response.statusCode} ${response.body}');
       devtools.log(
           'Register Wallet In SAINO API Response: ${response2.statusCode} ${response2.body}');
-     
+
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         _currentUser = AuthUser(
@@ -440,6 +440,31 @@ class MSSQLAuthProvider implements AuthProvider {
     } catch (e) {
       devtools.log('Error saving profile for userID $userID: $e');
       return false;
+    }
+  }
+
+  Future<void> storeFeedback(String title, String description, int userId,
+      String username, String userEmail) async {
+    final url =
+        Uri.parse('$baseUrl/saveFeedback'); // Replace with your actual API URL
+    devtools.log("calling backend");
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'userID': userId,
+        'username': username,
+        'userEmail': userEmail,
+        'title': title,
+        'description': description,
+      }),
+    );
+    devtools.log("Call Success");
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to store feedback');
     }
   }
 }

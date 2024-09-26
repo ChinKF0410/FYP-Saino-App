@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saino_force/pages/FeedbackPage.dart';
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart';
 import 'package:saino_force/widgets/widget_support.dart';
 import 'package:saino_force/constant/routes.dart'; // Ensure this import for the loginRoute
@@ -14,11 +15,20 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   final MSSQLAuthProvider _authProvider = MSSQLAuthProvider();
 
+  // Add mounted check flag
+  bool _isMounted = true;
+
+  @override
+  void dispose() {
+    // Set the mounted flag to false when the widget is disposed
+    _isMounted = false;
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Removed the leading property to remove the back button
         title: Text(
           "Settings",
           style: AppWidget.boldTextFieldStyle(),
@@ -41,7 +51,13 @@ class _SettingsState extends State<Settings> {
             const SizedBox(height: 20.0),
             _buildButton('Notifications', Icons.notifications_outlined),
             const SizedBox(height: 15.0),
-            _buildButton('Feedback', Icons.feedback_outlined),
+            _buildButton('Feedback', Icons.feedback_outlined, () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const FeedbackPage(),
+                ),
+              );
+            }),
             const SizedBox(height: 15.0),
             _buildButton('Help & Support', Icons.help_outline),
             const SizedBox(height: 15.0),
@@ -56,8 +72,7 @@ class _SettingsState extends State<Settings> {
             const SizedBox(height: 15.0),
             _buildButton('Terms & Conditions', Icons.access_alarm),
             const SizedBox(height: 15.0),
-            _buildButton(
-                'Logout', Icons.logout_outlined, _showLogoutConfirmationDialog),
+            _buildButton('Logout', Icons.logout_outlined, _showLogoutConfirmationDialog),
           ],
         ),
       ),
@@ -95,6 +110,14 @@ class _SettingsState extends State<Settings> {
     try {
       await _authProvider.logout();
       devtools.log('Logout successful');
+
+      // Ensure navigation only if the widget is still mounted
+      if (_isMounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          loginRoute,
+          (_) => false,
+        );
+      }
     } catch (e) {
       devtools.log('Logout Error: $e');
       throw Exception('Failed to log out');
@@ -119,10 +142,6 @@ class _SettingsState extends State<Settings> {
               onPressed: () async {
                 Navigator.of(context).pop(); // Close the dialog
                 await _logOut(); // Call the logOut method
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  loginRoute,
-                  (_) => false,
-                ); // Navigate to the login page
               },
               child: const Text('Logout'),
             ),

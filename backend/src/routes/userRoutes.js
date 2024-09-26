@@ -1,5 +1,5 @@
 const express = require('express');
-const { login, register, logout, verifyPassword, changePassword, getProfile, saveProfile } = require('../controllers/userController');
+const { login, register, logout, verifyPassword, changePassword, getProfile, saveProfile, saveFeedback } = require('../controllers/userController');
 const { search, showDetails } = require('../controllers/searchController');
 const { createWalletandDID } = require('../controllers/acapyRegister');
 const { storeCredentialAndHolders } = require('../credential/function/createCredAndStore');
@@ -16,6 +16,8 @@ router.post('/verifyPassword', verifyPassword);
 router.post('/changePassword', changePassword);
 router.post('/getProfile', getProfile);
 router.post('/saveProfile', saveProfile);
+router.post('/saveFeedback', saveFeedback);
+
 
 router.post('/createWalletandDID', createWalletandDID);
 router.post('/connection', Connection);

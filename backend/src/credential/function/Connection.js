@@ -83,7 +83,7 @@ async function sendConnection(invitation, holder, issuer) {
         console.log(holder);
         console.log(issuer);
         const response = await axios.post(
-            `http://localhost:3009/api/wallet/receiveConnection`,
+            `http://localhost:3000/api/receiveConnection`,
             { invitation, holder, issuer }
         );
         console.log("\n\nsendConnection Ended");
