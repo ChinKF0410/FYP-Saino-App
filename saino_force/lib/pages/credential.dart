@@ -110,7 +110,7 @@ class _CredentialState extends State<Credential> {
           onPressed: () async {
             DateTime now = DateTime.now();
             String formattedDate = DateFormat('yyyy-MM-dd').format(now);
-            ;
+
             if (_formKey.currentState!.validate()) {
               holderProvider.addCredential(CredentialModel(
                 credentialType: _credentialTypeController.text,
@@ -120,15 +120,15 @@ class _CredentialState extends State<Credential> {
               bool success = await holderProvider.sendHolders();
               if (success) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Holders sent successfully')),
+                  const SnackBar(content: Text('Holders sent successfully')),
                 );
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  accountRoute,
-                  (route) => false,
-                );
+
+                // Navigate back to the Account page and pass a true value
+                Navigator.pop(
+                    context, true); // Return true for successful creation
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to send holders')),
+                  const SnackBar(content: Text('Failed to send holders')),
                 );
               }
             }

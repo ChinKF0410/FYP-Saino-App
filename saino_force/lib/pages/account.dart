@@ -113,25 +113,28 @@ class _AccountState extends State<Account> {
         ),
         onPressed: () async {
           if (text == 'Create Credentials') {
-            Navigator.push(
+            // Wait for result from Credential page
+            final result = await Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => Credential()),
+              MaterialPageRoute(builder: (context) => const Credential()),
             );
+
+            // If credential was created, reinitialize the account page
+            if (result == true) {
+              _loadCurrentUser(); // Re-fetch user data after creating credential
+            }
           } else if (text == 'View Profile') {
-            // Wait for result from ViewProfilePage
             final result = await Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ViewProfilePage()),
             );
-
-            // If profile was updated (result is true), reload account data
             if (result == true) {
               _loadCurrentUser(); // Refresh user data
             }
           } else if (text == 'View Created Credentials') {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => Credential()),
+              MaterialPageRoute(builder: (context) => const Credential()),
             );
           } else if (text == 'Change Password') {
             Navigator.push(

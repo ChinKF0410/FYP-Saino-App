@@ -58,7 +58,7 @@ class CredentialDetails with ChangeNotifier {
       }),
     );
 
-    if (response.statusCode == 499) {
+    if (response.statusCode == 201) {
       _holders = [];
       _credential = null;
       final message = json.decode(response.body)['message'];

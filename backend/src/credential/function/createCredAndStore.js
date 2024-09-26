@@ -45,7 +45,6 @@ async function storeCredentialAndHolders(username, holders, credential) {
                 console.log("123123Holder stored successfully");
                 console.log(holder.email);
                  await sendOffer(holder, connectionId, credentialDefinitionId, schemaId, jwtToken, walletData.public_did);
-                await sendMessage(holder.email);
             } else {
                 await storeHolder(transaction, holder, credentialId, "Holder Not Found");
             }
@@ -215,20 +214,6 @@ async function sendOffer(holder, connectionId, credentialDefinitionId, schemaId,
     }
 }
 
-// Send message to another Node.js project
-async function sendMessage(holderEmail) {
-    try {
-        // Example: Call the external Node.js project endpoint
-        console.log("\n\n\Store Offer:\n");
-        const response = await axios.post(
-            'http://localhost:3009/api/wallet/receiveOffer',  // Replace with the actual URL of the other Node.js project
-            {holderEmail}   
-        );
-        console.log('Message sent successfully:', response.data);
-    } catch (error) {
-        console.error('Error sending message:', error.message);
-    }
-}
 
 module.exports = {
     storeCredentialAndHolders
