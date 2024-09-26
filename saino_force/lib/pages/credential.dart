@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:saino_force/constant/routes.dart';
 import 'package:saino_force/models/credentialModel.dart';
 import 'package:saino_force/models/holder.dart';
 import 'package:saino_force/pages/account.dart';
 import '../providers/credential_details.dart';
 import '../widgets/holder_card.dart';
 import 'package:intl/intl.dart';
-
-
 
 class Credential extends StatefulWidget {
   const Credential({super.key});
@@ -20,6 +19,7 @@ class _CredentialState extends State<Credential> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _credentialTypeController;
   bool _isLoading = false; // Track the loading state
+
   @override
   void initState() {
     super.initState();
@@ -36,96 +36,105 @@ class _CredentialState extends State<Credential> {
   Widget build(BuildContext context) {
     final holderProvider = Provider.of<CredentialDetails>(context);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Credential Issue Screen')),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _credentialTypeController,
-                decoration: const InputDecoration(
-                  labelText: 'Credential Type',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a credential type';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 10),
-              const Row(
-                children: [
-                  Expanded(
-                    child: Divider(
-                      thickness: 4,
-                      color: Colors.black,
-                    ),
+    return PopScope(
+      canPop: true, // Allow back navigation
+      onPopInvoked: (bool didPop) {
+        if (didPop) {
+          // Clear all the holders and credentials when the back button is pressed
+          holderProvider.clearAll(); // Method to clear all data
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Credential Issue Screen')),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _credentialTypeController,
+                  decoration: const InputDecoration(
+                    labelText: 'Credential Type',
+                    border: OutlineInputBorder(),
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Row(
-                      children: [
-                        Icon(Icons.label, color: Colors.black),
-                        SizedBox(width: 8),
-                        Text(
-                          'Credential Details',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Divider(
-                      thickness: 4,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: holderProvider.holders.length,
-                  itemBuilder: (ctx, index) {
-                    final holder = holderProvider.holders[index];
-                    return HolderCard(
-                      holder: holder,
-                      onDelete: () {
-                        // Show confirmation dialog before deletion
-                        _confirmDeleteHolder(context, holderProvider, holder);
-                      },
-                    );
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a credential type';
+                    }
+                    return null;
                   },
                 ),
-              ),
-            ],
+                SizedBox(height: 10),
+                const Row(
+                  children: [
+                    Expanded(
+                      child: Divider(
+                        thickness: 4,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Row(
+                        children: [
+                          Icon(Icons.label, color: Colors.black),
+                          SizedBox(width: 8),
+                          Text(
+                            'Credential Details',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Divider(
+                        thickness: 4,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: holderProvider.holders.length,
+                    itemBuilder: (ctx, index) {
+                      final holder = holderProvider.holders[index];
+                      return HolderCard(
+                        holder: holder,
+                        onDelete: () {
+                          // Show confirmation dialog before deletion
+                          _confirmDeleteHolder(context, holderProvider, holder);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddHolderDialog(context, holderProvider),
-        child: Icon(Icons.add),
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ElevatedButton(
-          onPressed: _isLoading
-              ? null
-              : () => _sendHolders(holderProvider), // Disable when loading
-          child: _isLoading
-              ? const CircularProgressIndicator(
-                  // Show spinner when loading
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                )
-              : Text('Send'), // Show 'Send' when not loading
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _showAddHolderDialog(context, holderProvider),
+          child: Icon(Icons.add),
+        ),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton(
+            onPressed: _isLoading
+                ? null
+                : () => _sendHolders(holderProvider), // Disable when loading
+            child: _isLoading
+                ? const CircularProgressIndicator(
+                    // Show spinner when loading
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  )
+                : Text('Send'), // Show 'Send' when not loading
+          ),
         ),
       ),
     );
@@ -176,10 +185,10 @@ class _CredentialState extends State<Credential> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Holders sent successfully')),
         );
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Account()),
-        );
+        Navigator.of(context).pushNamedAndRemoveUntil(
+                  accountRoute,
+                  (route) => false,
+                );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to send holders')),

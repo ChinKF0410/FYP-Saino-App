@@ -30,6 +30,12 @@ class CredentialDetails with ChangeNotifier {
     notifyListeners();
   }
 
+  void clearAll() {
+    _holders.clear();
+    _credential = null;
+    notifyListeners(); // Notify listeners so the UI updates
+  }
+
   Future<bool> sendHolders() async {
     final MSSQLAuthProvider authProvider = MSSQLAuthProvider();
     await authProvider.initialize(); //
@@ -37,7 +43,7 @@ class CredentialDetails with ChangeNotifier {
     devtools.log('Sending holders: $_holders');
     devtools.log('Sending credential: $_credential');
     devtools.log((user?.email).toString());
-    if (!holders.isEmpty) {
+    if (holders.isNotEmpty) {
       final response = await http.post(
         Uri.parse('http://10.0.2.2:3010/api/createCredential'),
         headers: {'Content-Type': 'application/json'},
@@ -69,7 +75,7 @@ class CredentialDetails with ChangeNotifier {
         devtools.log('Failed: $message');
         return false;
       }
-    }else {
+    } else {
       const message = "No Holder To Send";
       devtools.log('Failed: $message');
       return false;
