@@ -1,6 +1,6 @@
 const axios = require('axios');
 const sql = require('mssql');
-const dbConfig = require('../../config/config'); // Import database configuration
+const dbConfig = require('../config/config'); // Import database configuration
 
 // ACA-Py API endpoint configuration
 const acaPyBaseUrl = 'http://localhost:6011';  // Issuer API URL || holder is 7011

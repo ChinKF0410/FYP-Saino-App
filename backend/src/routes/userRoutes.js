@@ -1,23 +1,29 @@
 const express = require('express');
 const { login, register, logout, verifyPassword, changePassword, getProfile, saveProfile, saveFeedback } = require('../controllers/userController');
 const { search, showDetails } = require('../controllers/searchController');
-const { createWalletandDID } = require('../controllers/acapyRegister');
-const { ViewCredential } = require('../credential/function/IssuedCredential')
-const { storeCredentialAndHolders } = require('../credential/function/createCredAndStore');
-const { Connection, handleConnection } = require('../credential/function/Connection');
-const { saveCVCertification, deleteCVCertification, updateCVCertification } = require('../controllers/cvControllerSAINO');
+const { createWalletandDID } = require('../credential/acapyRegister');
+const { ViewCredential } = require('../credential/IssuedCredential')
+const { storeCredentialAndHolders } = require('../credential/createCredAndStore');
+const { Connection, handleConnection } = require('../credential/Connection');
+
+const {
+    saveCVProfile,
+    saveCVSkill,
+    deleteCVSkill,
+    saveCVWork,
+    deleteCVWork,
+    saveCVEducation,
+    deleteCVEducation,
+    saveCVCertification,
+    deleteCVCertification,
+    updateCVCertification
+} = require('../controllers/cvControllerSAINO'); // Import the controller functions
 
 const router = express.Router();
 
 router.post('/login', login);
 router.post('/register', register);
 router.post('/logout', logout);
-
-router.post('/saveCVCertification', saveCVCertification);
-router.post('/deleteCVCertification', deleteCVCertification);
-router.post('/updateCVCertification', updateCVCertification);
-
-
 
 
 router.post('/search-talent', search);
@@ -27,6 +33,18 @@ router.post('/changePassword', changePassword);
 router.post('/getProfile', getProfile);
 router.post('/saveProfile', saveProfile);
 router.post('/saveFeedback', saveFeedback);
+
+
+router.post('/saveCVProfile', saveCVProfile);
+router.post('/saveCVSkill', saveCVSkill);
+router.post('/deleteCVSkill', deleteCVSkill);
+router.post('/saveCVWork', saveCVWork);
+router.post('/deleteCVWork', deleteCVWork);
+router.post('/saveCVEducation', saveCVEducation);
+router.post('/deleteCVEducation', deleteCVEducation);
+router.post('/saveCVCertification', saveCVCertification);
+router.post('/deleteCVCertification', deleteCVCertification);
+router.post('/updateCVCertification', updateCVCertification);
 
 
 router.post('/createWalletandDID', createWalletandDID);

@@ -1,5 +1,5 @@
 const sql = require('mssql');  // Import directly from mssql
-const dbConfig = require('../../config/config');  // Database configuration
+const dbConfig = require('../config/config');  // Database configuration
 
 
 // Initialize SQL connection pool
