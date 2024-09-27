@@ -106,7 +106,7 @@ class ViewCV extends StatelessWidget {
     return Column(
       children: qualification.map((quali) {
         return _buildInfoBox([
-          'Title: ${quali['CerTitle']}',
+          'Title: ${quali['CerName']}',
           'Issuer: ${quali['CerIssuer']}',
           'Description: ${quali['CerDescription']}',
           'Acquired Date: ${quali['CerAcquiredDate']}',

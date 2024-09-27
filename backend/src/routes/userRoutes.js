@@ -5,11 +5,20 @@ const { createWalletandDID } = require('../controllers/acapyRegister');
 const { ViewCredential } = require('../credential/function/IssuedCredential')
 const { storeCredentialAndHolders } = require('../credential/function/createCredAndStore');
 const { Connection, handleConnection } = require('../credential/function/Connection');
+const { saveCVCertification, deleteCVCertification, updateCVCertification } = require('../controllers/cvControllerSAINO');
+
 const router = express.Router();
 
 router.post('/login', login);
 router.post('/register', register);
 router.post('/logout', logout);
+
+router.post('/saveCVCertification', saveCVCertification);
+router.post('/deleteCVCertification', deleteCVCertification);
+router.post('/updateCVCertification', updateCVCertification);
+
+
+
 
 router.post('/search-talent', search);
 router.post('/showDetails', showDetails);

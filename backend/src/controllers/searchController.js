@@ -110,7 +110,7 @@ module.exports.showDetails = async (req, res) => {
 
         // Fetch Education information
         const educationQuery = `
-            SELECT EduBacID, InstituteName, LevelEdu, FieldOfStudy, 
+            SELECT EduBacID, InstituteName, LevelEdu, FieldOfStudy, InstituteCountry, InstituteState, InstituteCity, 
             CONVERT(VARCHAR(10), EduStartDate, 120) AS EduStartDate, 
             CONVERT(VARCHAR(10), EduEndDate, 120) AS EduEndDate 
             FROM Education 

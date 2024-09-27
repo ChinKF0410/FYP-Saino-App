@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/holder.dart';
+
 class HolderCard extends StatefulWidget {
   final Holder holder;
   final VoidCallback onDelete; // Callback for delete
@@ -133,6 +134,21 @@ class _HolderCardState extends State<HolderCard> {
                       ),
                       SizedBox(height: 10),
                       TextFormField(
+                        controller: _didController,
+                        decoration: const InputDecoration(
+                          labelText: 'Title',
+                          errorStyle: TextStyle(color: Colors.red),
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter Title for Holder ";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      TextFormField(
                         controller: _descriptionController,
                         decoration: const InputDecoration(
                           labelText: 'Description',
@@ -146,21 +162,7 @@ class _HolderCardState extends State<HolderCard> {
                           return null;
                         },
                       ),
-                      SizedBox(height: 10),
-                      TextFormField(
-                        controller: _didController,
-                        decoration: const InputDecoration(
-                          labelText: 'Wallet ID',
-                          errorStyle: TextStyle(color: Colors.red),
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Please enter Holder's wallet id";
-                          }
-                          return null;
-                        },
-                      ),
+
                       SizedBox(height: 10),
                       // Save button
                       ElevatedButton(

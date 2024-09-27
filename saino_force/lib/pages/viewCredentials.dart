@@ -72,30 +72,36 @@ class _HolderListPageState extends State<HolderListPage> {
 
         final List<dynamic> data = json.decode(response.body);
 
-        if (data.isEmpty) {
-          // If the response body is empty, show a message
-          setState(() {
-            _isEmpty = true; // Set the empty flag
-            _isLoading = false;
-          });
-        } else {
-          setState(() {
-            _holders = data.map((json) => Holder.fromJson(json)).toList();
-            _isLoading = false;
-            _isEmpty = false; // Reset the empty flag if there is data
-          });
+        if (mounted) {
+          if (data.isEmpty) {
+            // If the response body is empty, show a message
+            setState(() {
+              _isEmpty = true; // Set the empty flag
+              _isLoading = false;
+            });
+          } else {
+            setState(() {
+              _holders = data.map((json) => Holder.fromJson(json)).toList();
+              _isLoading = false;
+              _isEmpty = false; // Reset the empty flag if there is data
+            });
+          }
         }
       } else {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+            _hasError = true;
+          });
+        }
+      }
+    } catch (error) {
+      if (mounted) {
         setState(() {
           _isLoading = false;
           _hasError = true;
         });
       }
-    } catch (error) {
-      setState(() {
-        _isLoading = false;
-        _hasError = true;
-      });
     }
   }
 

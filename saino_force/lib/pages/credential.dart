@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:saino_force/constant/routes.dart';
 import 'package:saino_force/models/credentialModel.dart';
 import 'package:saino_force/models/holder.dart';
 import '../providers/credential_details.dart';
@@ -279,6 +278,21 @@ class _CredentialState extends State<Credential> {
                   ),
                   SizedBox(height: 10),
                   TextFormField(
+                    controller: _didController,
+                    decoration: const InputDecoration(
+                      labelText: 'Title',
+                      errorStyle: TextStyle(color: Colors.red),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter Title for Holder ";
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  TextFormField(
                     controller: _descriptionController,
                     decoration: const InputDecoration(
                       labelText: 'Description',
@@ -288,21 +302,6 @@ class _CredentialState extends State<Credential> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter some description';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  TextFormField(
-                    controller: _didController,
-                    decoration: const InputDecoration(
-                      labelText: 'wallet id',
-                      errorStyle: TextStyle(color: Colors.red),
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Please enter Holder's wallet id";
                       }
                       return null;
                     },
