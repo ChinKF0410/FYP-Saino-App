@@ -162,8 +162,7 @@ class HolderCard extends StatelessWidget {
             Text('Description: ${holder.description}',
                 style: TextStyle(fontSize: 16.0)),
             SizedBox(height: 5.0),
-            Text('Status: ${holder.status}',
-                style: TextStyle(fontSize: 16.0, color: Colors.blue)),
+            
           ],
         ),
       ),

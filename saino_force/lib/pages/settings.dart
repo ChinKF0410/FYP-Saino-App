@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:saino_force/pages/FeedbackPage.dart';
+import 'package:saino_force/pages/helpAndSupport.dart';
+import 'package:saino_force/pages/aboutUs.dart';
+import 'package:saino_force/pages/termsAndCondition.dart';
+import 'package:saino_force/pages/privacyAndPolicy.dart';
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart';
 import 'package:saino_force/widgets/widget_support.dart';
 import 'package:saino_force/constant/routes.dart'; // Ensure this import for the loginRoute
@@ -49,8 +53,6 @@ class _SettingsState extends State<Settings> {
               style: AppWidget.boldTextFieldStyle(),
             ),
             const SizedBox(height: 20.0),
-            _buildButton('Notifications', Icons.notifications_outlined),
-            const SizedBox(height: 15.0),
             _buildButton('Feedback', Icons.feedback_outlined, () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -59,18 +61,42 @@ class _SettingsState extends State<Settings> {
               );
             }),
             const SizedBox(height: 15.0),
-            _buildButton('Help & Support', Icons.help_outline),
+            _buildButton('Help & Support', Icons.help_outline, () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const helpAndSupport(),
+                ),
+              );
+            }),
             const SizedBox(height: 15.0),
-            _buildButton('About Us', Icons.info_outline),
+            _buildButton('About Us', Icons.info_outline, () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const aboutUs(),
+                ),
+              );
+            }),
             const SizedBox(height: 20.0),
             Text(
               "Legal",
               style: AppWidget.boldTextFieldStyle(),
             ),
             const SizedBox(height: 20.0),
-            _buildButton('Privacy & Policy', Icons.policy_outlined),
+            _buildButton('Privacy & Policy', Icons.policy_outlined, () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const privacyAndPolicy(),
+                ),
+              );
+            }),
             const SizedBox(height: 15.0),
-            _buildButton('Terms & Conditions', Icons.access_alarm),
+            _buildButton('Terms & Conditions', Icons.access_alarm, () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const termsAndCondition(),
+                ),
+              );
+            }),
             const SizedBox(height: 15.0),
             _buildButton('Logout', Icons.logout_outlined, _showLogoutConfirmationDialog),
           ],
