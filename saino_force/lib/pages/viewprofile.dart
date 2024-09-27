@@ -5,8 +5,7 @@ import 'dart:typed_data';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:developer' as devtools show log;
-import 'package:image/image.dart' as img;
-
+import 'package:image/image.dart' as img; // Import image package
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart';
 import 'package:saino_force/utilities/show_error_dialog.dart';
 
@@ -71,7 +70,6 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
           _mobilePhoneController.text = profileData['MobilePhone'] ?? '';
 
           if (profileData['Photo'] != null && profileData['Photo'].isNotEmpty) {
-            // Correctly decode and display the image from backend
             _tempImageBytes = base64Decode(profileData['Photo']);
           } else {
             _tempImageBytes = null;
@@ -108,9 +106,54 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
 
     Uint8List? imageBytes = _tempImageBytes;
     if (_imageFile != null) {
-      // Read the selected image file and update imageBytes
-      imageBytes = await File(_imageFile!.path).readAsBytes();
+      // Read the selected image file
+      final File imageFile = File(_imageFile!.path);
+      final img.Image? originalImage =
+          img.decodeImage(imageFile.readAsBytesSync());
+
+      if (originalImage != null) {
+        // Get the size of the original image
+        int originalSizeBytes = imageFile.lengthSync();
+
+        // If the image is larger than 2MB, compress it
+        if (originalSizeBytes > 2 * 1024 * 1024) {
+          devtools.log('Image size exceeds 2MB. Compressing...');
+          const int targetSizeMB = 2;
+          const int targetSizeBytes = targetSizeMB * 1024 * 1024;
+
+          // Estimate resize factor based on the original size
+          double resizeFactor = sqrt(targetSizeBytes / originalSizeBytes);
+
+          // Resize the image based on the factor
+          img.Image resizedImage = img.copyResize(
+            originalImage,
+            width: (originalImage.width * resizeFactor).toInt(),
+          );
+
+          int quality = 80;
+          List<int> compressedImageBytes =
+              img.encodeJpg(resizedImage, quality: quality);
+          devtools.log(
+              'Compressed image size: ${compressedImageBytes.length} bytes');
+
+          // If compression is still large, reduce quality in steps
+          while (
+              compressedImageBytes.length > targetSizeBytes && quality > 10) {
+            quality -= 10;
+            compressedImageBytes =
+                img.encodeJpg(resizedImage, quality: quality);
+            devtools.log(
+                'Reduced quality to $quality. New size: ${compressedImageBytes.length} bytes');
+          }
+
+          imageBytes = Uint8List.fromList(compressedImageBytes);
+        } else {
+          // If already under 2MB, no compression
+          imageBytes = await imageFile.readAsBytes();
+        }
+      }
     }
+    devtools.log('Final image size: ${imageBytes?.lengthInBytes ?? 0} bytes');
 
     final profileData = {
       'nickname': _nicknameController.text.trim(),
@@ -125,23 +168,21 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
     final result = await _authProvider.saveProfile(_userID!, profileData);
 
     if (!result['success'] && mounted) {
-      // If save operation failed, show an error dialog with the backend's error message
       await showErrorDialog(
         context,
         result['message'] ?? 'Failed to save profile. Please try again.',
       );
     } else if (result['success'] && mounted) {
-      // If save operation succeeded, close the dialog or navigate back
       setState(() {
         _isEditing = false;
         _tempImageBytes = imageBytes; // Set the new image after save
       });
-      Navigator.pop(context, true); // Optionally return 'true' to indicate success
+      Navigator.pop(context, true);
     }
 
     if (mounted) {
       setState(() {
-        _isSaving = false; // End saving
+        _isSaving = false;
       });
     }
   }
@@ -164,7 +205,8 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
                   if (mounted) {
                     setState(() {
                       _imageFile = pickedFile;
-                      _tempImageBytes = null; // Clear temp image for new selection
+                      _tempImageBytes =
+                          null; // Clear temp image for new selection
                     });
                   }
                   Navigator.of(context).pop();
@@ -181,7 +223,8 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
                   if (mounted) {
                     setState(() {
                       _imageFile = pickedFile;
-                      _tempImageBytes = null; // Clear temp image for new selection
+                      _tempImageBytes =
+                          null; // Clear temp image for new selection
                     });
                   }
                   Navigator.of(context).pop();
@@ -233,20 +276,22 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          InkWell(
-            onTap: _isEditing ? () => _showImagePicker(context) : null,
-            child: CircleAvatar(
-              radius: 80.0,
-              backgroundImage: _imageFile != null
-                  ? FileImage(File(_imageFile!.path))
-                  : _tempImageBytes != null
-                      ? MemoryImage(_tempImageBytes!)
-                      : null,
-              child: _imageFile == null && _tempImageBytes == null
-                  ? const Icon(Icons.camera_alt, size: 80.0)
-                  : null,
+          Center(
+            child: InkWell(
+              onTap: _isEditing ? () => _showImagePicker(context) : null,
+              child: CircleAvatar(
+                radius: 80.0,
+                backgroundImage: _imageFile != null
+                    ? FileImage(File(_imageFile!.path))
+                    : _tempImageBytes != null
+                        ? MemoryImage(_tempImageBytes!)
+                        : null,
+                child: _imageFile == null && _tempImageBytes == null
+                    ? const Icon(Icons.camera_alt, size: 80.0)
+                    : null,
+              ),
             ),
           ),
           const SizedBox(height: 30.0),
@@ -257,36 +302,37 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
               keyboardType: TextInputType.number),
           _buildTextField("Mobile Phone", _mobilePhoneController, _isEditing),
           const SizedBox(height: 20.0),
-          ElevatedButton(
-            onPressed: _isSaving
-                ? null
-                : () {
-                    if (_isEditing) {
-                      _saveProfileData();
-                    } else {
-                      setState(() {
-                        _isEditing = true;
-                      });
-                    }
-                  },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF171B63),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 60.0,
-                vertical: 15.0,
+          Center(
+            child: ElevatedButton(
+              onPressed: _isSaving
+                  ? null
+                  : () {
+                      if (_isEditing) {
+                        _saveProfileData();
+                      } else {
+                        setState(() {
+                          _isEditing = true;
+                        });
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40.0,
+                  vertical: 15.0,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
+              child: Text(
+                _isEditing ? 'Save' : 'Edit',
+                style: const TextStyle(
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.bold, // Make the text bold
+                ),
               ),
             ),
-            child: Text(
-              _isEditing ? 'Save' : 'Edit',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15.0,
-              ),
-            ),
-          ),
+          )
         ],
       ),
     );
@@ -321,6 +367,7 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
               horizontal: 20.0,
               vertical: 15.0,
             ),
+            hintText: label == 'Mobile Phone' ? '01XXXXXXXX' : null,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: const BorderSide(color: Colors.black, width: 1.5),

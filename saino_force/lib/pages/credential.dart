@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:saino_force/constant/routes.dart';
 import 'package:saino_force/models/credentialModel.dart';
 import 'package:saino_force/models/holder.dart';
-import 'package:saino_force/pages/account.dart';
 import '../providers/credential_details.dart';
 import '../widgets/holder_card.dart';
 import 'package:intl/intl.dart';
@@ -185,10 +184,8 @@ class _CredentialState extends State<Credential> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Holders sent successfully')),
         );
-        Navigator.of(context).pushNamedAndRemoveUntil(
-                  accountRoute,
-                  (route) => false,
-                );
+// After sending successfully in the credential page
+        Navigator.pop(context, true); // Pass true back to the account page
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to send holders')),

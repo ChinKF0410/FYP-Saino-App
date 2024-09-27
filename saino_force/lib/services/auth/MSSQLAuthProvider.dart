@@ -7,9 +7,9 @@ import 'dart:developer' as devtools show log;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MSSQLAuthProvider implements AuthProvider {
-  final String baseUrl = "http://10.0.2.2:3010/api";
-  final String toWalletDB = "http://10.0.2.2:3009/api/wallet";
-  //final String baseUrl = "http://10.0.2.2:3010/api";
+  final String baseUrl = "http://192.168.1.9:3010/api";
+  final String toWalletDB = "http://192.168.1.9:3009/api/wallet";
+  //final String baseUrl = "http://192.168.1.9:3010/api";
   //final String baseUrl = "http://172.20.10.3:3010/api";
 
   AuthUser? _currentUser;
@@ -168,7 +168,7 @@ class MSSQLAuthProvider implements AuthProvider {
     required String perID,
     required String eduBacID,
     required String cerID,
-    required String intelID,
+    required String softID,
     required String workExpID,
   }) async {
     try {
@@ -177,7 +177,7 @@ class MSSQLAuthProvider implements AuthProvider {
         'PerID': perID,
         'EduBacID': eduBacID,
         'CerID': cerID,
-        'IntelID': intelID,
+        'SoftID': softID,
         'WorkExpID': workExpID,
       };
 
@@ -220,7 +220,10 @@ class MSSQLAuthProvider implements AuthProvider {
       devtools.log(
           'Search QRCode API Response: ${response.statusCode} ${response.body}');
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
+        // Explicitly cast responseData to Map<String, dynamic>
+        final Map<String, dynamic> responseData =
+            jsonDecode(response.body) as Map<String, dynamic>;
+        devtools.log(responseData.toString());
         return responseData;
       } else {
         throw GenericAuthException();
@@ -247,6 +250,9 @@ class MSSQLAuthProvider implements AuthProvider {
           'Fetch QR Codes by UserID API Response: ${response.statusCode} ${response.body}');
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
+        devtools.log("\n\n Decode Response Data:\n" +
+            responseData +
+            responseData.toString());
         return List<Map<String, dynamic>>.from(responseData['qrCodes']);
       } else {
         return [];

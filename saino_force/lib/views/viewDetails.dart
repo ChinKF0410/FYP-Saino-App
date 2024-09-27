@@ -119,8 +119,8 @@ class ViewDetails extends StatelessWidget {
     return Column(
       children: softSkills.map((skill) {
         return _buildInfoBox([
-          'Skill: ${skill['InteHighlight']}',
-          'Description: ${skill['InteDescription']}',
+          'Skill: ${skill['SoftHighlight']}',
+          'Description: ${skill['SoftDescription']}',
         ]);
       }).toList(),
     );

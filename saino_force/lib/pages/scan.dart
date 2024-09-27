@@ -69,7 +69,6 @@ class _ScanState extends State<Scan> with WidgetsBindingObserver {
       final barcodeCapture = await _scannerController.analyzeImage(imagePath);
       if (barcodeCapture != null && barcodeCapture.barcodes.isNotEmpty) {
         final qrCode = barcodeCapture.barcodes.first.rawValue;
-        devtools.log("\n\n QR Code: $qrCode\n\n");
         if (qrCode != null) {
           devtools.log('QR Code value: $qrCode');
           _sendQRCodeToAPI(qrCode);

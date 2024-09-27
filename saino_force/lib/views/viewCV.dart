@@ -31,7 +31,7 @@ class ViewCV extends StatelessWidget {
             _buildSectionTitle(Icons.star, 'Qualifications'),
             _buildQualificationSection(data['qualification']),
             _buildSectionTitle(Icons.lightbulb, 'Soft Skills'),
-            _buildSoftSkillsSection(data['softSkill']),
+            _buildSoftSkillsSection(data['skills']),
           ],
         ),
       ),
@@ -96,7 +96,7 @@ class ViewCV extends StatelessWidget {
           'City: ${work['WorkCity']}',
           'Description: ${work['WorkDescription']}',
           'Start Date: ${work['WorkStartDate']}',
-          'End Date: ${work['WordEndDate']}',
+          'End Date: ${work['WorkEndDate']}',
         ]);
       }).toList(),
     );
@@ -119,8 +119,8 @@ class ViewCV extends StatelessWidget {
     return Column(
       children: softSkills.map((skill) {
         return _buildInfoBox([
-          'Skill: ${skill['InteHighlight']}',
-          'Description: ${skill['InteDescription']}',
+          'Skill: ${skill['SoftHighlight']}',
+          'Description: ${skill['SoftDescription']}',
         ]);
       }).toList(),
     );

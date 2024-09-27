@@ -19,8 +19,8 @@ class _RegisterViewState extends State<RegisterView> {
   late final TextEditingController _confirmEmail;
   late final TextEditingController _password;
   late final TextEditingController _confirmPassword;
-  final MSSQLAuthProvider _authProvider = MSSQLAuthProvider(); // Directly use MSSQLAuthProvider
-  bool _isLoading = false; // Loading state
+  final MSSQLAuthProvider _authProvider = MSSQLAuthProvider();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -42,15 +42,15 @@ class _RegisterViewState extends State<RegisterView> {
     super.dispose();
   }
 
-  String? _validatePassword(String password) {
-    if (password.length < 8) {
-      return 'Password must be at least 8 characters long';
-    }
-    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])').hasMatch(password)) {
-      return 'Password must contain at least one uppercase and one lowercase letter';
-    }
-    return null;
+String? _validatePassword(String password) {
+  if (password.length < 8) {
+    return 'Password must be at least 8 characters long';
   }
+  if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@_])[A-Za-z\d@_]{8,}$').hasMatch(password)) {
+    return 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@ or _).';
+  }
+  return null;
+}
 
   Future<void> _register() async {
     final username = _username.text;
@@ -58,9 +58,21 @@ class _RegisterViewState extends State<RegisterView> {
     final confirmEmail = _confirmEmail.text;
     final password = _password.text;
     final confirmPassword = _confirmPassword.text;
-
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    if (username.isEmpty) {
+      await showErrorDialog(context, 'Username is required.');
+      return;
+    }
     if (email != confirmEmail) {
       await showErrorDialog(context, 'Email addresses do not match.');
+      return;
+    }
+
+    // Check if the email has a valid format
+    if (!emailRegex.hasMatch(email)) {
+      await showErrorDialog(context, 'Invalid email format.');
       return;
     }
 
@@ -76,7 +88,7 @@ class _RegisterViewState extends State<RegisterView> {
     }
 
     setState(() {
-      _isLoading = true; // Start loading
+      _isLoading = true;
     });
 
     try {
@@ -100,7 +112,7 @@ class _RegisterViewState extends State<RegisterView> {
       await showErrorDialog(context, 'Registration Error');
     } finally {
       setState(() {
-        _isLoading = false; // Stop loading
+        _isLoading = false;
       });
     }
   }
@@ -109,12 +121,7 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_outlined, color: Colors.black),
-          onPressed: () {
-            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-          },
-        ),
+        automaticallyImplyLeading: false, // This removes the back arrow
         title: Text(
           "Register",
           style: AppWidget.boldTextFieldStyle(),
@@ -123,65 +130,80 @@ class _RegisterViewState extends State<RegisterView> {
         centerTitle: true,
         elevation: 0,
       ),
-      body: Container(
-        padding: const EdgeInsets.only(top: 20.0),
-        alignment: Alignment.topCenter,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            _buildTextField(
-              controller: _username,
-              labelText: 'Username',
-              icon: Icons.person_outline,
-              isPassword: false,
-            ),
-            const SizedBox(height: 20.0),
-            _buildTextField(
-              controller: _email,
-              labelText: 'Email Address',
-              icon: Icons.email_outlined,
-              isPassword: false,
-            ),
-            const SizedBox(height: 20.0),
-            _buildTextField(
-              controller: _confirmEmail,
-              labelText: 'Confirm Email',
-              icon: Icons.email_outlined,
-              isPassword: false,
-            ),
-            const SizedBox(height: 20.0),
-            _buildTextField(
-              controller: _password,
-              labelText: 'Password',
-              icon: Icons.lock_outline,
-              isPassword: true,
-            ),
-            const SizedBox(height: 20.0),
-            _buildTextField(
-              controller: _confirmPassword,
-              labelText: 'Confirm Password',
-              icon: Icons.lock_outline,
-              isPassword: true,
-            ),
-            const SizedBox(height: 20.0),
-            _isLoading
-                ? const CircularProgressIndicator()
-                : _buildButton('Register', Icons.app_registration_outlined, _register),
-            const SizedBox(height: 15.0),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  loginRoute,
-                  (_) => false,
-                );
-              },
-              child: const Text(
-                'Already Registered? Login Here.',
-                style: TextStyle(fontSize: 14, color: Colors.blueAccent),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context)
+            .unfocus(), // Dismiss the keyboard when tapped outside
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        _buildTextField(
+                          controller: _username,
+                          labelText: 'Username',
+                          icon: Icons.person_outline,
+                          isPassword: false,
+                        ),
+                        const SizedBox(height: 20.0),
+                        _buildTextField(
+                          controller: _email,
+                          labelText: 'Email Address',
+                          icon: Icons.email_outlined,
+                          isPassword: false,
+                        ),
+                        const SizedBox(height: 20.0),
+                        _buildTextField(
+                          controller: _confirmEmail,
+                          labelText: 'Confirm Email',
+                          icon: Icons.email_outlined,
+                          isPassword: false,
+                        ),
+                        const SizedBox(height: 20.0),
+                        _buildTextField(
+                          controller: _password,
+                          labelText: 'Password',
+                          icon: Icons.lock_outline,
+                          isPassword: true,
+                        ),
+                        const SizedBox(height: 20.0),
+                        _buildTextField(
+                          controller: _confirmPassword,
+                          labelText: 'Confirm Password',
+                          icon: Icons.lock_outline,
+                          isPassword: true,
+                        ),
+                        const SizedBox(height: 20.0),
+                        _isLoading
+                            ? const CircularProgressIndicator()
+                            : _buildButton('Register',
+                                Icons.app_registration_outlined, _register),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                              loginRoute,
+                              (_) => false,
+                            );
+                          },
+                          child: const Text(
+                            'Already Registered? Login Here.',
+                            style: TextStyle(
+                                fontSize: 14, color: Colors.blueAccent),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -193,49 +215,43 @@ class _RegisterViewState extends State<RegisterView> {
     required IconData icon,
     required bool isPassword,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: TextField(
-        controller: controller,
-        obscureText: isPassword,
-        style: const TextStyle(fontSize: 14),
-        decoration: InputDecoration(
-          labelText: labelText,
-          prefixIcon: Icon(icon),
-          border: const OutlineInputBorder(),
-        ),
-        keyboardType: isPassword
-            ? TextInputType.visiblePassword
-            : TextInputType.emailAddress,
-        enableSuggestions: !isPassword,
-        autocorrect: !isPassword,
+    return TextField(
+      controller: controller,
+      obscureText: isPassword,
+      style: const TextStyle(fontSize: 14),
+      decoration: InputDecoration(
+        labelText: labelText,
+        prefixIcon: Icon(icon),
+        border: const OutlineInputBorder(),
       ),
+      keyboardType: isPassword
+          ? TextInputType.visiblePassword
+          : TextInputType.emailAddress,
+      enableSuggestions: !isPassword,
+      autocorrect: !isPassword,
     );
   }
 
   Widget _buildButton(String text, IconData icon, VoidCallback onPressed) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
-          minimumSize: const Size.fromHeight(56.0),
-        ),
-        onPressed: _isLoading ? null : onPressed, // Disable button when loading
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Icon(icon),
-            Expanded(
-              child: Text(
-                text,
-                textAlign: TextAlign.center,
-                style: AppWidget.accountStyle(),
-              ),
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+        minimumSize: const Size.fromHeight(56.0),
+      ),
+      onPressed: _isLoading ? null : onPressed, // Disable button when loading
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Icon(icon),
+          Expanded(
+            child: Text(
+              text,
+              textAlign: TextAlign.center,
+              style: AppWidget.accountStyle(),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
