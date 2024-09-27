@@ -5,6 +5,7 @@ import 'package:saino_force/pages/changePasswd.dart';
 import 'package:saino_force/pages/credential.dart';
 import 'package:saino_force/widgets/widget_support.dart';
 import '../services/auth/MSSQLAuthProvider.dart';
+import 'viewCredentials.dart';
 import 'viewprofile.dart';
 import 'dart:developer' as devtools show log;
 
@@ -34,7 +35,6 @@ class _AccountState extends State<Account> {
       final profileData = await _authProvider.getProfile(user.id);
 
       devtools.log("Username: ${user.username}");
-
 
       if (profileData != null) {
         setState(() {
@@ -114,7 +114,7 @@ class _AccountState extends State<Account> {
             // Wait for result from Credential page
             final result = await Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) =>  const Credential()),
+              MaterialPageRoute(builder: (context) => const Credential()),
             );
 
             // If credential was created, reinitialize the account page
@@ -132,7 +132,7 @@ class _AccountState extends State<Account> {
           } else if (text == 'View Created Credentials') {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Credential()),
+              MaterialPageRoute(builder: (context) => HolderListPage()),
             );
           } else if (text == 'Change Password') {
             Navigator.push(

@@ -29,6 +29,7 @@ async function storeCredentialAndHolders(username, holders, credential) {
         }
 
         const jwtToken = await getAuthToken(walletData.wallet_id);
+        console.log("\n\n\n-----------------------------");
         const schemaId = await createSchema(credential.credentialType, jwtToken);
         const credentialDefinitionId = await createCredentialDefinition(schemaId, jwtToken);
 
@@ -41,12 +42,12 @@ async function storeCredentialAndHolders(username, holders, credential) {
             console.log(connectionId);
 
             if (connectionId) {
-                await storeHolder(transaction, holder, credentialId, "Pending");
+                await storeHolder(transaction, holder, credentialId, "Pending", username);
                 console.log("123123Holder stored successfully");
                 console.log(holder.email);
-                 await sendOffer(holder, connectionId, credentialDefinitionId, schemaId, jwtToken, walletData.public_did);
+                await sendOffer(holder, connectionId, credentialDefinitionId, schemaId, jwtToken, walletData.public_did, credential, username);
             } else {
-                await storeHolder(transaction, holder, credentialId, "Holder Not Found");
+                await storeHolder(transaction, holder, credentialId, "Holder Not Found", username);
             }
         }
 
@@ -79,10 +80,10 @@ async function storeCredential(transaction, credentialData, schemaId, credential
 }
 
 // Store holder in the HolderCredential table
-async function storeHolder(transaction, holder, credentialId, state) {
+async function storeHolder(transaction, holder, credentialId, state, username) {
     const query = `
-        INSERT INTO HolderCredential (holder_name, holder_email, holder_phone, holder_description, did, credential_id, statusState)
-        VALUES (@holderName, @holderEmail, @holderPhone, @holderDescription, @did, @credentialId, @state)
+        INSERT INTO HolderCredential (holder_name, holder_email, holder_phone, holder_description, did, credential_id, statusState,username)
+        VALUES (@holderName, @holderEmail, @holderPhone, @holderDescription, @did, @credentialId, @state,@username)
     `;
 
     const request = new sql.Request(transaction);  // Use transaction in the request
@@ -95,6 +96,7 @@ async function storeHolder(transaction, holder, credentialId, state) {
         .input('did', sql.NVarChar(255), holder.did)
         .input('credentialId', sql.Int, credentialId)
         .input('state', sql.NVarChar(50), state)
+        .input('username', sql.NVarChar(50), username)
         .query(query);
 }
 
@@ -141,7 +143,7 @@ async function createSchema(schema_name, jwtToken) {
         const response = await axios.post(`${acaPyBaseUrl}/schemas`, {
             schema_name: schema_name,
             schema_version: "1.0",
-            attributes: ["name", "email", "phoneNo", "description", "did"]
+            attributes: ["credentialType", "issuerName", "name", "email", "phoneNo", "description", "did", "issueDate"]
         }, {
             headers: {
                 Authorization: `Bearer ${jwtToken}`,
@@ -178,7 +180,7 @@ async function createCredentialDefinition(schemaId, jwtToken) {
 }
 
 // Send credential offer via ACA-Py
-async function sendOffer(holder, connectionId, credentialDefinitionId, schemaId, jwtToken, publicDid) {
+async function sendOffer(holder, connectionId, credentialDefinitionId, schemaId, jwtToken, publicDid, credential, username) {
     try {
         console.log("Inside sendOffer");
         const response = await axios.post(`${acaPyBaseUrl}/issue-credential-2.0/send`, {
@@ -194,11 +196,14 @@ async function sendOffer(holder, connectionId, credentialDefinitionId, schemaId,
             "credential_preview": {
                 "@type": "issue-credential/2.0/credential-preview",
                 "attributes": [
+                    { "name": "credentialType", "value": credential.credentialType },
+                    { "name": "issuerName", "value": username },
                     { "name": "name", "value": holder.name },
                     { "name": "email", "value": holder.email },
                     { "name": "phoneNo", "value": holder.phoneNo },
                     { "name": "description", "value": holder.description },
-                    { "name": "did", "value": holder.did }
+                    { "name": "did", "value": holder.did }, 
+                    { "name": "issueDate", "value": credential.issuancedate}
                 ]
             }
         }, {

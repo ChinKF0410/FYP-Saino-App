@@ -2,6 +2,7 @@ const express = require('express');
 const { login, register, logout, verifyPassword, changePassword, getProfile, saveProfile, saveFeedback } = require('../controllers/userController');
 const { search, showDetails } = require('../controllers/searchController');
 const { createWalletandDID } = require('../controllers/acapyRegister');
+const { ViewCredential } = require('../credential/function/IssuedCredential')
 const { storeCredentialAndHolders } = require('../credential/function/createCredAndStore');
 const { Connection, handleConnection } = require('../credential/function/Connection');
 const router = express.Router();
@@ -20,6 +21,7 @@ router.post('/saveFeedback', saveFeedback);
 
 
 router.post('/createWalletandDID', createWalletandDID);
+router.post('/ViewCredential', ViewCredential);
 router.post('/connection', Connection);
 // Route to handle connection creation
 router.post('/createCredential', async (req, res) => {
