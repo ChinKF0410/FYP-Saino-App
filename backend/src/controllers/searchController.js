@@ -33,9 +33,9 @@ module.exports.search = async (req, res) => {
                 `;
         } else if (searchType.toLowerCase() === 'skills') {
             query = `
-                    SELECT UserID, IntelID, InteHighlight, InteDescription 
-                    FROM Skills 
-                    WHERE UPPER(InteHighlight) LIKE '%' + @searchTerm + '%'
+                    SELECT UserID, SoftID, SoftHighlight, SoftDescription 
+                    FROM SoftSkill 
+                    WHERE UPPER(SoftHighlight) LIKE '%' + @searchTerm + '%'
                 `;
         } else {
             return res.status(400).json({ error: 'Invalid searchType. Must be "education" or "skills".' });
@@ -120,10 +120,10 @@ module.exports.showDetails = async (req, res) => {
             .input('userID', sql.Int, userID)
             .query(educationQuery);
 
-        // Fetch Skills information
+        // Fetch SoftSkill information
         const skillsQuery = `
-            SELECT IntelID, InteHighlight, InteDescription 
-            FROM Skills 
+            SELECT SoftID, SoftHighlight, SoftDescription 
+            FROM SoftSkill 
             WHERE UserID = @userID
         `;
         const skillsResult = await pool.request()

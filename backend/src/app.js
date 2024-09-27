@@ -6,7 +6,8 @@ const userRoutes = require('./routes/userRoutes');
 const app = express();
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit based on your needs
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true })); // For URL-encoded form data
 app.use('/api', userRoutes);
 
 // Root route for testing

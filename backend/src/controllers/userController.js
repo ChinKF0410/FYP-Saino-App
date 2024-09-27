@@ -174,19 +174,31 @@ module.exports.getProfile = async (req, res) => {
         res.status(500).send({ message: "Error fetching profile", error });
     }
 };
-
 // Save or update profile details
 module.exports.saveProfile = async (req, res) => {
     const { userID, nickname, surname, lastname, age, mobilePhone, photo } = req.body;
 
+    // Validate required fields
     if (!userID || !nickname || !surname || !lastname || !mobilePhone || age == null) {
         return res.status(400).send({ message: "All fields are required" });
+    }
+
+    // Validate mobilePhone: must start with '01' and be 10 or 11 digits long
+    const mobilePhoneRegex = /^01\d{8,9}$/;
+    if (!mobilePhoneRegex.test(mobilePhone)) {
+        return res.status(400).send({ message: "Invalid Mobile Phone Number. " });
+    }
+
+    // Validate age: must be between 0 and 99
+    if (isNaN(age) || age < 0 || age > 99) {
+        return res.status(400).send({ message: "Invalid Age." });
     }
 
     try {
         const pool = await poolPromise;
 
         const profilePicBuffer = photo ? Buffer.from(photo, 'base64') : null;
+
         await pool.request()
             .input('userID', sql.Int, userID)
             .input('nickname', sql.VarChar(255), nickname)
@@ -219,6 +231,7 @@ module.exports.saveProfile = async (req, res) => {
         res.status(500).send({ message: "Error updating profile", error });
     }
 };
+
 
 
 module.exports.saveFeedback = async (req, res) => {

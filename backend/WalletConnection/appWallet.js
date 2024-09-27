@@ -7,7 +7,8 @@ const appWallet = express();
 
 // Middleware
 appWallet.use(cors()); // Enable CORS
-appWallet.use(bodyParser.json()); // Parse JSON request bodies
+appWallet.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit based on your needs
+appWallet.use(bodyParser.urlencoded({ limit: '10mb', extended: true })); // For URL-encoded form data
 
 // Route handling
 appWallet.use('/api/wallet', walletRoutes); 

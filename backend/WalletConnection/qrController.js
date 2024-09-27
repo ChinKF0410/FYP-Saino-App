@@ -15,12 +15,12 @@ let poolPromise = sql.connect(dbConfig)
     });
 
 module.exports.generateQRCode = async (req, res) => {
-    const { userID, PerID, EduBacID, CerID, IntelID, WorkExpID } = req.body;
+    const { userID, PerID, EduBacID, CerID, SoftID, WorkExpID } = req.body;
 
     try {
         const pool = await poolPromise;
 
-        const dataString = `PerID=${PerID};EduBacID=${EduBacID};CerID=${CerID};IntelID=${IntelID};WorkExpID=${WorkExpID}`;
+        const dataString = `PerID=${PerID};EduBacID=${EduBacID};CerID=${CerID};SoftID=${SoftID};WorkExpID=${WorkExpID}`;
         const timestamp = Date.now().toString();
         const dataToHash = `${userID}:${timestamp}:${dataString}`;
         const qrHash = crypto.createHash('sha256').update(dataToHash).digest('hex');
@@ -32,15 +32,15 @@ module.exports.generateQRCode = async (req, res) => {
             .input('PerID', sql.VarChar, PerID)
             .input('EduBacIDs', sql.VarChar, EduBacID)
             .input('CerIDs', sql.VarChar, CerID)
-            .input('IntelIDs', sql.VarChar, IntelID)
+            .input('SoftIDs', sql.VarChar, SoftID)
             .input('WorkExpIDs', sql.VarChar, WorkExpID)
             .input('QRHashCode', sql.VarChar, qrHash)
             .input('QRCodeImage', sql.VarBinary, qrCodeBuffer)
             .query(`
                 INSERT INTO QRPermission 
-                (UserID, PerID, EduBacIDs, CerIDs, IntelIDs, WorkExpIDs, QRHashCode, ExpireDate, QRCodeImage) 
+                (UserID, PerID, EduBacIDs, CerIDs, SoftIDs, WorkExpIDs, QRHashCode, ExpireDate, QRCodeImage) 
                 OUTPUT INSERTED.QRCodeImage
-                VALUES (@userID, @PerID, @EduBacIDs, @CerIDs, @IntelIDs, @WorkExpIDs, @QRHashCode, DATEADD(DAY, 30, GETDATE()), @QRCodeImage);
+                VALUES (@userID, @PerID, @EduBacIDs, @CerIDs, @SoftIDs, @WorkExpIDs, @QRHashCode, DATEADD(DAY, 30, GETDATE()), @QRCodeImage);
             `);
 
         const qrCodeImageBase64 = result.recordset[0].QRCodeImage.toString('base64');
@@ -70,6 +70,9 @@ module.exports.searchQRCode = async (req, res) => {
     try {
         const pool = await poolPromise;
 
+        // Check the input data
+        console.log(`Searching for QR code: ${qrHashCode}`);
+
         const qrPermissionResult = await pool.request()
             .input('qrHashCode', sql.NVarChar, qrHashCode)
             .query(`
@@ -80,10 +83,12 @@ module.exports.searchQRCode = async (req, res) => {
             `);
 
         if (qrPermissionResult.recordset.length === 0) {
+            console.log('QR code not found or expired.');
             return res.status(404).send('QR code not found or expired.');
         }
 
         const qrPermissionData = qrPermissionResult.recordset[0];
+        console.log(`QR Permission Data:`, qrPermissionData);
 
         const splitIds = (idString) => {
             if (!idString) return [];
@@ -94,40 +99,30 @@ module.exports.searchQRCode = async (req, res) => {
             const results = [];
             for (let id of ids) {
                 const query = `SELECT * FROM ${table} WHERE CAST(${column} AS NVARCHAR) = @id`;
+                console.log(`Fetching from ${table} for ID: ${id}`); // Log query
                 const result = await pool.request()
                     .input('id', sql.NVarChar, id)
                     .query(query);
+                console.log(`Result from ${table}:`, result.recordset);
                 results.push(...result.recordset);
             }
             return results;
         };
 
         const education = await fetchRelatedData('Education', 'EduBacID', splitIds(qrPermissionData.EduBacIDs));
-        const qualification = await fetchRelatedData('Qualification', 'QuaID', splitIds(qrPermissionData.CerIDs));
-        const softSkill = await fetchRelatedData('Skills', 'IntelID', splitIds(qrPermissionData.IntelIDs));
+        const qualification = await fetchRelatedData('Certification', 'CerID', splitIds(qrPermissionData.CerIDs));
+        const skills = await fetchRelatedData('SoftSkill', 'SoftID', splitIds(qrPermissionData.SoftIDs));
         const workExperience = await fetchRelatedData('Work', 'WorkExpID', splitIds(qrPermissionData.WorkExpIDs));
         const profile = qrPermissionData.PerID ? await fetchRelatedData('Profile', 'PerID', splitIds(qrPermissionData.PerID)) : null;
 
-        // Format dates to 'YYYY-MM-DD'
-        education.forEach(edu => {
-            edu.EduStartDate = formatDate(edu.EduStartDate);
-            edu.EduEndDate = formatDate(edu.EduEndDate);
-        });
-
-        qualification.forEach(quali => {
-            quali.CerAcquiredDate = formatDate(quali.CerAcquiredDate);
-        });
-
-        workExperience.forEach(work => {
-            work.WorkStartDate = formatDate(work.WorkStartDate);
-            work.WorkEndDate = formatDate(work.WorkEndDate);
-        });
-
+        console.log('Skills:', skills); // Log skills
+        console.log('workExperience:', workExperience); // Log education
+        
         const responseData = {
             profile: profile ? profile[0] : null,
             education,
             qualification,
-            softSkill,
+            skills,
             workExperience,
         };
 
