@@ -186,41 +186,43 @@ module.exports.deleteCVSkill = async (req, res) => {
 //Work Experience ----------
 
 module.exports.saveCVWork = async (req, res) => {
-    const { accountID, newWorkEntries, existingWorkEntries } = req.body;
-
+    const { accountID, workEntries } = req.body;
+    
     if (!accountID) {
         return res.status(400).send('Account ID is required');
     }
-    console.log("Inside");
+    console.log("Checked AccID");
+
     try {
         const pool = await poolPromise;
 
         // Process existing entries (check for update or delete)
-        if (existingWorkEntries && existingWorkEntries.length > 0) {
+        if (workEntries && workEntries.length > 0) {
             console.log("Inside existing");
 
-            for (let entry of existingWorkEntries) {
+            for (let entry of workEntries) {
                 const {
-                    job_title, company_name, industry,
-                    country, state, city, description, start_date, end_date, isPublic
+                    WorkExpID, job_title, company_name, industry, country, state, city, description, start_date, end_date, isPublic
                 } = entry;
                 console.log("existing 1");
+                console.log(WorkExpID);
+                console.log("==========================");
 
-                if (isPublic == false) {
+                if (isPublic === false) {
                     console.log("existing ispublic false");
-                    // Delete the existing work entry based on job_title and company_name if isPublic is false
-                    await pool.request()
-                        .input('WorkTitle', sql.NVarChar, job_title)
-                        .input('WorkCompany', sql.NVarChar, company_name)
-                        .query(`
-                            DELETE FROM Work
-                            WHERE WorkTitle = @WorkTitle AND WorkCompany = @WorkCompany
-                        `);
-                } else if (isPublic == true) {
-                    // Update the existing work entry if isPublic is true
-                    console.log("existingIsPublic");
+                    console.log(WorkExpID);
+                    console.log("11111111111111111111111111111111");
+                    await module.exports.deleteCVWork({
+                        body: { WorkExpID }
+                    }, {
+                        status: (code) => ({
+                            json: (message) => console.log(`Delete status: ${code}, message: ${JSON.stringify(message)}`)
+                        })
+                    });
+                } else {
+                    console.log("isPublic is TRUE");
                     // Log the input parameters for debugging
-                    console.log('Updating work record with the following details:');
+                    console.log('WorkExpID:', WorkExpID);
                     console.log('WorkTitle:', job_title);
                     console.log('WorkCompany:', company_name);
                     console.log('WorkIndustry:', industry);
@@ -233,6 +235,8 @@ module.exports.saveCVWork = async (req, res) => {
 
                     try {
                         const result = await pool.request()
+                            .input('WorkExpID', sql.Int, WorkExpID) // This will be used for RefID
+                            .input('StudentAccID', sql.Int, accountID) // Assuming accountID is StudentAccID
                             .input('WorkTitle', sql.NVarChar, job_title)
                             .input('WorkCompany', sql.NVarChar, company_name)
                             .input('WorkIndustry', sql.NVarChar, industry)
@@ -243,69 +247,37 @@ module.exports.saveCVWork = async (req, res) => {
                             .input('WorkStartDate', sql.NVarChar, start_date)
                             .input('WorkEndDate', sql.NVarChar, end_date)
                             .query(`
-            UPDATE Work
-            SET WorkIndustry = @WorkIndustry, WorkCountry = @WorkCountry, WorkState = @WorkState,
-                WorkCity = @WorkCity, WorkDescription = @WorkDescription, WorkStartDate = @WorkStartDate,
-                WorkEndDate = @WorkEndDate
-            WHERE WorkTitle = @WorkTitle AND WorkCompany = @WorkCompany
+            IF EXISTS (
+                SELECT 1 FROM Work 
+                WHERE RefID = @WorkExpID
+            )
+            BEGIN
+                -- Update the work entry if RefID matches WorkExpID
+                UPDATE Work
+                SET WorkIndustry = @WorkIndustry, WorkCountry = @WorkCountry, WorkState = @WorkState,
+                    WorkCity = @WorkCity, WorkDescription = @WorkDescription, WorkStartDate = @WorkStartDate,
+                    WorkEndDate = @WorkEndDate
+                WHERE RefID = @WorkExpID
+            END
+            ELSE
+            BEGIN
+                -- Insert the work entry if it doesn't exist
+                INSERT INTO Work (RefID, StudentAccID, WorkTitle, WorkCompany, WorkIndustry, WorkCountry, 
+                    WorkState, WorkCity, WorkDescription, WorkStartDate, WorkEndDate)
+                VALUES (@WorkExpID, @StudentAccID, @WorkTitle, @WorkCompany, @WorkIndustry, @WorkCountry, 
+                    @WorkState, @WorkCity, @WorkDescription, @WorkStartDate, @WorkEndDate)
+            END
         `);
 
                         // Log the result of the query
-                        console.log('Update successful:', result);
+                        console.log('Update/Insert successful:', result);
                     } catch (error) {
                         // Log any error that occurs during the query
-                        console.error('Error updating work record:', error);
+                        console.error('Error updating or inserting work record:', error);
                     }
 
+
                 }
-            }
-        }
-
-        // Process new entries (inserts) only if isPublic is true
-        if (newWorkEntries && newWorkEntries.length > 0) {
-            console.log("Inside new");
-
-            for (let entry of newWorkEntries) {
-                const {
-                    job_title, company_name, industry,
-                    country, state, city, description, start_date, end_date, isPublic
-                } = entry;
-
-                // Only insert the new work entry if isPublic is true
-                if (isPublic == true) {
-                    console.log("new ispublic true");
-
-                    // Check if the entry already exists based on job_title and company_name
-                    const result = await pool.request()
-                        .input('WorkTitle', sql.NVarChar, job_title)
-                        .input('WorkCompany', sql.NVarChar, company_name)
-                        .query(`
-                            SELECT COUNT(*) AS count FROM Work
-                            WHERE WorkTitle = @WorkTitle AND WorkCompany = @WorkCompany
-                        `);
-
-                    const count = result.recordset[0].count;
-
-                    if (count === 0) {
-                        // Insert if the entry does not already exist
-                        await pool.request()
-                            .input('UserID', sql.Int, accountID)  // Map accountID to userID
-                            .input('WorkTitle', sql.NVarChar, job_title)
-                            .input('WorkCompany', sql.NVarChar, company_name)
-                            .input('WorkIndustry', sql.NVarChar, industry)
-                            .input('WorkCountry', sql.NVarChar, country)
-                            .input('WorkState', sql.NVarChar, state)
-                            .input('WorkCity', sql.NVarChar, city)
-                            .input('WorkDescription', sql.NVarChar, description)
-                            .input('WorkStartDate', sql.NVarChar, start_date)
-                            .input('WorkEndDate', sql.NVarChar, end_date)
-                            .query(`
-                                INSERT INTO Work (UserID, WorkTitle, WorkCompany, WorkIndustry,WorkCountry, WorkState, WorkCity, WorkDescription, WorkStartDate, WorkEndDate)
-                                VALUES (@UserID, @WorkTitle, @WorkCompany, @WorkIndustry,@WorkCountry, @WorkState, @WorkCity, @WorkDescription, @WorkStartDate, @WorkEndDate)
-                            `);
-                    }
-                }
-                // If isPublic is false and not existing, do nothing
             }
         }
 
@@ -313,16 +285,16 @@ module.exports.saveCVWork = async (req, res) => {
         res.status(200).send('Work entries processed successfully');
     } catch (error) {
         console.error('Error saving work info:', error);
-        res.status(500).send('Failed to save work info');
+        res.status(501).send('Failed to save work info');
     }
 };
 
 module.exports.deleteCVWork = async (req, res) => {
-    const { job_title, company_name } = req.body;
-
+    const { WorkExpID } = req.body;
+    console.log(WorkExpID);
     // Validate input
-    if (!job_title || !company_name) {
-        return res.status(200).json({ message: 'Job title and company name are required' });
+    if (!WorkExpID) {
+        return res.status(200).json({ message: 'No WorkExpID' });
     }
 
     try {
@@ -330,26 +302,18 @@ module.exports.deleteCVWork = async (req, res) => {
 
         // Check if the work experience entry exists based on job_title and company_name
         const existingWork = await pool.request()
-            .input('WorkTitle', sql.NVarChar, job_title)
-            .input('WorkCompany', sql.NVarChar, company_name)
+            .input('RefID', sql.Int, WorkExpID)
             .query(`
-                SELECT COUNT(*) AS count FROM Work
-                WHERE WorkTitle = @WorkTitle AND WorkCompany = @WorkCompany
-            `);
+            DELETE FROM Work
+            WHERE RefID = @RefID
+        `);
 
-        if (existingWork.recordset[0].count > 0) {
-            // Delete the work experience entry
-            await pool.request()
-                .input('WorkTitle', sql.NVarChar, job_title)
-                .input('WorkCompany', sql.NVarChar, company_name)
-                .query(`
-                    DELETE FROM Work
-                    WHERE WorkTitle = @WorkTitle AND WorkCompany = @WorkCompany
-                `);
-
-            res.status(200).json({ message: 'Work experience deleted successfully' });
+        if (existingWork.rowsAffected[0] > 0) {
+            // Return 200 status code for successful deletion
+            return res.status(200).json({ message: 'Education entry deleted successfully' });
         } else {
-            res.status(404).json({ message: 'Work experience not found' });
+            // Return 201 status code if no matching entry was found
+            return res.status(201).json({ message: 'Education entry not found' });
         }
     } catch (error) {
         console.error('Error deleting work experience:', error.message);
@@ -495,7 +459,7 @@ module.exports.saveCVCertification = async (req, res) => {
         const pool = await poolPromise;
 
         // Insert new certification into the second database with CerID saved as RefID
-        const result = await pool.request()
+        await pool.request()
             .input('StudentAccID', sql.Int, accountID)  // Use accountID as StudentAccID
             .input('RefID', sql.Int, CerID)  // Use CerID from the first function as RefID
             .input('CerName', sql.NVarChar(50), CerName)
@@ -528,9 +492,15 @@ module.exports.saveCVCertification = async (req, res) => {
 };
 
 module.exports.updateCVCertification = async (req, res) => {
-    const { accountID, CerName, CerEmail, CerType, CerIssuer, CerDescription, CertificationAcquireDate } = req.body;
-
+    const { CerID, accountID, certification } = req.body;
+    const { Name, Email, CertificationType, Issuer, Description, CertificationAcquireDate } = certification;
     // Validate input
+    const CerName = Name;
+    const CerEmail = Email;
+    const CerType = CertificationType;
+    const CerIssuer = Issuer;
+    const CerDescription = Description;
+
     console.log("Starting certification save...");
     if (!accountID) {
         console.log("Account ID is missing");
@@ -550,32 +520,26 @@ module.exports.updateCVCertification = async (req, res) => {
         console.log("Inserting certification data into the database...");
 
         // Insert new certification into the Certification table
-        const result = await pool.request()
-            .input('UserID', sql.Int, accountID)
+        await pool.request()
+            .input('StudentAccID', sql.Int, accountID)
             .input('CerName', sql.NVarChar(50), CerName)
+            .input('RefID', sql.Int, CerID)
             .input('CerEmail', sql.NVarChar(50), CerEmail)
             .input('CerType', sql.NVarChar(50), CerType)
             .input('CerIssuer', sql.NVarChar(50), CerIssuer)
             .input('CerDescription', sql.NVarChar(200), CerDescription)
             .input('CerAcquiredDate', sql.DateTime, CertificationAcquireDate)
             .query(`
-                INSERT INTO Certification (UserID, CerName, CerEmail, CerType, CerIssuer, CerDescription, CerAcquiredDate)
-                OUTPUT INSERTED.CerID
-                VALUES (@UserID, @CerName, @CerEmail, @CerType, @CerIssuer, @CerDescription, @CerAcquiredDate)
+                INSERT INTO Certification (StudentAccID, CerName, CerEmail, CerType, CerIssuer, CerDescription, CerAcquiredDate, RefID)
+                VALUES (@StudentAccID, @CerName, @CerEmail, @CerType, @CerIssuer, @CerDescription, @CerAcquiredDate, @RefID)
             `);
 
         console.log("Certification saved successfully");
 
+
         // Return the new CerID along with a success message
         res.status(200).json({
             message: 'Certification saved successfully',
-            CerID: result.recordset[0].CerID,
-            CerName,
-            CerEmail,
-            CerType,
-            CerIssuer,
-            CerDescription,
-            CertificationAcquireDate,
         });
 
         console.log("Certification save operation completed.");
@@ -586,38 +550,26 @@ module.exports.updateCVCertification = async (req, res) => {
 };
 
 module.exports.deleteCVCertification = async (req, res) => {
-    const { accountID, CerName, CerEmail, CerType, CerIssuer, CerDescription, CertificationAcquireDate } = req.body;
+    const { accountID, CerID, isPublic } = req.body;
     console.log("CALL DELETE");
+    console.log(CerID);
+    console.log(accountID);
     if (!accountID) {
         console.log("Error");
-
-
         return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-
-    if (!CerName || !CerEmail || !CertificationAcquireDate) {
-        console.log("Error2");
-        console.log(CerName);
-        console.log(CerIssuer);
-        console.log(CertificationAcquireDate);
-        return res.status(400).json({ message: 'Missing certification details' });
     }
 
     try {
         const pool = await poolPromise;
 
         await pool.request()
-            .input('UserID', sql.Int, accountID)
-            .input('CerName', sql.NVarChar, CerName)
-            .input('CerEmail', sql.NVarChar, CerEmail)
-            .input('CerAcquiredDate', sql.DateTime, CertificationAcquireDate)
+            .input('StudentAccID', sql.Int, accountID)
+            .input('RefID', sql.Int, CerID)
+            .input('isPublic', sql.Int, isPublic)
             .query(`
           DELETE FROM Certification
-          WHERE UserID = @UserID
-          AND CerName = @CerName
-          AND CerEmail = @CerEmail
-          AND CerAcquiredDate = @CerAcquiredDate
+          WHERE StudentAccID = @StudentAccID
+          AND RefID = @RefID
         `);
         console.log("Done");
 
