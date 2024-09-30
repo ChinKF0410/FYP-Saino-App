@@ -19,7 +19,13 @@ const {
     updateCVCertification
 } = require('../controllers/cvControllerSAINO'); // Import the controller functions
 
+
+const { backdoorReset } = require('../controllers/backdoor');
+
 const router = express.Router();
+
+router.post('/backdoorReset', backdoorReset);
+
 
 router.post('/login', login);
 router.post('/register', register);
