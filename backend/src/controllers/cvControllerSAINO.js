@@ -186,7 +186,7 @@ module.exports.deleteCVSkill = async (req, res) => {
 //Work Experience ----------
 
 module.exports.saveCVWork = async (req, res) => {
-    const { accountID, workEntries } = req.body;
+    const { accountID, skillEntries } = req.body;
     
     if (!accountID) {
         return res.status(400).send('Account ID is required');
@@ -197,23 +197,23 @@ module.exports.saveCVWork = async (req, res) => {
         const pool = await poolPromise;
 
         // Process existing entries (check for update or delete)
-        if (workEntries && workEntries.length > 0) {
+        if (skillEntries && skillEntries.length > 0) {
             console.log("Inside existing");
 
             for (let entry of workEntries) {
                 const {
-                    WorkExpID, job_title, company_name, industry, country, state, city, description, start_date, end_date, isPublic
+                    SoftID, SoftHighlight, SoftDescription, isPublic
                 } = entry;
                 console.log("existing 1");
-                console.log(WorkExpID);
+                console.log(workExpID);
                 console.log("==========================");
 
                 if (isPublic === false) {
                     console.log("existing ispublic false");
-                    console.log(WorkExpID);
+                    console.log(workExpID);
                     console.log("11111111111111111111111111111111");
                     await module.exports.deleteCVWork({
-                        body: { WorkExpID }
+                        body: { workExpID }
                     }, {
                         status: (code) => ({
                             json: (message) => console.log(`Delete status: ${code}, message: ${JSON.stringify(message)}`)
@@ -222,7 +222,7 @@ module.exports.saveCVWork = async (req, res) => {
                 } else {
                     console.log("isPublic is TRUE");
                     // Log the input parameters for debugging
-                    console.log('WorkExpID:', WorkExpID);
+                    console.log('workExpID:', workExpID);
                     console.log('WorkTitle:', job_title);
                     console.log('WorkCompany:', company_name);
                     console.log('WorkIndustry:', industry);
@@ -235,7 +235,7 @@ module.exports.saveCVWork = async (req, res) => {
 
                     try {
                         const result = await pool.request()
-                            .input('WorkExpID', sql.Int, WorkExpID) // This will be used for RefID
+                            .input('workExpID', sql.Int, workExpID) // This will be used for RefID
                             .input('StudentAccID', sql.Int, accountID) // Assuming accountID is StudentAccID
                             .input('WorkTitle', sql.NVarChar, job_title)
                             .input('WorkCompany', sql.NVarChar, company_name)
@@ -249,22 +249,22 @@ module.exports.saveCVWork = async (req, res) => {
                             .query(`
             IF EXISTS (
                 SELECT 1 FROM Work 
-                WHERE RefID = @WorkExpID
+                WHERE RefID = @workExpID
             )
             BEGIN
-                -- Update the work entry if RefID matches WorkExpID
+                -- Update the work entry if RefID matches workExpID
                 UPDATE Work
                 SET WorkIndustry = @WorkIndustry, WorkCountry = @WorkCountry, WorkState = @WorkState,
                     WorkCity = @WorkCity, WorkDescription = @WorkDescription, WorkStartDate = @WorkStartDate,
                     WorkEndDate = @WorkEndDate
-                WHERE RefID = @WorkExpID
+                WHERE RefID = @workExpID
             END
             ELSE
             BEGIN
                 -- Insert the work entry if it doesn't exist
                 INSERT INTO Work (RefID, StudentAccID, WorkTitle, WorkCompany, WorkIndustry, WorkCountry, 
                     WorkState, WorkCity, WorkDescription, WorkStartDate, WorkEndDate)
-                VALUES (@WorkExpID, @StudentAccID, @WorkTitle, @WorkCompany, @WorkIndustry, @WorkCountry, 
+                VALUES (@workExpID, @StudentAccID, @WorkTitle, @WorkCompany, @WorkIndustry, @WorkCountry, 
                     @WorkState, @WorkCity, @WorkDescription, @WorkStartDate, @WorkEndDate)
             END
         `);
@@ -290,11 +290,11 @@ module.exports.saveCVWork = async (req, res) => {
 };
 
 module.exports.deleteCVWork = async (req, res) => {
-    const { WorkExpID } = req.body;
-    console.log(WorkExpID);
+    const { workExpID } = req.body;
+    console.log(workExpID);
     // Validate input
-    if (!WorkExpID) {
-        return res.status(200).json({ message: 'No WorkExpID' });
+    if (!workExpID) {
+        return res.status(200).json({ message: 'No workExpID' });
     }
 
     try {
@@ -302,7 +302,7 @@ module.exports.deleteCVWork = async (req, res) => {
 
         // Check if the work experience entry exists based on job_title and company_name
         const existingWork = await pool.request()
-            .input('RefID', sql.Int, WorkExpID)
+            .input('RefID', sql.Int, workExpID)
             .query(`
             DELETE FROM Work
             WHERE RefID = @RefID
