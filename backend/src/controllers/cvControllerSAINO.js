@@ -74,69 +74,60 @@ module.exports.saveCVProfile = async (req, res) => {
 module.exports.saveCVSkill = async (req, res) => {
 
 
-    const { accountID, newSkillEntries, existingSkillEntries } = req.body;
+    const { accountID, skillEntries } = req.body;
 
-
+    console.log(req.body);
     if (!accountID) {
         return res.status(400).send('Account ID is required');
     }
 
     try {
         const sainoPool = await poolPromise;
-        if (existingSkillEntries && existingSkillEntries.length > 0) {
+        if (skillEntries && skillEntries.length > 0) {
 
             // Process existing skill entries (updates or deletes)
-            for (const skill of existingSkillEntries) {
-                const { SoftHighlight, SoftDescription, isPublic } = skill;
+            for (const skill of skillEntries) {
+                const { SoftID, SoftHighlight, SoftDescription, isPublic } = skill;
+
+                console.log("SoftID:  " + SoftID);
+                console.log("SoftHighlight:  " + SoftHighlight);
+                console.log("SoftDescription:  " + SoftDescription);
+                console.log("isPublic:  " + isPublic);
+                console.log("accountID:  " + accountID);
+
 
                 if (isPublic === false) {
-                    // Delete the existing skill if isPublic is unchecked (false)
-                    await sainoPool.request()
-                        .input('SoftHighlight', sql.NVarChar, SoftHighlight)
-                        .query(`
-                            DELETE FROM SoftSkill
-                            WHERE SoftHighlight = @SoftHighlight
-                        `);
+                    await module.exports.deleteCVSkill({
+                        body: { SoftID }
+                    }, {
+                        status: (code) => ({
+                            json: (message) => console.log(`Delete status: ${code}, message: ${JSON.stringify(message)}`)
+                        })
+                    });
                 } else {
                     // Update the existing skill if isPublic is true
                     await sainoPool.request()
+                        .input('SoftID', sql.Int, SoftID) // This will be used for RefID
                         .input('SoftHighlight', sql.NVarChar, SoftHighlight)
                         .input('SoftDescription', sql.NVarChar, SoftDescription)
-                        .input('UserID', sql.Int, accountID)
+                        .input('StudentAccID', sql.Int, accountID) // Assuming accountID is StudentAccID
                         .query(`
-        IF EXISTS (SELECT 1 FROM SoftSkill WHERE SoftHighlight = @SoftHighlight)
-        BEGIN
-            -- Update the skill if it exists
-            UPDATE SoftSkill
-            SET SoftDescription = @SoftDescription
-            WHERE SoftHighlight = @SoftHighlight
-        END
-        ELSE
-        BEGIN
-            -- Insert the skill if it doesn't exist
-            INSERT INTO SoftSkill (UserID, SoftHighlight, SoftDescription)
-                            VALUES (@UserID, @SoftHighlight, @SoftDescription)
-        END
-    `);
+                        IF EXISTS (SELECT 1 FROM SoftSkill WHERE RefID = @SoftID)
+                        BEGIN
+                            -- Update the skill entry if RefID matches SoftID
+                            UPDATE SoftSkill
+                            SET SoftHighlight = @SoftHighlight, SoftDescription = @SoftDescription
+                            WHERE RefID = @SoftID
+                        END
+                        ELSE
+                        BEGIN
+                            -- Insert the skill entry if it doesn't exist
+                            INSERT INTO SoftSkill (RefID, StudentAccID, SoftHighlight, SoftDescription)
+                            VALUES (@SoftID, @StudentAccID, @SoftHighlight, @SoftDescription)
+                        END
+                    `);
 
-                }
-            }
-        }
-        // Process new skill entries (inserts)
-        if (newSkillEntries && newSkillEntries.length > 0) {
-            for (const skill of newSkillEntries) {
-                const { SoftHighlight, SoftDescription, isPublic } = skill;
 
-                // Insert only if isPublic is true
-                if (isPublic === true) {
-                    await sainoPool.request()
-                        .input('UserID', sql.Int, accountID)
-                        .input('SoftHighlight', sql.NVarChar, SoftHighlight)
-                        .input('SoftDescription', sql.NVarChar, SoftDescription)
-                        .query(`
-                            INSERT INTO SoftSkill (UserID, SoftHighlight, SoftDescription)
-                            VALUES (@UserID, @SoftHighlight, @SoftDescription)
-                        `);
                 }
             }
         }
@@ -150,70 +141,70 @@ module.exports.saveCVSkill = async (req, res) => {
 };
 
 module.exports.deleteCVSkill = async (req, res) => {
-    const { SoftHighlight } = req.body;
+    const { SoftID } = req.body;
 
     // Validate input
-    if (!SoftHighlight) {
-        return res.status(400).send('Title is required');
+    if (!SoftID) {
+        return res.status(400).json({ message: 'SoftID is required' });
     }
-    console.error("1:" + SoftHighlight);
+
     try {
         const sainoPool = await poolPromise;
 
-        // Check if the skill exists
-        const existingSkill = await sainoPool.request()
-            .input('SoftHighlight', sql.NVarChar, SoftHighlight)
-            .query('SELECT COUNT(*) AS count FROM SoftSkill WHERE SoftHighlight = @SoftHighlight');
+        // Attempt to delete the skill using SoftID as RefID
+        const result = await sainoPool.request()
+            .input('RefID', sql.Int, SoftID) // Use SoftID as RefID
+            .query(`
+                DELETE FROM SoftSkill
+                WHERE RefID = @RefID
+            `);
 
-        if (existingSkill.recordset[0].count === 0) {
-            return res.status(404).send('Skill not found');
+        // Check if any rows were affected (i.e., a skill was deleted)
+        if (result.rowsAffected[0] > 0) {
+            // Return 200 status code for successful deletion
+            return res.status(200).json({ message: 'Skill deleted successfully' });
+        } else {
+            // Return 404 status code if no matching entry was found
+            return res.status(201).json({ message: 'Skill not found' });
         }
-
-        // Delete the skill from the database
-        await sainoPool.request()
-            .input('SoftHighlight', sql.NVarChar, SoftHighlight)
-            .query('DELETE FROM SoftSkill WHERE SoftHighlight = @SoftHighlight');
-
-        res.status(200).send('Skill deleted successfully');
     } catch (error) {
         console.error('Error deleting skill:', error.message);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Server error while deleting skill' });
     }
 };
-
 
 
 //Work Experience ----------
 
 module.exports.saveCVWork = async (req, res) => {
-    const { accountID, skillEntries } = req.body;
-    
+    const { accountID, workEntries } = req.body;
+
     if (!accountID) {
         return res.status(400).send('Account ID is required');
     }
-    console.log("Checked AccID");
+    console.log("Checked Work");
 
     try {
         const pool = await poolPromise;
 
         // Process existing entries (check for update or delete)
-        if (skillEntries && skillEntries.length > 0) {
+        if (workEntries && workEntries.length > 0) {
             console.log("Inside existing");
 
             for (let entry of workEntries) {
                 const {
-                    SoftID, SoftHighlight, SoftDescription, isPublic
+                    WorkExpID, job_title, company_name, industry, country, state, city, description, start_date, end_date, isPublic
                 } = entry;
                 console.log("existing 1");
-                console.log(workExpID);
+                console.log(WorkExpID);
                 console.log("==========================");
 
                 if (isPublic === false) {
                     console.log("existing ispublic false");
-                    console.log(workExpID);
+                    console.log(WorkExpID);
                     console.log("11111111111111111111111111111111");
                     await module.exports.deleteCVWork({
-                        body: { workExpID }
+                        body: { WorkExpID }
                     }, {
                         status: (code) => ({
                             json: (message) => console.log(`Delete status: ${code}, message: ${JSON.stringify(message)}`)
@@ -222,7 +213,7 @@ module.exports.saveCVWork = async (req, res) => {
                 } else {
                     console.log("isPublic is TRUE");
                     // Log the input parameters for debugging
-                    console.log('workExpID:', workExpID);
+                    console.log('WorkExpID:', WorkExpID);
                     console.log('WorkTitle:', job_title);
                     console.log('WorkCompany:', company_name);
                     console.log('WorkIndustry:', industry);
@@ -235,7 +226,7 @@ module.exports.saveCVWork = async (req, res) => {
 
                     try {
                         const result = await pool.request()
-                            .input('workExpID', sql.Int, workExpID) // This will be used for RefID
+                            .input('WorkExpID', sql.Int, WorkExpID) // This will be used for RefID
                             .input('StudentAccID', sql.Int, accountID) // Assuming accountID is StudentAccID
                             .input('WorkTitle', sql.NVarChar, job_title)
                             .input('WorkCompany', sql.NVarChar, company_name)
@@ -249,22 +240,22 @@ module.exports.saveCVWork = async (req, res) => {
                             .query(`
             IF EXISTS (
                 SELECT 1 FROM Work 
-                WHERE RefID = @workExpID
+                WHERE RefID = @WorkExpID
             )
             BEGIN
-                -- Update the work entry if RefID matches workExpID
+                -- Update the work entry if RefID matches WorkExpID
                 UPDATE Work
                 SET WorkIndustry = @WorkIndustry, WorkCountry = @WorkCountry, WorkState = @WorkState,
                     WorkCity = @WorkCity, WorkDescription = @WorkDescription, WorkStartDate = @WorkStartDate,
                     WorkEndDate = @WorkEndDate
-                WHERE RefID = @workExpID
+                WHERE RefID = @WorkExpID
             END
             ELSE
             BEGIN
                 -- Insert the work entry if it doesn't exist
                 INSERT INTO Work (RefID, StudentAccID, WorkTitle, WorkCompany, WorkIndustry, WorkCountry, 
                     WorkState, WorkCity, WorkDescription, WorkStartDate, WorkEndDate)
-                VALUES (@workExpID, @StudentAccID, @WorkTitle, @WorkCompany, @WorkIndustry, @WorkCountry, 
+                VALUES (@WorkExpID, @StudentAccID, @WorkTitle, @WorkCompany, @WorkIndustry, @WorkCountry, 
                     @WorkState, @WorkCity, @WorkDescription, @WorkStartDate, @WorkEndDate)
             END
         `);
@@ -290,11 +281,11 @@ module.exports.saveCVWork = async (req, res) => {
 };
 
 module.exports.deleteCVWork = async (req, res) => {
-    const { workExpID } = req.body;
-    console.log(workExpID);
+    const { WorkExpID } = req.body;
+    console.log(WorkExpID);
     // Validate input
-    if (!workExpID) {
-        return res.status(200).json({ message: 'No workExpID' });
+    if (!WorkExpID) {
+        return res.status(200).json({ message: 'No WorkExpID' });
     }
 
     try {
@@ -302,7 +293,7 @@ module.exports.deleteCVWork = async (req, res) => {
 
         // Check if the work experience entry exists based on job_title and company_name
         const existingWork = await pool.request()
-            .input('RefID', sql.Int, workExpID)
+            .input('RefID', sql.Int, WorkExpID)
             .query(`
             DELETE FROM Work
             WHERE RefID = @RefID
