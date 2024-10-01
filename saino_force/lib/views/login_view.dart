@@ -18,6 +18,7 @@ class _LoginViewState extends State<LoginView> {
   late final TextEditingController _password;
   final MSSQLAuthProvider _authProvider =
       MSSQLAuthProvider(); // Directly use MSSQLAuthProvider
+  bool _isPasswordVisible = false;
 
   @override
   void initState() {
@@ -33,6 +34,12 @@ class _LoginViewState extends State<LoginView> {
     _email.dispose();
     _password.dispose();
     super.dispose();
+  }
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _isPasswordVisible = !_isPasswordVisible;
+    });
   }
 
   Future<void> _login() async {
@@ -149,11 +156,21 @@ class _LoginViewState extends State<LoginView> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: TextField(
         controller: controller,
-        obscureText: isPassword,
+        obscureText: isPassword && !_isPasswordVisible,
         style: const TextStyle(fontSize: 14),
         decoration: InputDecoration(
           labelText: labelText,
           prefixIcon: Icon(icon),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  onPressed: _togglePasswordVisibility,
+                )
+              : null,
           border: const OutlineInputBorder(),
         ),
         keyboardType: isPassword

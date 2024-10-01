@@ -21,6 +21,8 @@ class _RegisterViewState extends State<RegisterView> {
   late final TextEditingController _confirmPassword;
   final MSSQLAuthProvider _authProvider = MSSQLAuthProvider();
   bool _isLoading = false;
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   @override
   void initState() {
@@ -42,15 +44,28 @@ class _RegisterViewState extends State<RegisterView> {
     super.dispose();
   }
 
-String? _validatePassword(String password) {
-  if (password.length < 8) {
-    return 'Password must be at least 8 characters long';
+  void _togglePasswordVisibility() {
+    setState(() {
+      _isPasswordVisible = !_isPasswordVisible;
+    });
   }
-  if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@_])[A-Za-z\d@_]{8,}$').hasMatch(password)) {
-    return 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@ or _).';
+
+  void _toggleConfirmPasswordVisibility() {
+    setState(() {
+      _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+    });
   }
-  return null;
-}
+
+  String? _validatePassword(String password) {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@_])[A-Za-z\d@_]{8,}$')
+        .hasMatch(password)) {
+      return 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@ or _).';
+    }
+    return null;
+  }
 
   Future<void> _register() async {
     final username = _username.text;
@@ -170,6 +185,8 @@ String? _validatePassword(String password) {
                           labelText: 'Password',
                           icon: Icons.lock_outline,
                           isPassword: true,
+                          isVisible: _isPasswordVisible,
+                          toggleVisibility: _togglePasswordVisibility,
                         ),
                         const SizedBox(height: 20.0),
                         _buildTextField(
@@ -177,6 +194,8 @@ String? _validatePassword(String password) {
                           labelText: 'Confirm Password',
                           icon: Icons.lock_outline,
                           isPassword: true,
+                          isVisible: _isConfirmPasswordVisible,
+                          toggleVisibility: _toggleConfirmPasswordVisibility,
                         ),
                         const SizedBox(height: 20.0),
                         _isLoading
@@ -214,14 +233,26 @@ String? _validatePassword(String password) {
     required String labelText,
     required IconData icon,
     required bool isPassword,
+    bool? isVisible,
+    VoidCallback? toggleVisibility,
   }) {
     return TextField(
       controller: controller,
-      obscureText: isPassword,
+      obscureText: isPassword && !(isVisible ?? false),
       style: const TextStyle(fontSize: 14),
       decoration: InputDecoration(
         labelText: labelText,
         prefixIcon: Icon(icon),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  (isVisible ?? false)
+                      ? Icons.visibility
+                      : Icons.visibility_off,
+                ),
+                onPressed: toggleVisibility,
+              )
+            : null,
         border: const OutlineInputBorder(),
       ),
       keyboardType: isPassword

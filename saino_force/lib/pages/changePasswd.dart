@@ -20,6 +20,10 @@ class _ChangePasswdViewState extends State<ChangePasswdView> {
 
   final MSSQLAuthProvider _authProvider = MSSQLAuthProvider();
 
+  bool _isOldPasswordVisible = false;
+  bool _isNewPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
+
   @override
   void initState() {
     _oldPasswordController = TextEditingController();
@@ -160,17 +164,28 @@ class _ChangePasswdViewState extends State<ChangePasswdView> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             _buildTextField(
-              controller: _oldPasswordController,
-              labelText: 'Old Password',
-              icon: Icons.lock_outline,
-              isPassword: true,
-            ),
+                controller: _oldPasswordController,
+                labelText: 'Old Password',
+                icon: Icons.lock_outline,
+                isPassword: true,
+                isVisible: _isOldPasswordVisible,
+                toggleVisibility: () {
+                  setState(() {
+                    _isOldPasswordVisible = !_isOldPasswordVisible;
+                  });
+                }),
             const SizedBox(height: 20.0),
             _buildTextField(
               controller: _newPasswordController,
               labelText: 'New Password',
               icon: Icons.lock_outline,
               isPassword: true,
+              isVisible: _isNewPasswordVisible,
+              toggleVisibility: () {
+                setState(() {
+                  _isNewPasswordVisible = !_isNewPasswordVisible;
+                });
+              },
             ),
             const SizedBox(height: 20.0),
             _buildTextField(
@@ -178,6 +193,12 @@ class _ChangePasswdViewState extends State<ChangePasswdView> {
               labelText: 'Confirm Password',
               icon: Icons.lock_outline,
               isPassword: true,
+              isVisible: _isConfirmPasswordVisible,
+              toggleVisibility: () {
+                setState(() {
+                  _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                });
+              },
             ),
             const SizedBox(height: 20.0),
             _buildButton('Save', Icons.save_outlined, _changePassword),
@@ -192,16 +213,26 @@ class _ChangePasswdViewState extends State<ChangePasswdView> {
     required String labelText,
     required IconData icon,
     required bool isPassword,
+    required bool isVisible,
+    required VoidCallback toggleVisibility,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: TextField(
         controller: controller,
-        obscureText: isPassword,
+        obscureText: isPassword && !isVisible,
         style: const TextStyle(fontSize: 14),
         decoration: InputDecoration(
           labelText: labelText,
           prefixIcon: Icon(icon),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    isVisible ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: toggleVisibility,
+                )
+              : null,
           border: const OutlineInputBorder(),
         ),
         keyboardType: TextInputType.visiblePassword,
