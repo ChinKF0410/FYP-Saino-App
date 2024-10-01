@@ -199,7 +199,7 @@ module.exports.saveProfile = async (req, res) => {
 
         const profilePicBuffer = photo ? Buffer.from(photo, 'base64') : null;
 
-        await pool.request()
+        const result = await pool.request()
             .input('userID', sql.Int, userID)
             .input('nickname', sql.VarChar(255), nickname)
             .input('surname', sql.VarChar(255), surname)
@@ -208,8 +208,11 @@ module.exports.saveProfile = async (req, res) => {
             .input('mobilePhone', sql.VarChar(255), mobilePhone)
             .input('profilePic', sql.VarBinary(sql.MAX), profilePicBuffer)
             .query(`
+            DECLARE @InsertedProfile TABLE (ProfileID INT);
+    
             IF EXISTS (SELECT 1 FROM User_Profile WHERE UserID = @userID)
             BEGIN
+                -- Update User_Profile if record exists
                 UPDATE User_Profile
                 SET Nickname = @nickname,
                     Surname = @surname,
@@ -218,16 +221,36 @@ module.exports.saveProfile = async (req, res) => {
                     MobilePhone = @mobilePhone,
                     ProfilePic = @profilePic
                 WHERE UserID = @userID;
+    
+                -- Get the existing ProfileID for this UserID
+                INSERT INTO @InsertedProfile (ProfileID)
+                SELECT ProfileID
+                FROM User_Profile
+                WHERE UserID = @userID;
             END
             ELSE
             BEGIN
+                -- Insert into User_Profile if record doesn't exist and capture ProfileID
                 INSERT INTO User_Profile (UserID, Nickname, Surname, Lastname, Age, MobilePhone, ProfilePic)
+                OUTPUT INSERTED.ProfileID INTO @InsertedProfile (ProfileID) -- Capture the ProfileID of the inserted row
                 VALUES (@userID, @nickname, @surname, @lastname, @age, @mobilePhone, @profilePic);
             END
+    
+            -- Now update UserProID in User table with the ProfileID
+            UPDATE [User]
+            SET UserProID = (SELECT ProfileID FROM @InsertedProfile)
+            WHERE UserID = @userID;
+    
+            -- Return the ProfileID
+            SELECT ProfileID FROM @InsertedProfile;
         `);
+
+        const profileID = result.recordset[0].ProfileID; // Get the ProfileID from the result
+
 
         res.status(200).send({ message: "Profile updated successfully" });
     } catch (error) {
+        console.log(error);
         res.status(500).send({ message: "Error updating profile", error });
     }
 };
