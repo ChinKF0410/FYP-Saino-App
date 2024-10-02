@@ -14,92 +14,103 @@ let poolPromise = sql.connect(dbConfig)
 
 module.exports.search = async (req, res) => {
     try {
-        const { searchType, searchQuery } = req.body;
+        const { searchType, searchQuery, sortOption, page = 1, limit = 10 } = req.body;
 
         if (!searchType || !searchQuery) {
             return res.status(400).json({ error: 'searchType and searchQuery are required' });
         }
 
-        const upperSearchTerm = searchQuery.toUpperCase(); // Convert search term to uppercase
+        const upperSearchTerm = searchQuery.toUpperCase();
+        const offset = (page - 1) * limit; // Pagination offset
 
         const pool = await poolPromise;
-        let query;
-
+        let query, orderBy;
+        
         if (searchType.toLowerCase() === 'education') {
+            orderBy = sortOption === 'End Date (Far to Near)' ? 'EduEndDate ASC' : 'EduEndDate DESC';
             query = `
-                    SELECT UserID, EduBacID, InstituteName, LevelEdu, FieldOfStudy, EduStartDate, EduEndDate 
+                    SELECT StudentAccID, EduBacID, InstituteName, LevelEdu, FieldOfStudy, EduStartDate, EduEndDate 
                     FROM Education 
-                    WHERE UPPER(InstituteName) LIKE '%' + @searchTerm + '%'
+                    WHERE CONTAINS(InstituteName, @searchTerm)
+                    ORDER BY ${orderBy}
+                    OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY;
                 `;
         } else if (searchType.toLowerCase() === 'skills') {
+            orderBy = sortOption === 'Level (Master to Beginner)' ? 'SoftLevel DESC' : 'SoftLevel ASC';
             query = `
-                    SELECT UserID, SoftID, SoftHighlight, SoftDescription 
+                    SELECT StudentAccID, SoftID, SoftHighlight, SoftDescription 
                     FROM SoftSkill 
-                    WHERE UPPER(SoftHighlight) LIKE '%' + @searchTerm + '%'
+                    WHERE CONTAINS(SoftHighlight, @searchTerm)
+                    ORDER BY ${orderBy}
+                    OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY;
                 `;
         } else {
             return res.status(400).json({ error: 'Invalid searchType. Must be "education" or "skills".' });
         }
 
         const searchResults = await pool.request()
-            .input('searchTerm', sql.VarChar, upperSearchTerm)
+            .input('searchTerm', sql.NVarChar, `"*${upperSearchTerm}*"`)
+            .input('offset', sql.Int, offset)
+            .input('limit', sql.Int, limit)
             .query(query);
 
         if (searchResults.recordset.length === 0) {
-            return res.status(200).json([]); // No results found
+            return res.status(200).json({ results: [], totalPages: 1 });
         }
 
-        // Retrieve Profile details based on UserID
-        const userIds = searchResults.recordset.map(result => result.UserID);
+        const studentAccIds = searchResults.recordset.map(result => result.StudentAccID);
         const profileQuery = `
-                SELECT UserID, Name, Age, Email_Address 
-                FROM Profile 
-                WHERE UserID IN (${userIds.join(',')})
-            `;
+                    SELECT StudentAccID, Name, Age, Email_Address 
+                    FROM Profile 
+                    WHERE StudentAccID IN (${studentAccIds.join(',')})
+                `;
         const profileResults = await pool.request().query(profileQuery);
 
-        // Map the profile details to the corresponding results
         const profiles = profileResults.recordset.reduce((acc, profile) => {
-            acc[profile.UserID] = profile;
+            acc[profile.StudentAccID] = profile;
             return acc;
         }, {});
 
-        // Combine the search results with their respective profile information
-        // Filter out results where the profile is null or undefined
-        const combinedResults = searchResults.recordset
-            .map(result => ({
-                ...result,
-                profile: profiles[result.UserID]
-            }))
-            .filter(result => result.profile); // Remove entries with no profile
+        const combinedResults = searchResults.recordset.map(result => ({
+            ...result,
+            profile: profiles[result.StudentAccID]
+        }));
 
-        res.status(200).json(combinedResults);
+        // Get total count of results for pagination
+        const countQuery = searchType.toLowerCase() === 'education' ?
+            `SELECT COUNT(*) AS total FROM Education WHERE CONTAINS(InstituteName, @searchTerm)` :
+            `SELECT COUNT(*) AS total FROM SoftSkill WHERE CONTAINS(SoftHighlight, @searchTerm)`;
+        const totalCountResult = await pool.request()
+            .input('searchTerm', sql.NVarChar, `"*${upperSearchTerm}*"`)
+            .query(countQuery);
+        const totalResults = totalCountResult.recordset[0].total;
+        const totalPages = Math.ceil(totalResults / limit);
+
+        res.status(200).json({ results: combinedResults, totalPages });
     } catch (err) {
         console.error('Search Error:', err);
         res.status(500).json({ error: 'Server error. Please try again later.' });
     }
 };
 
-
-
 module.exports.showDetails = async (req, res) => {
     try {
-        const { userID } = req.body; // Get userID from the request body
+        const { StudentAccID } = req.body; // Get StudentAccID from the request body
 
-        if (!userID) {
-            return res.status(400).json({ error: 'UserID is required' });
+        if (!StudentAccID) {
+            return res.status(400).json({ error: 'StudentAccID is required' });
         }
 
         const pool = await poolPromise;
 
         // Fetch Profile information
         const profileQuery = `
-            SELECT UserID, Name, Age, Email_Address, Mobile_Number, Address, Description
+            SELECT StudentAccID, Name, Age, Email_Address, Mobile_Number, Address, Description
             FROM Profile 
-            WHERE UserID = @userID
+            WHERE StudentAccID = @StudentAccID
         `;
         const profileResult = await pool.request()
-            .input('userID', sql.Int, userID)
+            .input('StudentAccID', sql.Int, StudentAccID)
             .query(profileQuery);
 
         if (profileResult.recordset.length === 0) {
@@ -114,31 +125,31 @@ module.exports.showDetails = async (req, res) => {
             CONVERT(VARCHAR(10), EduStartDate, 120) AS EduStartDate, 
             CONVERT(VARCHAR(10), EduEndDate, 120) AS EduEndDate 
             FROM Education 
-            WHERE UserID = @userID
+            WHERE StudentAccID = @StudentAccID
         `;
         const educationResult = await pool.request()
-            .input('userID', sql.Int, userID)
+            .input('StudentAccID', sql.Int, StudentAccID)
             .query(educationQuery);
 
         // Fetch SoftSkill information
         const skillsQuery = `
-            SELECT SoftID, SoftHighlight, SoftDescription 
+            SELECT SoftID, SoftHighlight, SoftDescription, SoftLevel 
             FROM SoftSkill 
-            WHERE UserID = @userID
+            WHERE StudentAccID = @StudentAccID
         `;
         const skillsResult = await pool.request()
-            .input('userID', sql.Int, userID)
+            .input('StudentAccID', sql.Int, StudentAccID)
             .query(skillsQuery);
 
-        // Fetch Certification information (replacing Qualification with Certification)
+        // Fetch Certification information
         const certificationQuery = `
             SELECT CerID, CerName, CerEmail, CerType, CerIssuer, CerDescription, 
             CONVERT(VARCHAR(10), CerAcquiredDate, 120) AS CerAcquiredDate 
             FROM Certification 
-            WHERE userID = @userID
+            WHERE StudentAccID = @StudentAccID
         `;
         const certificationResult = await pool.request()
-            .input('userID', sql.Int, userID)
+            .input('StudentAccID', sql.Int, StudentAccID)
             .query(certificationQuery);
 
         // Fetch Work Experience information
@@ -147,10 +158,10 @@ module.exports.showDetails = async (req, res) => {
             CONVERT(VARCHAR(10), WorkStartDate, 120) AS WorkStartDate, 
             CONVERT(VARCHAR(10), WorkEndDate, 120) AS WorkEndDate 
             FROM Work 
-            WHERE UserID = @userID
+            WHERE StudentAccID = @StudentAccID
         `;
         const workExperienceResult = await pool.request()
-            .input('userID', sql.Int, userID)
+            .input('StudentAccID', sql.Int, StudentAccID)
             .query(workExperienceQuery);
 
         // Combine all the details into one object
@@ -158,7 +169,7 @@ module.exports.showDetails = async (req, res) => {
             profile: userDetails,
             education: educationResult.recordset,
             skills: skillsResult.recordset,
-            certification: certificationResult.recordset,  // Updated here
+            certification: certificationResult.recordset,
             workExperience: workExperienceResult.recordset,
         };
 
@@ -168,3 +179,4 @@ module.exports.showDetails = async (req, res) => {
         res.status(500).json({ error: 'Server error. Please try again later.' });
     }
 };
+

@@ -12,7 +12,8 @@ class ViewDetails extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pop(); // Navigate back when the button is pressed
+            Navigator.of(context)
+                .pop(); // Navigate back when the button is pressed
           },
         ),
         title: const Text('View Details'),
@@ -121,9 +122,28 @@ class ViewDetails extends StatelessWidget {
         return _buildInfoBox([
           'Skill: ${skill['SoftHighlight']}',
           'Description: ${skill['SoftDescription']}',
+          'Level: ${_getSkillLevelText(skill['SoftLevel'])}', // Show the skill level
         ]);
       }).toList(),
     );
+  }
+
+  // Helper function to convert SoftLevel to descriptive text
+  String _getSkillLevelText(int? softLevel) {
+    switch (softLevel) {
+      case 1:
+        return 'Beginner';
+      case 2:
+        return 'Intermediate';
+      case 3:
+        return 'Advanced';
+      case 4:
+        return 'Expert';
+      case 5:
+        return 'Master';
+      default:
+        return 'Unknown';
+    }
   }
 
   Widget _buildInfoBox(List<String> info) {

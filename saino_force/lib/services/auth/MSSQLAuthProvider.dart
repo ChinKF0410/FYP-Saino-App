@@ -7,9 +7,8 @@ import 'dart:developer' as devtools show log;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MSSQLAuthProvider implements AuthProvider {
-  final String baseUrl = "http://172.16.20.114:3010/api";
-  final String toWalletDB = "http://172.16.20.114:4000/api";
-
+  final String baseUrl = "http://103.52.192.245:3010/api";
+  final String toWalletDB = "http://103.52.192.245:4000/api";
 
   AuthUser? _currentUser;
 
@@ -162,7 +161,6 @@ class MSSQLAuthProvider implements AuthProvider {
     return null;
   }
 
-
   Future<Map<String, dynamic>?> searchQRCode(String qrCode) async {
     try {
       final response = await http.post(
@@ -192,9 +190,12 @@ class MSSQLAuthProvider implements AuthProvider {
     }
   }
 
-  Future<List<Map<String, dynamic>>> searchTalent({
+  Future<Map<String, dynamic>> searchTalent({
     required String searchType, // "education" or "skills"
     required String searchQuery,
+    required String sortOption, // Sorting option based on education or skills
+    required int page, // Page number for pagination
+    int limit = 10, // Limit for pagination (default to 10 results per page)
   }) async {
     try {
       final response = await http.post(
@@ -202,18 +203,21 @@ class MSSQLAuthProvider implements AuthProvider {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode(<String, String>{
+        body: jsonEncode(<String, dynamic>{
           'searchType': searchType.toUpperCase(),
           'searchQuery': searchQuery.toUpperCase(),
+          'sortOption': sortOption,
+          'page': page,
+          'limit': limit,
         }),
       );
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        if (responseData != null && responseData.isNotEmpty) {
-          return List<Map<String, dynamic>>.from(responseData);
+        if (responseData != null) {
+          return responseData; // Return the full response containing results and totalPages
         } else {
-          return []; // No matching talent found
+          return {'results': [], 'totalPages': 1}; // No matching talent found
         }
       } else {
         throw Exception('Server error: ${response.statusCode}');
@@ -225,7 +229,7 @@ class MSSQLAuthProvider implements AuthProvider {
   }
 
   // New function to fetch detailed information based on UserID
-  Future<Map<String, dynamic>?> fetchTalentDetails(int userId) async {
+  Future<Map<String, dynamic>?> fetchTalentDetails(int StudentAccID) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/showDetails'),
@@ -233,7 +237,7 @@ class MSSQLAuthProvider implements AuthProvider {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, int>{
-          'userID': userId,
+          'StudentAccID': StudentAccID,
         }),
       );
 

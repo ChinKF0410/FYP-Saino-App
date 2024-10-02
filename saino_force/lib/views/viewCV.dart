@@ -12,7 +12,8 @@ class ViewCV extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pop(); // Navigate back when the button is pressed
+            Navigator.of(context)
+                .pop(); // Navigate back when the button is pressed
           },
         ),
         title: const Text('View CV'),
@@ -58,7 +59,7 @@ class ViewCV extends StatelessWidget {
   }
 
   Widget _buildProfileSection(Map<String, dynamic>? profile) {
-    if (profile == null) return const SizedBox.shrink();
+    if (profile == null) return const Text("No profile information available.");
     return _buildInfoBox([
       'Name: ${profile['Name']}',
       'Age: ${profile['Age']}',
@@ -69,7 +70,9 @@ class ViewCV extends StatelessWidget {
     ]);
   }
 
-  Widget _buildEducationSection(List<dynamic> education) {
+  Widget _buildEducationSection(List<dynamic>? education) {
+    if (education == null || education.isEmpty)
+      return const Text("No education information available.");
     return Column(
       children: education.map((edu) {
         return _buildInfoBox([
@@ -85,7 +88,9 @@ class ViewCV extends StatelessWidget {
     );
   }
 
-  Widget _buildWorkSection(List<dynamic> workExperience) {
+  Widget _buildWorkSection(List<dynamic>? workExperience) {
+    if (workExperience == null || workExperience.isEmpty)
+      return const Text("No work experience available.");
     return Column(
       children: workExperience.map((work) {
         return _buildInfoBox([
@@ -102,7 +107,9 @@ class ViewCV extends StatelessWidget {
     );
   }
 
-  Widget _buildQualificationSection(List<dynamic> qualification) {
+  Widget _buildQualificationSection(List<dynamic>? qualification) {
+    if (qualification == null || qualification.isEmpty)
+      return const Text("No qualifications available.");
     return Column(
       children: qualification.map((quali) {
         return _buildInfoBox([
@@ -115,15 +122,36 @@ class ViewCV extends StatelessWidget {
     );
   }
 
-  Widget _buildSoftSkillsSection(List<dynamic> softSkills) {
+  Widget _buildSoftSkillsSection(List<dynamic>? softSkills) {
+    if (softSkills == null || softSkills.isEmpty)
+      return const Text("No soft skills available.");
     return Column(
       children: softSkills.map((skill) {
         return _buildInfoBox([
           'Skill: ${skill['SoftHighlight']}',
           'Description: ${skill['SoftDescription']}',
+          'Level: ${_mapSoftLevelToText(skill['SoftLevel'])}', // Add skill level display
         ]);
       }).toList(),
     );
+  }
+
+  // Helper function to map SoftLevel to human-readable text
+  String _mapSoftLevelToText(int level) {
+    switch (level) {
+      case 1:
+        return 'Beginner';
+      case 2:
+        return 'Intermediate';
+      case 3:
+        return 'Advanced';
+      case 4:
+        return 'Expert';
+      case 5:
+        return 'Master';
+      default:
+        return 'Unknown Level';
+    }
   }
 
   Widget _buildInfoBox(List<String> info) {

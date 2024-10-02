@@ -70,10 +70,7 @@ module.exports.saveCVProfile = async (req, res) => {
 
 
 //SoftSkills ----------
-
 module.exports.saveCVSkill = async (req, res) => {
-
-
     const { accountID, skillEntries } = req.body;
 
     console.log(req.body);
@@ -87,14 +84,18 @@ module.exports.saveCVSkill = async (req, res) => {
 
             // Process existing skill entries (updates or deletes)
             for (const skill of skillEntries) {
-                const { SoftID, SoftHighlight, SoftDescription, isPublic } = skill;
+                const { SoftID, SoftHighlight, SoftDescription, isPublic, SoftLevel } = skill;
 
                 console.log("SoftID:  " + SoftID);
                 console.log("SoftHighlight:  " + SoftHighlight);
                 console.log("SoftDescription:  " + SoftDescription);
                 console.log("isPublic:  " + isPublic);
+                console.log("SoftLevel:  " + SoftLevel);
                 console.log("accountID:  " + accountID);
 
+                if (!SoftLevel || SoftLevel < 1 || SoftLevel > 5) {
+                    return res.status(400).send('Invalid SoftLevel value. It must be between 1 and 5.');
+                }
 
                 if (isPublic === false) {
                     await module.exports.deleteCVSkill({
@@ -111,23 +112,22 @@ module.exports.saveCVSkill = async (req, res) => {
                         .input('SoftHighlight', sql.NVarChar, SoftHighlight)
                         .input('SoftDescription', sql.NVarChar, SoftDescription)
                         .input('StudentAccID', sql.Int, accountID) // Assuming accountID is StudentAccID
+                        .input('SoftLevel', sql.Int, SoftLevel) // <-- Add SoftLevel input
                         .query(`
                         IF EXISTS (SELECT 1 FROM SoftSkill WHERE RefID = @SoftID)
                         BEGIN
                             -- Update the skill entry if RefID matches SoftID
                             UPDATE SoftSkill
-                            SET SoftHighlight = @SoftHighlight, SoftDescription = @SoftDescription
+                            SET SoftHighlight = @SoftHighlight, SoftDescription = @SoftDescription, SoftLevel = @SoftLevel
                             WHERE RefID = @SoftID
                         END
                         ELSE
                         BEGIN
                             -- Insert the skill entry if it doesn't exist
-                            INSERT INTO SoftSkill (RefID, StudentAccID, SoftHighlight, SoftDescription)
-                            VALUES (@SoftID, @StudentAccID, @SoftHighlight, @SoftDescription)
+                            INSERT INTO SoftSkill (RefID, StudentAccID, SoftHighlight, SoftDescription, SoftLevel)
+                            VALUES (@SoftID, @StudentAccID, @SoftHighlight, @SoftDescription, @SoftLevel)
                         END
                     `);
-
-
                 }
             }
         }
@@ -139,6 +139,7 @@ module.exports.saveCVSkill = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+
 
 module.exports.deleteCVSkill = async (req, res) => {
     const { SoftID } = req.body;
