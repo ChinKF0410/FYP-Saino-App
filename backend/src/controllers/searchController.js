@@ -27,7 +27,7 @@ module.exports.search = async (req, res) => {
         let query, orderBy;
         
         if (searchType.toLowerCase() === 'education') {
-            orderBy = sortOption === 'End Date (Far to Near)' ? 'EduEndDate ASC' : 'EduEndDate DESC';
+            orderBy = sortOption === 'Graduated Date (Far to Near)' ? 'EduEndDate ASC' : 'EduEndDate DESC';
             query = `
                     SELECT StudentAccID, EduBacID, InstituteName, LevelEdu, FieldOfStudy, EduStartDate, EduEndDate 
                     FROM Education 
@@ -38,7 +38,7 @@ module.exports.search = async (req, res) => {
         } else if (searchType.toLowerCase() === 'skills') {
             orderBy = sortOption === 'Level (Master to Beginner)' ? 'SoftLevel DESC' : 'SoftLevel ASC';
             query = `
-                    SELECT StudentAccID, SoftID, SoftHighlight, SoftDescription 
+                    SELECT StudentAccID, SoftID, SoftHighlight, SoftDescription, SoftLevel 
                     FROM SoftSkill 
                     WHERE CONTAINS(SoftHighlight, @searchTerm)
                     ORDER BY ${orderBy}

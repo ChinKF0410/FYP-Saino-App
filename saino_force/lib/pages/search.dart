@@ -22,8 +22,14 @@ class _SearchState extends State<Search> {
   int currentPage = 1; // for pagination
   int totalPages = 1; // for pagination
   final List<String> searchOptions = ['Education', 'Skills'];
-  final List<String> educationSortOptions = ['End Date (Near to Far)', 'End Date (Far to Near)'];
-  final List<String> skillsSortOptions = ['Level (Beginner to Master)', 'Level (Master to Beginner)'];
+  final List<String> educationSortOptions = [
+    'Graduated Date (Near to Far)',
+    'Graduated Date (Far to Near)'
+  ];
+  final List<String> skillsSortOptions = [
+    'Level (Beginner to Master)',
+    'Level (Master to Beginner)'
+  ];
 
   void _performSearch() async {
     if (searchQuery.isEmpty) {
@@ -39,6 +45,11 @@ class _SearchState extends State<Search> {
 
     try {
       devtools.log("Searching");
+      devtools.log(searchType);
+      devtools.log(searchQuery);
+      devtools.log(sortOption);
+      devtools.log(currentPage.toString());
+
       final results = await _authProvider.searchTalent(
         searchType: searchType,
         searchQuery: searchQuery,
@@ -48,18 +59,37 @@ class _SearchState extends State<Search> {
       if (!mounted) return;
       devtools.log(results.toString());
       setState(() {
-        searchResults = results['results'];
+        searchResults = List<Map<String, dynamic>>.from(results['results']);
         totalPages = results['totalPages'];
         errorMessage = searchResults.isEmpty ? 'No results found.' : null;
       });
     } catch (e) {
       if (!mounted) return;
-      _showErrorDialog('Server error occurred. Please try again later.');
+      _showErrorDialog(
+          'Server error occurred.\nPlease try again later.' + e.toString());
     } finally {
       if (!mounted) return;
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  // Helper function to map SoftLevel to a descriptive string
+  String getSoftLevelDescription(int? level) {
+    switch (level) {
+      case 1:
+        return 'Beginner';
+      case 2:
+        return 'Intermediate';
+      case 3:
+        return 'Advanced';
+      case 4:
+        return 'Expert';
+      case 5:
+        return 'Master';
+      default:
+        return 'Unknown';
     }
   }
 
@@ -165,7 +195,8 @@ class _SearchState extends State<Search> {
                   onChanged: (String? newValue) {
                     setState(() {
                       searchType = newValue!;
-                      sortOption = ''; // Reset sort option on search type change
+                      sortOption =
+                          ''; // Reset sort option on search type change
                     });
                   },
                   items: searchOptions
@@ -218,9 +249,19 @@ class _SearchState extends State<Search> {
                           final result = searchResults[index];
                           return Card(
                             child: ListTile(
-                              title: Text(result['profile']['Name'] ?? 'Unknown'),
-                              subtitle: Text(
-                                'Age: ${result['profile']['Age']}, Email: ${result['profile']['Email_Address']}',
+                              title:
+                                  Text(result['profile']['Name'] ?? 'Unknown'),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Age: ${result['profile']['Age']}'),
+                                  Text(
+                                      'Email: ${result['profile']['Email_Address']}'),
+                                  if (result['SoftLevel'] !=
+                                      null) // Check if SoftLevel exists
+                                    Text(
+                                        'Level: ${getSoftLevelDescription(result['SoftLevel'])}'), // Convert SoftLevel to description
+                                ],
                               ),
                               onTap: () {
                                 devtools.log(result['StudentAccID'].toString());

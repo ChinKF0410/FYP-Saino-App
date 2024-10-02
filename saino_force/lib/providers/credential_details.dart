@@ -45,7 +45,7 @@ class CredentialDetails with ChangeNotifier {
     devtools.log((user?.email).toString());
     if (holders.isNotEmpty) {
       final response = await http.post(
-        Uri.parse('http://103.52.192.245:3010/api/createCredential'),
+        Uri.parse('https://330e-103-52-192-245.ngrok-free.app/api/createCredential'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'user': user?.username,
