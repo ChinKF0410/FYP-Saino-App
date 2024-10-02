@@ -8,6 +8,7 @@ import 'dart:developer' as devtools show log;
 import 'package:image/image.dart' as img; // Import image package
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart';
 import 'package:saino_force/utilities/show_error_dialog.dart';
+import 'package:saino_force/widgets/widget_support.dart';
 
 class ViewProfilePage extends StatefulWidget {
   const ViewProfilePage({super.key});
@@ -242,20 +243,16 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_outlined, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20.0,
-            fontWeight: FontWeight.bold,
-          ),
+        title: Text(
+          "Profile",
+          style: AppWidget.boldTextFieldStyle(),
         ),
+        backgroundColor: const Color.fromARGB(255, 188, 203, 228),
+        centerTitle: true,
+        elevation: 0,
       ),
       body: _isLoading
           ? const Center(
@@ -317,12 +314,8 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
                     },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 40.0,
-                  vertical: 15.0,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
+                    horizontal: 32.0, vertical: 16.0),
+                minimumSize: const Size.fromHeight(56.0),
               ),
               child: Text(
                 _isEditing ? 'Save' : 'Edit',

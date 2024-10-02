@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:saino_force/services/auth/mssqlauthprovider.dart';
 import 'package:saino_force/views/viewDetails.dart';
 import 'dart:developer' as devtools show log;
+import 'package:saino_force/widgets/widget_support.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -77,7 +78,10 @@ class _SearchState extends State<Search> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search'),
+        title: Text('Search', style: AppWidget.boldTextFieldStyle()),
+        backgroundColor: const Color.fromARGB(255, 188, 203, 228),
+        centerTitle: true,
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

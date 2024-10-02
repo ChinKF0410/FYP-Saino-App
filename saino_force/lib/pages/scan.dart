@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:developer' as devtools show log;
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart';
 import 'package:saino_force/views/viewCV.dart';
+import 'package:saino_force/widgets/widget_support.dart';
 
 class Scan extends StatefulWidget {
   const Scan({super.key});
@@ -33,7 +34,8 @@ class _ScanState extends State<Scan> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
       _scannerController.stop();
       setState(() {
         _isScannerDisposed = true;
@@ -121,7 +123,10 @@ class _ScanState extends State<Scan> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scan QR Code'),
+        title: Text('Scan QR Code', style: AppWidget.boldTextFieldStyle()),
+        backgroundColor: const Color.fromARGB(255, 188, 203, 228),
+        centerTitle: true,
+        elevation: 0,
       ),
       body: Center(
         child: Column(

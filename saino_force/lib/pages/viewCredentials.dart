@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as devtools show log;
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart';
+import 'package:saino_force/widgets/widget_support.dart';
 
 class Holder {
   final int id;
@@ -60,7 +61,7 @@ class _HolderListPageState extends State<HolderListPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://172.16.20.168:3010/api/ViewCredential'),
+        Uri.parse('http://172.16.20.114:3010/api/ViewCredential'),
         headers: {'Content-Type': 'application/json'}, // Set content type
         body: json.encode({
           'username': user?.username, // Pass 'username' to the backend
@@ -109,18 +110,29 @@ class _HolderListPageState extends State<HolderListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Holder Credentials'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_outlined, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          "Holder Credentials",
+          style: AppWidget.boldTextFieldStyle(),
+        ),
+        backgroundColor: const Color.fromARGB(255, 188, 203, 228),
+        centerTitle: true,
+        elevation: 0,
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator()) // Loading spinner
+          ? const Center(child: CircularProgressIndicator()) // Loading spinner
           : _hasError
-              ? Center(child: Text('Failed to load holders')) // Error message
+              ? const Center(
+                  child: Text('Failed to load holders')) // Error message
               : _isEmpty
-                  ? Center(
+                  ? const Center(
                       child:
                           Text('No credentials created')) // Empty data message
                   : ListView.builder(
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       itemCount: _holders.length,
                       itemBuilder: (context, index) {
                         final holder = _holders[index];
@@ -162,7 +174,6 @@ class HolderCard extends StatelessWidget {
             Text('Description: ${holder.description}',
                 style: TextStyle(fontSize: 16.0)),
             SizedBox(height: 5.0),
-            
           ],
         ),
       ),

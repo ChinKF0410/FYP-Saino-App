@@ -14,7 +14,8 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 188, 203, 228), // Set the background color for the AppBar
+        backgroundColor: const Color.fromARGB(
+            255, 188, 203, 228), // Set the background color for the AppBar
         elevation: 0,
         title: Text(
           "Saino365",
@@ -39,11 +40,7 @@ class _HomeState extends State<Home> {
                   autoPlayAnimationDuration: const Duration(milliseconds: 950),
                   viewportFraction: 0.8,
                 ),
-                items: [
-                  'https://via.placeholder.com/400',
-                  'https://via.placeholder.com/401',
-                  'https://via.placeholder.com/402',
-                ].map((i) {
+                items: [].map((i) {
                   return Builder(
                     builder: (BuildContext context) {
                       return Container(

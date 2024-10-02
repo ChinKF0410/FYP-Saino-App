@@ -3,7 +3,7 @@ const sql = require('mssql');
 const dbConfig = require('../config/config'); // Import database configuration
 
 // ACA-Py API endpoint configuration
-const acaPyBaseUrl = 'http://localhost:6011';  // Issuer API URL || holder is 7011
+const acaPyBaseUrl = 'http://172.16.20.114:6011';  // Issuer API URL || holder is 7011
 
 // Initialize SQL connection pool
 let poolPromise = sql.connect(dbConfig)
@@ -83,7 +83,7 @@ async function sendConnection(invitation, holder, issuer) {
         console.log(holder);
         console.log(issuer);
         const response = await axios.post(
-            `http://localhost:3000/api/receiveConnection`,
+            `http://172.16.20.114:4000/api/receiveConnection`,
             { invitation, holder, issuer }
         );
         console.log("\n\nsendConnection Ended");

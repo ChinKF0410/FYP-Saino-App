@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saino_force/widgets/widget_support.dart';
 
 class helpAndSupport extends StatefulWidget {
   const helpAndSupport({super.key});
@@ -12,7 +13,7 @@ class _helpAndSupportState extends State<helpAndSupport> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Help and Support'),
+        title: Text('Help and Support', style: AppWidget.boldTextFieldStyle()),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -20,6 +21,7 @@ class _helpAndSupportState extends State<helpAndSupport> {
           },
         ),
         backgroundColor: const Color.fromARGB(255, 188, 203, 228),
+        centerTitle: true,
         elevation: 0,
       ),
       body: const Center(

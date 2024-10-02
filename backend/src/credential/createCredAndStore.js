@@ -2,7 +2,7 @@ const sql = require('mssql');  // Import directly from mssql
 const { handleConnection } = require('./Connection');
 const axios = require('axios');
 const dbConfig = require('../config/config');  // Database configuration
-const acaPyBaseUrl = 'http://localhost:6011';  // ACA-Py base URL
+const acaPyBaseUrl = 'http://172.16.20.114:6011';  // ACA-Py base URL
 
 // Initialize SQL connection pool
 let poolPromise = sql.connect(dbConfig)
@@ -202,8 +202,8 @@ async function sendOffer(holder, connectionId, credentialDefinitionId, schemaId,
                     { "name": "email", "value": holder.email },
                     { "name": "phoneNo", "value": holder.phoneNo },
                     { "name": "description", "value": holder.description },
-                    { "name": "did", "value": holder.did }, 
-                    { "name": "issueDate", "value": credential.issuancedate}
+                    { "name": "did", "value": holder.did },
+                    { "name": "issueDate", "value": credential.issuancedate }
                 ]
             }
         }, {

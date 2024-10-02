@@ -117,9 +117,6 @@ class _RegisterViewState extends State<RegisterView> {
         homeRoute,
         (_) => false,
       );
-    } on WeakPasswordAuthException {
-      devtools.log('Weak password');
-      await showErrorDialog(context, 'Weak password');
     } on EmailAlreadyInUseAuthException {
       devtools.log('Email already in use');
       await showErrorDialog(context, 'Email already in use');

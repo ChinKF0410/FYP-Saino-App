@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart';
 import 'package:saino_force/utilities/show_error_dialog.dart'; // Import your showErrorDialog utility
 import 'dart:developer' as devtools show log;
+import 'package:saino_force/widgets/widget_support.dart';
 
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({super.key});
@@ -81,8 +82,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Submit Feedback'),
+        title: Text('Submit Feedback', style: AppWidget.boldTextFieldStyle()),
         backgroundColor: const Color.fromARGB(255, 188, 203, 228),
+        centerTitle: true,
         elevation: 0,
       ),
       body: Padding(
@@ -114,6 +116,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 32.0, vertical: 16.0),
+                  minimumSize: const Size.fromHeight(56.0),
+                ),
                 onPressed: _submitFeedback,
                 child: Text('Submit'),
               ),

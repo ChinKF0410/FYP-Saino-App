@@ -5,6 +5,7 @@ import 'package:saino_force/models/holder.dart';
 import '../providers/credential_details.dart';
 import '../widgets/holder_card.dart';
 import 'package:intl/intl.dart';
+import 'package:saino_force/widgets/widget_support.dart';
 
 class Credential extends StatefulWidget {
   const Credential({super.key});
@@ -43,7 +44,19 @@ class _CredentialState extends State<Credential> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Credential Issue Screen')),
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_outlined, color: Colors.black),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Text(
+            "Credential Issue Screen",
+            style: AppWidget.boldTextFieldStyle(),
+          ),
+          backgroundColor: const Color.fromARGB(255, 188, 203, 228),
+          centerTitle: true,
+          elevation: 0,
+        ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Form(
@@ -121,8 +134,13 @@ class _CredentialState extends State<Credential> {
           child: Icon(Icons.add),
         ),
         bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+              minimumSize: const Size.fromHeight(56.0),
+            ),
             onPressed: _isLoading
                 ? null
                 : () => _sendHolders(holderProvider), // Disable when loading

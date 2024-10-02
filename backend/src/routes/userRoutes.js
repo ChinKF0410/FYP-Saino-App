@@ -1,11 +1,18 @@
 const express = require('express');
+//User Controller
 const { login, register, logout, verifyPassword, changePassword, getProfile, saveProfile, saveFeedback } = require('../controllers/userController');
+
+//Searching Controller
 const { search, showDetails } = require('../controllers/searchController');
+
+//Credential Controller
 const { createWalletandDID } = require('../credential/acapyRegister');
 const { ViewCredential } = require('../credential/IssuedCredential')
+const { UpdateStatus } = require('../credential/updateCredStatus')
 const { storeCredentialAndHolders } = require('../credential/createCredAndStore');
 const { Connection, handleConnection } = require('../credential/Connection');
 
+//CV Controller
 const {
     saveCVProfile,
     saveCVSkill,
@@ -19,7 +26,7 @@ const {
     updateCVCertification
 } = require('../controllers/cvControllerSAINO'); // Import the controller functions
 
-
+//For Testing Only
 const { backdoorReset } = require('../controllers/backdoor');
 
 const router = express.Router();
@@ -55,8 +62,8 @@ router.post('/updateCVCertification', updateCVCertification);
 
 router.post('/createWalletandDID', createWalletandDID);
 router.post('/ViewCredential', ViewCredential);
+router.post('/UpdateStatus', UpdateStatus);
 router.post('/connection', Connection);
-// Route to handle connection creation
 router.post('/createCredential', async (req, res) => {
     try {
         const { user, holders, credential } = req.body;

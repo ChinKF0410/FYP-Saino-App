@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saino_force/widgets/widget_support.dart';
 
 class termsAndCondition extends StatefulWidget {
   const termsAndCondition({super.key});
@@ -12,7 +13,8 @@ class _termsAndConditionState extends State<termsAndCondition> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Terms and Conditions'),
+        title:
+            Text('Terms and Conditions', style: AppWidget.boldTextFieldStyle()),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -20,6 +22,7 @@ class _termsAndConditionState extends State<termsAndCondition> {
           },
         ),
         backgroundColor: const Color.fromARGB(255, 188, 203, 228),
+        centerTitle: true,
         elevation: 0,
       ),
       body: const Center(

@@ -7,8 +7,8 @@ import 'dart:developer' as devtools show log;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MSSQLAuthProvider implements AuthProvider {
-  final String baseUrl = "http://172.16.20.168:3010/api";
-  final String toWalletDB = "http://172.16.20.168:3000/api";
+  final String baseUrl = "http://172.16.20.114:3010/api";
+  final String toWalletDB = "http://172.16.20.114:4000/api";
 
 
   AuthUser? _currentUser;
@@ -162,47 +162,6 @@ class MSSQLAuthProvider implements AuthProvider {
     return null;
   }
 
-  Future<Map<String, dynamic>?> generateQRCode({
-    required String userID,
-    required String perID,
-    required String eduBacID,
-    required String cerID,
-    required String softID,
-    required String workExpID,
-  }) async {
-    try {
-      final qrData = {
-        'userID': userID,
-        'PerID': perID,
-        'EduBacID': eduBacID,
-        'CerID': cerID,
-        'SoftID': softID,
-        'WorkExpID': workExpID,
-      };
-
-      final response = await http.post(
-        Uri.parse('$toWalletDB/generate-qrcode'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(qrData),
-      );
-
-      devtools.log(
-          'Generate QRCode API Response: ${response.statusCode} ${response.body}');
-      if (response.statusCode == 201) {
-        final responseData = jsonDecode(response.body);
-        devtools.log('QR Code Hash: ${responseData['qrHash']}');
-        devtools.log('QR Code Image Base64: ${responseData['qrCodeImage']}');
-        return responseData;
-      } else {
-        throw GenericAuthException();
-      }
-    } catch (e) {
-      devtools.log('Generate QRCode Error: $e');
-      throw GenericAuthException();
-    }
-  }
 
   Future<Map<String, dynamic>?> searchQRCode(String qrCode) async {
     try {
@@ -230,35 +189,6 @@ class MSSQLAuthProvider implements AuthProvider {
     } catch (e) {
       devtools.log('Search QRCode Error: $e');
       throw GenericAuthException();
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> fetchQRCodesByUserId(int userId) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$toWalletDB/fetch-qrcodes'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, int>{
-          'userID': userId,
-        }),
-      );
-
-      devtools.log(
-          'Fetch QR Codes by UserID API Response: ${response.statusCode} ${response.body}');
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        devtools.log("\n\n Decode Response Data:\n" +
-            responseData +
-            responseData.toString());
-        return List<Map<String, dynamic>>.from(responseData['qrCodes']);
-      } else {
-        return [];
-      }
-    } catch (e) {
-      devtools.log('Fetch QR Codes Error: $e');
-      return [];
     }
   }
 

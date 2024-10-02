@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saino_force/widgets/widget_support.dart';
 
 class aboutUs extends StatefulWidget {
   const aboutUs({super.key});
@@ -12,7 +13,7 @@ class _aboutUsState extends State<aboutUs> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About Us'),
+        title: Text('About Us', style: AppWidget.boldTextFieldStyle()),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -20,6 +21,7 @@ class _aboutUsState extends State<aboutUs> {
           },
         ),
         backgroundColor: const Color.fromARGB(255, 188, 203, 228),
+        centerTitle: true,
         elevation: 0,
       ),
       body: const Center(
