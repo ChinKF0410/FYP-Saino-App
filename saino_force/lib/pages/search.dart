@@ -31,15 +31,25 @@ class _SearchState extends State<Search> {
     'Level (Master to Beginner)'
   ];
 
-  void _performSearch() async {
+  void _searchNewQuery() {
     if (searchQuery.isEmpty) {
       _showErrorDialog('Search Query Cannot Be Empty.');
       return;
     }
 
     setState(() {
+      currentPage = 1; // Reset to first page for a new search
       isLoading = true;
       searchResults = [];
+      errorMessage = null;
+    });
+
+    _performSearch();
+  }
+
+  void _performSearch() async {
+    setState(() {
+      isLoading = true;
       errorMessage = null;
     });
 
@@ -65,10 +75,8 @@ class _SearchState extends State<Search> {
       });
     } catch (e) {
       if (!mounted) return;
-      _showErrorDialog(
-          'Server error occurred.\nPlease try again later.' + e.toString());
+      _showErrorDialog('Server error occurred.\nPlease try again later. $e');
     } finally {
-      if (!mounted) return;
       setState(() {
         isLoading = false;
       });
@@ -180,7 +188,7 @@ class _SearchState extends State<Search> {
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
-                  onPressed: isLoading ? null : _performSearch,
+                  onPressed: isLoading ? null : _searchNewQuery,
                   child: const Text('Search'),
                 ),
               ],

@@ -16,16 +16,25 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
-  final MSSQLAuthProvider _authProvider =
-      MSSQLAuthProvider(); // Directly use MSSQLAuthProvider
+  final MSSQLAuthProvider _authProvider = MSSQLAuthProvider();
   bool _isPasswordVisible = false;
 
   @override
   void initState() {
     _email = TextEditingController();
     _password = TextEditingController();
+
+    // Automatically log out when this page is initialized (i.e., when user lands on the login page)
+    _logoutUser();
+
     super.initState();
     devtools.log("LoginView - initState called");
+  }
+
+  Future<void> _logoutUser() async {
+    // Log out user to reset any previous session
+    await _authProvider.logout();
+    devtools.log("User automatically logged out when accessing login page");
   }
 
   @override
@@ -52,10 +61,10 @@ class _LoginViewState extends State<LoginView> {
         email: email,
         password: password,
       );
-      await _authProvider.initialize(); // Ensure initialization is completed
-      final user = _authProvider
-          .currentUser; // Access currentUser directly from MSSQLAuthProvider
+      await _authProvider.initialize();
+      final user = _authProvider.currentUser;
       devtools.log(user.toString());
+
       if (user != null) {
         devtools.log('Login successful');
         ScaffoldMessenger.of(context).showSnackBar(

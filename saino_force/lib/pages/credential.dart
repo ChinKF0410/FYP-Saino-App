@@ -188,7 +188,7 @@ class _CredentialState extends State<Credential> {
     });
 
     DateTime now = DateTime.now();
-    String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+    String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
 
     if (_formKey.currentState!.validate()) {
       holderProvider.addCredential(CredentialModel(

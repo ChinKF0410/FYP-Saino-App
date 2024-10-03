@@ -101,6 +101,13 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
       return;
     }
 
+    String? phoneValidationError =
+        _validatePhoneNumber(_mobilePhoneController.text.trim());
+    if (phoneValidationError != null) {
+      await showErrorDialog(context, phoneValidationError);
+      return;
+    }
+
     setState(() {
       _isSaving = true; // Start saving
     });
@@ -370,5 +377,14 @@ class _ViewProfilePageState extends State<ViewProfilePage> {
         const SizedBox(height: 20.0),
       ],
     );
+  }
+
+  String? _validatePhoneNumber(String phoneNumber) {
+    if (phoneNumber.isEmpty) {
+      return 'Mobile Phone cannot be empty';
+    } else if (!RegExp(r'^01\d{8,9}$').hasMatch(phoneNumber)) {
+      return 'Invalid Phone Number.';
+    }
+    return null;
   }
 }

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as devtools show log;
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart';
-import 'package:saino_force/widgets/widget_support.dart';
 
 class Holder {
   final int id;
@@ -12,7 +11,7 @@ class Holder {
   final String phone;
   final String description;
   final String did;
-  final String status;
+  String status; // Made status mutable to update it
 
   Holder({
     required this.id,
@@ -61,7 +60,7 @@ class _HolderListPageState extends State<HolderListPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('https://330e-103-52-192-245.ngrok-free.app/api/ViewCredential'),
+        Uri.parse('http://172.16.20.25:3010/api/ViewCredential'),
         headers: {'Content-Type': 'application/json'}, // Set content type
         body: json.encode({
           'username': user?.username, // Pass 'username' to the backend
@@ -106,37 +105,56 @@ class _HolderListPageState extends State<HolderListPage> {
     }
   }
 
+  // Method to call the backend deleteStatus function and update the status to "Deleted"
+  Future<void> _deleteStatus(Holder holder) async {
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'http://172.16.20.25:3010/api/DeleteStatus'), // Update with correct backend URL
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'id': holder.id,
+          'name': holder.name,
+          'email': holder.email,
+        }), // Manually passing fields
+      );
+      if (response.statusCode == 200) {
+        devtools.log('Status updated to Deleted for ID: ${holder.id}');
+        setState(() {
+          holder.status = 'Deleted'; // Update the status locally
+        });
+      } else {
+        devtools.log('Failed to update status for ID: ${holder.id}');
+      }
+    } catch (error) {
+      devtools.log('Error updating status: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_outlined, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          "Holder Credentials",
-          style: AppWidget.boldTextFieldStyle(),
-        ),
-        backgroundColor: const Color.fromARGB(255, 188, 203, 228),
-        centerTitle: true,
-        elevation: 0,
+        title: Text('Holder Credentials'),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator()) // Loading spinner
+          ? Center(child: CircularProgressIndicator()) // Loading spinner
           : _hasError
-              ? const Center(
-                  child: Text('Failed to load holders')) // Error message
+              ? Center(child: Text('Failed to load holders')) // Error message
               : _isEmpty
-                  ? const Center(
+                  ? Center(
                       child:
                           Text('No credentials created')) // Empty data message
                   : ListView.builder(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(8.0),
                       itemCount: _holders.length,
                       itemBuilder: (context, index) {
                         final holder = _holders[index];
-                        return HolderCard(holder: holder);
+                        return HolderCard(
+                          holder: holder,
+                          onDelete: () =>
+                              _deleteStatus(holder), // Delete callback
+                        );
                       },
                     ),
     );
@@ -146,8 +164,9 @@ class _HolderListPageState extends State<HolderListPage> {
 // Widget to display individual Holder details
 class HolderCard extends StatelessWidget {
   final Holder holder;
+  final VoidCallback onDelete; // Callback to handle deletion
 
-  HolderCard({required this.holder});
+  HolderCard({required this.holder, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -174,9 +193,67 @@ class HolderCard extends StatelessWidget {
             Text('Description: ${holder.description}',
                 style: TextStyle(fontSize: 16.0)),
             SizedBox(height: 5.0),
+            Text(
+              'Status: ${holder.status}',
+              style: TextStyle(
+                fontSize: 16.0,
+                color: holder.status == 'Accepted'
+                    ? Colors.green // Green for "Accepted"
+                    : holder.status == 'Rejected'
+                        ? Colors.red // Red for "Rejected"
+                        : holder.status == 'Deleted'
+                            ? Colors.grey // Grey for "Deleted"
+                            : Colors
+                                .blue, // Blue for "Pending" or other statuses
+                fontWeight: FontWeight.bold, // Make the text bold
+              ),
+            ),
+            SizedBox(height: 10.0),
+
+            // Show Delete button only when the status is "Accepted"
+            if (holder.status == 'Accepted') ...[
+              ElevatedButton(
+                onPressed: () => _showDeleteDialog(context),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.red, // White text color
+                ),
+                child: Text('Delete'),
+              ),
+            ]
           ],
         ),
       ),
+    );
+  }
+
+  // Method to show a confirmation dialog before updating status
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Delete'),
+          content: Text('Are you sure you want to delete this holder?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // Dismiss dialog
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss dialog
+                onDelete(); // Trigger the delete callback to update status
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.red, // White text color
+              ),
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

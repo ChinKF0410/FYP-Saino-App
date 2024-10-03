@@ -62,7 +62,11 @@ class _RegisterViewState extends State<RegisterView> {
     }
     if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@_])[A-Za-z\d@_]{8,}$')
         .hasMatch(password)) {
-      return 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@ or _).';
+      return '''Password must contain: 
+- At least 1 uppercase letter
+- At least 1 lowercase letter
+- At least 1 digit
+- At least 1 special character (@ or _)''';
     }
     return null;
   }

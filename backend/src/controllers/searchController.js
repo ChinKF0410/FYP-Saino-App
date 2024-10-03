@@ -14,7 +14,13 @@ let poolPromise = sql.connect(dbConfig)
 
 module.exports.search = async (req, res) => {
     try {
+        console.log(req.body);
         const { searchType, searchQuery, sortOption, page = 1, limit = 10 } = req.body;
+        console.log(searchType);
+        console.log(searchQuery);
+        console.log(sortOption);
+        console.log(page);
+        console.log(limit);
 
         if (!searchType || !searchQuery) {
             return res.status(400).json({ error: 'searchType and searchQuery are required' });
@@ -25,7 +31,7 @@ module.exports.search = async (req, res) => {
 
         const pool = await poolPromise;
         let query, orderBy;
-        
+
         if (searchType.toLowerCase() === 'education') {
             orderBy = sortOption === 'Graduated Date (Far to Near)' ? 'EduEndDate ASC' : 'EduEndDate DESC';
             query = `

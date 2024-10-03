@@ -9,6 +9,7 @@ const { search, showDetails } = require('../controllers/searchController');
 const { createWalletandDID } = require('../credential/acapyRegister');
 const { ViewCredential } = require('../credential/IssuedCredential')
 const { UpdateStatus } = require('../credential/updateCredStatus')
+const { DeleteStatus } = require('../credential/DeleteStatus')
 const { storeCredentialAndHolders } = require('../credential/createCredAndStore');
 const { Connection, handleConnection } = require('../credential/Connection');
 
@@ -63,6 +64,7 @@ router.post('/updateCVCertification', updateCVCertification);
 router.post('/createWalletandDID', createWalletandDID);
 router.post('/ViewCredential', ViewCredential);
 router.post('/UpdateStatus', UpdateStatus);
+router.post('/DeleteStatus', DeleteStatus);
 router.post('/connection', Connection);
 router.post('/createCredential', async (req, res) => {
     try {
