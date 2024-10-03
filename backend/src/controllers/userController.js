@@ -13,65 +13,88 @@ let poolPromise = sql.connect(dbConfig)
         process.exit(1);
     });
 
+// Login function
 module.exports.login = async (req, res) => {
     const { email, password } = req.body;
     console.log(`Login attempt with email: ${email}`);
+    
     try {
         const pool = await poolPromise;
         const result = await pool.request()
             .input('email', sql.VarChar, email)
-            .query('SELECT UserID, Username, Password FROM [User] WHERE Email = @email');
+            .query('SELECT UserID, UserRoleID, Username, Password, isVerified FROM [User] WHERE Email = @email');
         console.log('Query result:', result);
 
+        // Check if user exists
         if (result.recordset.length > 0) {
             const user = result.recordset[0];
             console.log('User found:', user);
+
+            // Check if user is verified
+            if (user.isVerified !== 1) {
+                return res.status(401).send('The Email is Not Verified');
+            }
+
+            // Compare the provided password with the stored hashed password
             const isPasswordValid = await bcrypt.compare(password, user.Password);
             console.log('Password valid:', isPasswordValid);
+            
+            // If password is valid, return user details
             if (isPasswordValid) {
-                res.status(200).json({
+                return res.status(200).json({
                     id: user.UserID,
                     username: user.Username,
+                    userRoleID: user.UserRoleID  // Ensure the field name matches the column in the database
                 });
             } else {
-                res.status(401).send('Invalid email or password');
+                return res.status(401).send('Invalid email or password');
             }
         } else {
-            res.status(401).send('Invalid email or password');
+            return res.status(401).send('Invalid email or password');
         }
     } catch (err) {
-        console.error('Login Error1: ', err);
-        res.status(500).send('Server error');
+        console.error('Login Error: ', err);
+        return res.status(500).send('Server error');
     }
 };
 
+// Register function
 module.exports.register = async (req, res) => {
     const { username, email, password } = req.body;
+    const userRoleID = 2;
+    const isVerified = 0; // Assume 0 means not verified yet
+
     try {
         const pool = await poolPromise;
         const userExists = await pool.request()
             .input('email', sql.VarChar, email)
             .query('SELECT UserID FROM [User] WHERE Email = @email');
 
+        // Check if the email is already in use
         if (userExists.recordset.length > 0) {
-            res.status(400).send('Email already in use');
+            return res.status(400).send('Email already in use');
         } else {
+            // Hash the password and insert the new user
             const hashedPassword = await bcrypt.hash(password, 10);
             const result = await pool.request()
                 .input('username', sql.VarChar, username)
                 .input('email', sql.VarChar, email)
+                .input('userRoleID', sql.Int, userRoleID)
+                .input('isVerified', sql.Int, isVerified)
                 .input('password', sql.VarChar, hashedPassword)
-                .query('INSERT INTO [User] (Username, Email, Password) OUTPUT INSERTED.UserID, INSERTED.Username VALUES (@username, @email, @password)');
+                .query('INSERT INTO [User] (Username, UserRoleID, Email, Password, isVerified) OUTPUT INSERTED.UserID, INSERTED.Username VALUES (@username, @userRoleID, @email, @password, @isVerified)');
 
             const user = result.recordset[0];
 
-            res.status(201).json({ id: user.UserID, username: user.Username });
+            // Return the newly created user details
+            return res.status(201).json({ id: user.UserID, username: user.Username });
         }
     } catch (err) {
         console.error('Register Error: ', err);
-        res.status(500).send('Server error');
+        return res.status(500).send('Server error');
     }
 };
+
 
 
 module.exports.logout = async (req, res) => {
