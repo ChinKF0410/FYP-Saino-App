@@ -349,7 +349,7 @@ class _CredentialState extends State<Credential> {
                 Navigator.of(ctx).pop();
               }
             },
-            child: Text('Add'),
+            child: const Text('Add'),
           ),
         ],
       ),
