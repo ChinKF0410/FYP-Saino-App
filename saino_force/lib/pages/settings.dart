@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:saino_force/admin/adminViewAccount.dart';
-import 'package:saino_force/admin/adminViewHome.dart';
 import 'package:saino_force/pages/FeedbackPage.dart';
 import 'package:saino_force/pages/helpAndSupport.dart';
 import 'package:saino_force/pages/aboutUs.dart';
@@ -58,11 +56,11 @@ class _SettingsState extends State<Settings> {
             _buildButton('Feedback', Icons.feedback_outlined, () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) =>  const AdminViewHome(),
+                  builder: (context) => const FeedbackPage(),
                 ),
               );
             }),
-            const SizedBox(height: 15.0),
+            const SizedBox(height: 20.0),
             _buildButton('Help & Support', Icons.help_outline, () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -70,7 +68,7 @@ class _SettingsState extends State<Settings> {
                 ),
               );
             }),
-            const SizedBox(height: 15.0),
+            const SizedBox(height: 20.0),
             _buildButton('About Us', Icons.info_outline, () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -91,7 +89,7 @@ class _SettingsState extends State<Settings> {
                 ),
               );
             }),
-            const SizedBox(height: 15.0),
+            const SizedBox(height: 20.0),
             _buildButton('Terms & Conditions', Icons.access_alarm, () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -99,7 +97,7 @@ class _SettingsState extends State<Settings> {
                 ),
               );
             }),
-            const SizedBox(height: 15.0),
+            const SizedBox(height: 20.0),
             _buildButton('Logout', Icons.logout_outlined, _showLogoutConfirmationDialog),
           ],
         ),

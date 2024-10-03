@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart'; // Import MSSQLAuthProvider directly
 import 'package:saino_force/services/auth/auth_exception.dart';
 import 'package:saino_force/utilities/show_error_dialog.dart';
-import 'package:saino_force/constant/routes.dart';
+//import 'package:saino_force/constant/routes.dart';
 import 'dart:developer' as devtools show log;
 import 'package:saino_force/widgets/widget_support.dart';
 
@@ -142,10 +142,8 @@ class _ChangePasswdViewState extends State<ChangePasswdView> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_outlined, color: Colors.black),
           onPressed: () {
-            Navigator.of(context).pushNamedAndRemoveUntil(
-              bottomNavRoute,
-              (_) => false,
-            );
+            Navigator.of(context).pop();
+            
           },
         ),
         title: Text(
