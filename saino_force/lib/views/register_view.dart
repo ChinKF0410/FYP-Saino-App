@@ -15,6 +15,7 @@ class RegisterView extends StatefulWidget {
 
 class _RegisterViewState extends State<RegisterView> {
   late final TextEditingController _username;
+  late final TextEditingController _companyname;
   late final TextEditingController _email;
   late final TextEditingController _confirmEmail;
   late final TextEditingController _password;
@@ -27,6 +28,7 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   void initState() {
     _username = TextEditingController();
+    _companyname = TextEditingController();
     _email = TextEditingController();
     _confirmEmail = TextEditingController();
     _password = TextEditingController();
@@ -37,6 +39,7 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   void dispose() {
     _username.dispose();
+    _companyname.dispose();
     _email.dispose();
     _confirmEmail.dispose();
     _password.dispose();
@@ -73,6 +76,7 @@ class _RegisterViewState extends State<RegisterView> {
 
   Future<void> _register() async {
     final username = _username.text;
+    final companyname = _companyname.text;
     final email = _email.text;
     final confirmEmail = _confirmEmail.text;
     final password = _password.text;
@@ -115,10 +119,11 @@ class _RegisterViewState extends State<RegisterView> {
         username: username,
         email: email,
         password: password,
+        companyname : companyname,
       );
 
       Navigator.of(context).pushNamedAndRemoveUntil(
-        homeRoute,
+        loginRoute,
         (_) => false,
       );
     } on EmailAlreadyInUseAuthException {
@@ -164,6 +169,13 @@ class _RegisterViewState extends State<RegisterView> {
                           controller: _username,
                           labelText: 'Username',
                           icon: Icons.person_outline,
+                          isPassword: false,
+                        ),
+                        const SizedBox(height: 20.0),
+                        _buildTextField(
+                          controller: _companyname,
+                          labelText: 'Company Name',
+                          icon: Icons.business,
                           isPassword: false,
                         ),
                         const SizedBox(height: 20.0),

@@ -1,5 +1,6 @@
 const axios = require('axios');
 const sql = require('mssql');
+const crypto = require('crypto');
 
 // ACA-Py API endpoint configuration
 const acaPyBaseUrl = 'http://192.168.1.9:6011';  // Issuer API URL || holder is 7011
@@ -21,11 +22,11 @@ let poolPromise = sql.connect(dbConfig)
 //-----------------------------------------------------------------------------//
 // Main function to create wallet and DID
 async function createWalletandDID(req, res) {
-    const { username, password } = req.body;
-
+    const { email, password } = req.body;
+    const Email = email;
     try {
         // Step 1: Create a wallet for the holder
-        const wallet = await createWallet(username, password);
+        const wallet = await createWallet(Email, password);
         const walletid = wallet.wallet_id;
         const authtoken = wallet.token;  // Get auth token
 
@@ -41,7 +42,7 @@ async function createWalletandDID(req, res) {
         const publicDID = await makeDidPublic(authtoken, did);
 
         // Step 5: Store wallet key and public DID in the database
-        await storeWalletData(username, walletid, publicDID);
+        await storeWalletData(Email, walletid, publicDID);
 
         // Step 6: Return success response with DID and verkey
         res.status(200).json({
@@ -56,18 +57,18 @@ async function createWalletandDID(req, res) {
 }
 
 // Function to store wallet key and public DID in the database
-async function storeWalletData(username, walletid, publicDid) {
+async function storeWalletData(Email, walletid, publicDid) {
     try {
         const pool = await poolPromise;  // Get connection from pool
         const request = pool.request();  // Create a new request using the pool connection
 
-        const query = `INSERT INTO Wallets (wallet_id, public_did, username) VALUES (@wallet_ID, @publicDid, @username)`;
+        const query = `INSERT INTO Wallets (wallet_id, public_did, Email) VALUES (@wallet_ID, @publicDid, @Email)`;
         // Create a new request object to execute queries
         // Parameterize the query to prevent SQL injection
         await request
             .input('wallet_id', sql.NVarChar(255), walletid)
             .input('publicDid', sql.NVarChar(255), publicDid)
-            .input('username', sql.NVarChar(200), username) 
+            .input('Email', sql.NVarChar(200), Email) 
             .query(query);
 
         console.log('Wallet data stored successfully.');
@@ -153,9 +154,15 @@ async function createDid(jwtToken) {
 
 // Function to create a new wallet
 async function createWallet(walletName, wallet_key) {
+    const currentDateTime = new Date(); // This gets the current date and time
+    const combinedKey = `${wallet_key}${currentDateTime.toISOString()}`; // Use toISOString() for a standard format
+
+// Create a hash of the combinedKey
+    const walletKeyHash = crypto.createHash('sha256').update(combinedKey).digest('hex');
+    console.log(walletKeyHash);
     const walletData = {
         wallet_name: walletName,
-        wallet_key: wallet_key,
+        wallet_key: walletKeyHash,
         wallet_type: 'indy',
     };
 

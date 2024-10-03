@@ -1,15 +1,16 @@
-import 'auth_user.dart';
+import 'package:saino_force/models/auth_user.dart';
 
 abstract class AuthProvider {
-  Future<AuthUser> login({
+  Future<int> login({
     required String email,
     required String password,
   });
 
-  Future<AuthUser> register({
+  Future<void> register({
     required String username,
     required String email,
     required String password,
+    required String companyname,
   });
 
   Future<void> logout();

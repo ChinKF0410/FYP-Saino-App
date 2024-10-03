@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:saino_force/admin/adminViewHome.dart';
 import 'package:saino_force/constant/routes.dart';
 import 'package:saino_force/pages/changePasswd.dart';
 import 'package:saino_force/pages/scan.dart';
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
           settingsRoute: (context) => const Settings(),
           scanRoute: (context) => const Scan(),
           changePasswdRoute: (context) => const ChangePasswdView(),
+          adminPageRoute: (context) => const AdminViewHomeContent(),
         },
       ),
     );
@@ -54,28 +56,44 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MSSQLAuthProvider authProvider = MSSQLAuthProvider(); // Directly use MSSQLAuthProvider
+    final MSSQLAuthProvider authProvider =
+        MSSQLAuthProvider(); // Directly use MSSQLAuthProvider
 
     return Scaffold(
       body: FutureBuilder(
-        future: authProvider.initialize(), // Call initialize on MSSQLAuthProvider
+        future:
+            authProvider.initialize(), // Call initialize on MSSQLAuthProvider
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.connectionState == ConnectionState.done) {
-            final user = authProvider.currentUser; // Access currentUser from MSSQLAuthProvider
+            final user = authProvider
+                .currentUser; // Access currentUser from MSSQLAuthProvider
 
             if (user != null && user.email.isNotEmpty) {
-              devtools.log(user.id.toString());
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  bottomNavRoute,
-                  (route) => false,
-                );
-              });
-              return const SizedBox.shrink();
+              devtools.log(user.toString());
+              if (user.roleID == 2) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    bottomNavRoute,
+                    (route) => false,
+                  );
+                });
+                return const SizedBox.shrink();
+              } else {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => const AdminViewHome(),
+                    ),
+                    (Route<dynamic> route) =>
+                        false, // This removes all previous routes
+                  );
+                });
+                return const SizedBox.shrink();
+              }
             } else {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushNamedAndRemoveUntil(

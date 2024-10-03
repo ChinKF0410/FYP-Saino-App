@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:saino_force/admin/adminViewAccount.dart';
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart'; // Import MSSQLAuthProvider directly
 import 'package:saino_force/services/auth/auth_exception.dart';
 import 'package:saino_force/utilities/show_error_dialog.dart';
 import 'package:saino_force/constant/routes.dart';
 import 'dart:developer' as devtools show log;
 import 'package:saino_force/widgets/widget_support.dart';
+import 'package:saino_force/admin/adminViewHome.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -57,30 +59,67 @@ class _LoginViewState extends State<LoginView> {
     devtools.log("Trying to log in with email: $email");
 
     try {
-      await _authProvider.login(
+      int response = await _authProvider.login(
         email: email,
         password: password,
       );
+      if (!mounted) return;
+
       await _authProvider.initialize();
+      if (!mounted) return;
       final user = _authProvider.currentUser;
+
       devtools.log(user.toString());
+      devtools.log("Response Status Code: $response");
 
-      if (user != null) {
-        devtools.log('Login successful');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login successful')),
+      if (response == 402) {
+        // Email not verified
+        devtools.log('Email not verified');
+        showErrorDialog(
+            context,
+            "Email Hasn't Been Verified, Please Contact Us: \n"
+            "- Email to sainocs@sainoforce.com\n"
+            "- WhatsApp to 011-12345678");
+        return;
+      } else if (response == 403) {
+        // Registration rejected
+        devtools.log('Account registration rejected');
+        showErrorDialog(
+            context,
+            "Account Registration Was Rejected. Please Contact Us: \n"
+            "- Email to sainocs@sainoforce.com\n"
+            "- WhatsApp to 011-12345678");
+        return;
+      } else if (response == 201) {
+        // Admin login
+        devtools.log('Admin login successful');
+        showErrorDialog(
+          context,
+          "Logged in as admin successfully. Welcome to the Admin Dashboard.",
         );
-
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminViewHome(),
+          ),
+          (Route<dynamic> route) => false, // Removes all previous routes
+        );
+        return;
+      } else if (response == 200) {
+        // Regular user login
+        devtools.log('User login successful');
         Navigator.of(context).pushNamedAndRemoveUntil(
           bottomNavRoute,
           (route) => false,
         );
-      } else {
-        devtools.log('Login failed');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login failed')),
-        );
+        return;
       }
+
+      // If the response status doesn't match any of the expected ones, handle as failed login
+      devtools.log('Login failed with unexpected status code');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login failed')),
+      );
     } on UserNotFoundAuthException {
       devtools.log('User Not Found');
       await showErrorDialog(

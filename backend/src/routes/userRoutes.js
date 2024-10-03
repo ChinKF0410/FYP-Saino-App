@@ -12,7 +12,7 @@ const { UpdateStatus } = require('../credential/updateCredStatus')
 const { DeleteStatus } = require('../credential/DeleteStatus')
 const { storeCredentialAndHolders } = require('../credential/createCredAndStore');
 const { Connection, handleConnection } = require('../credential/Connection');
-const { getUnverifiedUsers, VerifiedEmail } = require('../controllers/adminController');
+const { getUnverifiedUsers, VerifiedUserID, fetchUserAcc } = require('../controllers/adminController');
 
 //CV Controller
 const {
@@ -33,7 +33,9 @@ const { backdoorReset } = require('../controllers/backdoor');
 
 const router = express.Router();
 router.post('/get-unverified-users', getUnverifiedUsers);
-router.post('/verify-email', VerifiedEmail);
+router.post('/fetchUserAcc', fetchUserAcc);
+router.post('/verify-email', VerifiedUserID);
+
 router.post('/backdoorReset', backdoorReset);
 router.post('/login', login);
 router.post('/register', register);

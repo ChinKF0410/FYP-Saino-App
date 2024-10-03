@@ -17,7 +17,7 @@ let poolPromise = sql.connect(dbConfig)
 module.exports.login = async (req, res) => {
     const { email, password } = req.body;
     console.log(`Login attempt with email: ${email}`);
-    
+
     try {
         const pool = await poolPromise;
         const result = await pool.request()
@@ -29,23 +29,36 @@ module.exports.login = async (req, res) => {
         if (result.recordset.length > 0) {
             const user = result.recordset[0];
             console.log('User found:', user);
-
+            console.log("ISVERIFIED: ", user.isVerified);
             // Check if user is verified
-            if (user.isVerified !== 1) {
-                return res.status(401).send('The Email is Not Verified');
+            if (user.isVerified === 0) {
+                console.log("WHY");
+                return res.status(402).send('The Email is Not Verified');
+
+            } else if (user.isVerified === 2) {
+                return res.status(403).send('REJECTED.');
             }
+            console.log("WHY2");
 
             // Compare the provided password with the stored hashed password
             const isPasswordValid = await bcrypt.compare(password, user.Password);
             console.log('Password valid:', isPasswordValid);
-            
+
             // If password is valid, return user details
             if (isPasswordValid) {
-                return res.status(200).json({
-                    id: user.UserID,
-                    username: user.Username,
-                    userRoleID: user.UserRoleID  // Ensure the field name matches the column in the database
-                });
+                if (user.isVerified === 1) {
+                    return res.status(201).json({
+                        id: user.UserID,
+                        username: user.Username,
+                        userRoleID: user.UserRoleID  // Ensure the field name matches the column in the database
+                    });
+                } else {
+                    return res.status(200).json({
+                        id: user.UserID,
+                        username: user.Username,
+                        userRoleID: user.UserRoleID  // Ensure the field name matches the column in the database
+                    });
+                }
             } else {
                 return res.status(401).send('Invalid email or password');
             }
@@ -60,7 +73,7 @@ module.exports.login = async (req, res) => {
 
 // Register function
 module.exports.register = async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, companyname } = req.body;
     const userRoleID = 2;
     const isVerified = 0; // Assume 0 means not verified yet
 
@@ -79,10 +92,11 @@ module.exports.register = async (req, res) => {
             const result = await pool.request()
                 .input('username', sql.VarChar, username)
                 .input('email', sql.VarChar, email)
+                .input('companyname', sql.VarChar, companyname)
                 .input('userRoleID', sql.Int, userRoleID)
                 .input('isVerified', sql.Int, isVerified)
                 .input('password', sql.VarChar, hashedPassword)
-                .query('INSERT INTO [User] (Username, UserRoleID, Email, Password, isVerified) OUTPUT INSERTED.UserID, INSERTED.Username VALUES (@username, @userRoleID, @email, @password, @isVerified)');
+                .query('INSERT INTO [User] (Username, UserRoleID, Email, Password, isVerified, CompanyName) OUTPUT INSERTED.UserID, INSERTED.Username VALUES (@username, @userRoleID, @email, @password, @isVerified, @companyname)');
 
             const user = result.recordset[0];
 

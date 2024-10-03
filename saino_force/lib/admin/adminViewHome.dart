@@ -15,7 +15,7 @@ class _AdminViewHomeState extends State<AdminViewHome> {
 
   // Define the pages to switch between
   static final List<Widget> _pages = <Widget>[
-    AdminViewHomeContent(), // Home content
+    const AdminViewHomeContent(), // Home content
     const AdminViewAccount(),
     const EmailVerify(), // Navigate to Account page
   ];
@@ -98,39 +98,42 @@ class AdminViewHomeContent extends StatelessWidget {
       BuildContext context, IconData icon, String label, VoidCallback onTap) {
     double screenWidth = MediaQuery.of(context).size.width; // Get screen width
 
-    return Container(
-      width: screenWidth * 0.9, // Set width to 90% of screen width
-      height: 90.0,
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.grey,
-          width: 2.0,
+    return Material(
+      // Ensure the Material widget is present
+      child: Container(
+        width: screenWidth * 0.9, // Set width to 90% of screen width
+        height: 90.0,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.grey,
+            width: 2.0,
+          ),
+          borderRadius: BorderRadius.circular(10.0),
+          color: Colors.transparent,
         ),
-        borderRadius: BorderRadius.circular(10.0),
-        color: Colors.transparent,
-      ),
-      child: InkWell(
-        onTap: onTap,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Icon(
-                icon,
-                size: 45.0, // Adjust size as needed
-                color: const Color(0xFF171B63),
+        child: InkWell(
+          onTap: onTap,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Icon(
+                  icon,
+                  size: 45.0, // Adjust size as needed
+                  color: const Color(0xFF171B63),
+                ),
               ),
-            ),
-            const SizedBox(width: 20.0), // Space between icon and text
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 20.0,
-                color: Color(0xFF171B63),
+              const SizedBox(width: 20.0), // Space between icon and text
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 20.0,
+                  color: Color(0xFF171B63),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

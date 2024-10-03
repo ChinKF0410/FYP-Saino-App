@@ -63,7 +63,7 @@ class _HolderListPageState extends State<HolderListPage> {
         Uri.parse('http://192.168.1.9:3011/api/ViewCredential'),
         headers: {'Content-Type': 'application/json'}, // Set content type
         body: json.encode({
-          'username': user?.username, // Pass 'username' to the backend
+          'Email': user?.email, // Pass 'Email' to the backend
         }),
       );
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart';
+import 'dart:developer' as devtools show log;
 
 class EmailVerify extends StatefulWidget {
   const EmailVerify({super.key});
@@ -16,15 +17,22 @@ class _EmailVerifyState extends State<EmailVerify> {
   @override
   void initState() {
     super.initState();
+    if (!mounted) return;
+
     _fetchUnverifiedUsers(); // Fetch unverified users when the screen loads
+    if (!mounted) return;
   }
 
   Future<void> _fetchUnverifiedUsers() async {
+    if (!mounted) return;
+
     setState(() {
       isLoading = true;
     });
     try {
       final users = await _authProvider.fetchUnverifiedUsers();
+      if (!mounted) return;
+      devtools.log(users.toString());
       setState(() {
         unverifiedUsers = users;
         isLoading = false;
@@ -41,13 +49,18 @@ class _EmailVerifyState extends State<EmailVerify> {
   }
 
   Future<void> _updateVerificationStatus(int userId, int status) async {
+    if (!mounted) return;
+
     setState(() {
       isLoading = true;
     });
     try {
       await _authProvider.updateVerificationStatus(userId, status);
+      if (!mounted) return;
+
       // Refresh the user list after updating the status
       await _fetchUnverifiedUsers();
+      if (!mounted) return;
     } catch (e) {
       setState(() {
         isLoading = false;
@@ -111,7 +124,7 @@ class _EmailVerifyState extends State<EmailVerify> {
                             icon: const Icon(Icons.check, color: Colors.green),
                             onPressed: () async {
                               await _updateVerificationStatus(
-                                  user['UserID'], 1);
+                                  user['UserID'] as int, 1);
                             },
                           ),
                           // Decline Button
@@ -119,7 +132,7 @@ class _EmailVerifyState extends State<EmailVerify> {
                             icon: const Icon(Icons.close, color: Colors.red),
                             onPressed: () async {
                               await _updateVerificationStatus(
-                                  user['UserID'], 2);
+                                  user['UserID'] as int, 2);
                             },
                           ),
                         ],

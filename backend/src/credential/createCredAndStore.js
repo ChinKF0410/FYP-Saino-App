@@ -16,16 +16,16 @@ let poolPromise = sql.connect(dbConfig)
     });
 
 // Main function to issue credentials and link holders to them
-async function storeCredentialAndHolders(username, holders, credential) {
+async function storeCredentialAndHolders(Email, holders, credential) {
     const pool = await poolPromise;
     const transaction = new sql.Transaction(pool);  // Use pool in the transaction
 
     try {
         await transaction.begin();
 
-        const walletData = await getWalletData(username);
+        const walletData = await getWalletData(Email);
         if (!walletData) {
-            throw new Error(`Wallet not found for username: ${username}`);
+            throw new Error(`Wallet not found for Email: ${Email}`);
         }
 
         const jwtToken = await getAuthToken(walletData.wallet_id);
@@ -38,16 +38,16 @@ async function storeCredentialAndHolders(username, holders, credential) {
         console.log("Credential stored successfully");
 
         for (const holder of holders) {
-            const connectionId = await handleConnection(jwtToken, username, holder.email);
+            const connectionId = await handleConnection(jwtToken, Email, holder.email);
             console.log(connectionId);
 
             if (connectionId) {
-                await storeHolder(transaction, holder, credentialId, "Pending", username);
+                await storeHolder(transaction, holder, credentialId, "Pending", Email);
                 console.log("123123Holder stored successfully");
                 console.log(holder.email);
-                await sendOffer(holder, connectionId, credentialDefinitionId, schemaId, jwtToken, walletData.public_did, credential, username);
+                await sendOffer(holder, connectionId, credentialDefinitionId, schemaId, jwtToken, walletData.public_did, credential, Email);
             } else {
-                await storeHolder(transaction, holder, credentialId, "Holder Not Found", username);
+                await storeHolder(transaction, holder, credentialId, "Holder Not Found", Email);
             }
         }
 
@@ -80,10 +80,10 @@ async function storeCredential(transaction, credentialData, schemaId, credential
 }
 
 // Store holder in the HolderCredential table
-async function storeHolder(transaction, holder, credentialId, state, username) {
+async function storeHolder(transaction, holder, credentialId, state, Email) {
     const query = `
-        INSERT INTO HolderCredential (holder_name, holder_email, holder_phone, holder_description, did, credential_id, statusState,username)
-        VALUES (@holderName, @holderEmail, @holderPhone, @holderDescription, @did, @credentialId, @state,@username)
+        INSERT INTO HolderCredential (holder_name, holder_email, holder_phone, holder_description, did, credential_id, statusState,Email)
+        VALUES (@holderName, @holderEmail, @holderPhone, @holderDescription, @did, @credentialId, @state,@Email)
     `;
 
     const request = new sql.Request(transaction);  // Use transaction in the request
@@ -96,19 +96,19 @@ async function storeHolder(transaction, holder, credentialId, state, username) {
         .input('did', sql.NVarChar(255), holder.did)
         .input('credentialId', sql.Int, credentialId)
         .input('state', sql.NVarChar(50), state)
-        .input('username', sql.NVarChar(50), username)
+        .input('Email', sql.NVarChar(50), Email)
         .query(query);
 }
 
 // Get wallet data from Wallet table
-async function getWalletData(username) {
+async function getWalletData(Email) {
     const pool = await poolPromise;
     try {
-        const query = `SELECT wallet_id, public_did FROM Wallets WHERE username = @username`;
+        const query = `SELECT wallet_id, public_did FROM Wallets WHERE Email = @Email`;
         const request = pool.request();  // Use pool to create request
 
         const result = await request
-            .input('username', sql.NVarChar(50), username)
+            .input('Email', sql.NVarChar(50), Email)
             .query(query);
 
         if (result.recordset.length > 0) {
@@ -116,7 +116,7 @@ async function getWalletData(username) {
             console.log(`Wallet ID: ${walletData.wallet_id}, Public DID: ${walletData.public_did}`);
             return walletData;
         } else {
-            console.log(`No wallet found for username: ${username}`);
+            console.log(`No wallet found for Email: ${Email}`);
             return null;
         }
     } catch (error) {
@@ -180,7 +180,7 @@ async function createCredentialDefinition(schemaId, jwtToken) {
 }
 
 // Send credential offer via ACA-Py
-async function sendOffer(holder, connectionId, credentialDefinitionId, schemaId, jwtToken, publicDid, credential, username) {
+async function sendOffer(holder, connectionId, credentialDefinitionId, schemaId, jwtToken, publicDid, credential, Email) {
     try {
         console.log("Inside sendOffer");
         const response = await axios.post(`${acaPyBaseUrl}/issue-credential-2.0/send`, {
@@ -197,7 +197,7 @@ async function sendOffer(holder, connectionId, credentialDefinitionId, schemaId,
                 "@type": "issue-credential/2.0/credential-preview",
                 "attributes": [
                     { "name": "credentialType", "value": credential.credentialType },
-                    { "name": "issuerName", "value": username },
+                    { "name": "issuerName", "value": Email },
                     { "name": "name", "value": holder.name },
                     { "name": "email", "value": holder.email },
                     { "name": "phoneNo", "value": holder.phoneNo },

@@ -23,10 +23,10 @@ let poolPromise = sql.connect(dbConfig)
 
 // Run this function to create connection
 async function Connection(req, res) {
-    const { username, holderEmail } = req.body;
+    const { Email, holderEmail } = req.body;
     try {
         // Step 1: Get wallet ID and DID for the user
-        const walletData = await getWalletData(username);
+        const walletData = await getWalletData(Email);
         if (!walletData) {
             return res.status(404).json({ message: 'Wallet not found for the user' });
         }
@@ -38,7 +38,7 @@ async function Connection(req, res) {
         const authToken = await getAuthToken(walletID);
 
         // Step 3: Check if connection exists, if not, create connection, if exists, get the connection ID
-        const conn_id = await handleConnection(authToken, username, holderEmail);
+        const conn_id = await handleConnection(authToken, Email, holderEmail);
 
         res.status(200).json({
             message: 'Connection created successfully',
@@ -96,18 +96,18 @@ async function sendConnection(invitation, holder, issuer) {
     }
 }
 // Check if the connection already exists in the database
-async function checkConnectionExists(username, holderEmail) {
+async function checkConnectionExists(Email, holderEmail) {
     try {
         const pool = await poolPromise; // Use the pool connection
         const query = `
             SELECT connection_id 
             FROM connection 
-            WHERE username = @username AND holderEmail = @holderEmail
+            WHERE Email = @Email AND holderEmail = @holderEmail
         `;
 
         const request = pool.request(); // Create a request using the pool connection
         const result = await request
-            .input('username', sql.NVarChar(50), username)
+            .input('Email', sql.NVarChar(50), Email)
             .input('holderEmail', sql.NVarChar(50), holderEmail)
             .query(query);
 
@@ -122,17 +122,17 @@ async function checkConnectionExists(username, holderEmail) {
 }
 
 // Store a new connection in the database
-async function storeConnection(username, connectionId, holderEmail) {
+async function storeConnection(Email, connectionId, holderEmail) {
     try {
         const pool = await poolPromise; // Use the pool connection
         const query = `
-            INSERT INTO connection (username, connection_id, holderEmail, status) 
-            VALUES (@username, @connectionId, @holderEmail, @status)
+            INSERT INTO connection (Email, connection_id, holderEmail, status) 
+            VALUES (@Email, @connectionId, @holderEmail, @status)
         `;
 
         const request = pool.request();  // Create a request using the pool connection
         await request
-            .input('username', sql.NVarChar(50), username)
+            .input('Email', sql.NVarChar(50), Email)
             .input('connectionId', sql.NVarChar(255), connectionId)
             .input('status', sql.NVarChar(50), "active")
             .input('holderEmail', sql.NVarChar(255), holderEmail)
@@ -146,10 +146,10 @@ async function storeConnection(username, connectionId, holderEmail) {
 }
 
 // Check connection existence or create a new connection
-async function handleConnection(authToken, username, holderEmail) {
+async function handleConnection(authToken, Email, holderEmail) {
     try {
         // Check if the connection already exists
-        const existingConnectionId = await checkConnectionExists(username, holderEmail);
+        const existingConnectionId = await checkConnectionExists(Email, holderEmail);
 
         if (existingConnectionId) {
             // If the connection exists, return the existing connection ID
@@ -162,7 +162,7 @@ async function handleConnection(authToken, username, holderEmail) {
             const conn_inv = Connectiondata.invitation;
 
             // Send connection to holder Node.js
-            const connectionResponse = await sendConnection(conn_inv, holderEmail, username);
+            const connectionResponse = await sendConnection(conn_inv, holderEmail, Email);
 
             // Wait for 5 seconds
             await wait(5000);
@@ -170,7 +170,7 @@ async function handleConnection(authToken, username, holderEmail) {
             // Check the message in the response to determine the status
             if (connectionResponse.message === 'Holder received the connection') {
                 // Connection was successful, store it in the database
-                await storeConnection(username, newConnectionId, holderEmail);
+                await storeConnection(Email, newConnectionId, holderEmail);
                 return newConnectionId;
             } else {
                 // If the message indicates failure, return null
@@ -185,14 +185,14 @@ async function handleConnection(authToken, username, holderEmail) {
 }
 
 // Get wallet data from Wallet table
-async function getWalletData(username) {
+async function getWalletData(Email) {
     try {
         const pool = await poolPromise;  // Use the pool connection
-        const query = `SELECT wallet_id, public_did FROM Wallets WHERE username = @username`;
+        const query = `SELECT wallet_id, public_did FROM Wallets WHERE Email = @Email`;
 
         const request = pool.request();  // Create a request using the pool connection
         const result = await request
-            .input('username', sql.NVarChar(50), username)
+            .input('Email', sql.NVarChar(50), Email)
             .query(query);
 
         if (result.recordset.length > 0) {
@@ -200,7 +200,7 @@ async function getWalletData(username) {
             console.log(`Wallet ID: ${walletData.wallet_id}, Public DID: ${walletData.public_did}`);
             return walletData;
         } else {
-            console.log(`No wallet found for username: ${username}`);
+            console.log(`No wallet found for Email: ${Email}`);
             return null;
         }
     } catch (error) {

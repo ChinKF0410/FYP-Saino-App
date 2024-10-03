@@ -11,4 +11,5 @@ const String bottomNavRoute = '/bottomnav/';
 const String viewCVRoute = '/viewcv/'; 
 const String showQRCodeViewRoute = '/ShowQRCodeView/';
 const String scanRoute = '/scan/';
-const String changePasswdRoute = 'changePasswd';
+const String changePasswdRoute = '/changePasswd/';
+const String adminPageRoute = '/adminPageRoute/';

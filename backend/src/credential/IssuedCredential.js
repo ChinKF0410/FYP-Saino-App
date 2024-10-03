@@ -17,17 +17,17 @@ let poolPromise = sql.connect(dbConfig)
     async function ViewCredential(req, res) {
         console.log("get the issue data");
         try {
-            const { username } = req.body; // Extract username from the request body
+            const { Email } = req.body; // Extract Email from the request body
     
-            if (!username) {
-                return res.status(400).send('Username is required');
+            if (!Email) {
+                return res.status(400).send('Email is required');
             }
     
             const pool = await poolPromise;
     
             // Use parameterized queries to prevent SQL injection
             const result = await pool.request()
-                .input('username', username) // Pass the username as a parameter
+                .input('Email', Email) // Pass the Email as a parameter
                 .query(`
                     SELECT 
                         holder_id AS id,
@@ -38,7 +38,7 @@ let poolPromise = sql.connect(dbConfig)
                         did,
                         statusState AS status
                     FROM HolderCredential
-                    WHERE username = @username
+                    WHERE Email = @Email
                     ORDER BY id DESC;
                 `);
     

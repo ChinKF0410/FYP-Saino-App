@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:saino_force/models/auth_user.dart';
 import 'auth_provider.dart';
-import 'auth_user.dart';
 import 'auth_exception.dart';
 import 'dart:developer' as devtools show log;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,7 +13,7 @@ class MSSQLAuthProvider implements AuthProvider {
   AuthUser? _currentUser;
 
   @override
-  Future<AuthUser> login({
+  Future<int> login({
     required String email,
     required String password,
   }) async {
@@ -32,20 +32,32 @@ class MSSQLAuthProvider implements AuthProvider {
           'password': password,
         }),
       );
-
+      devtools.log(response.statusCode.toString());
       devtools
           .log('Login API Response: ${response.statusCode} ${response.body}');
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-
         _currentUser = AuthUser(
           id: responseData['id'],
           username: responseData['username'],
           email: email,
+          roleID: 2,
         );
 
         await _saveUserToPreferences(_currentUser!);
-        return _currentUser!;
+      } else if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        _currentUser = AuthUser(
+          id: responseData['id'],
+          username: responseData['username'],
+          email: email,
+          roleID: 1,
+        );
+
+        await _saveUserToPreferences(_currentUser!);
+        return response.statusCode;
+      } else if (response.statusCode == 402 || response.statusCode == 403) {
+        return response.statusCode;
       } else if (response.statusCode == 404) {
         throw UserNotFoundAuthException();
       } else if (response.statusCode == 401) {
@@ -53,6 +65,7 @@ class MSSQLAuthProvider implements AuthProvider {
       } else {
         throw GenericAuthException();
       }
+      throw GenericAuthException();
     } catch (e) {
       devtools.log(email);
       devtools.log('Login Error: $e');
@@ -65,13 +78,15 @@ class MSSQLAuthProvider implements AuthProvider {
     await prefs.setInt('userId', user.id);
     await prefs.setString('username', user.username);
     await prefs.setString('email', user.email);
+    await prefs.setInt('roleID', user.roleID);
   }
 
   @override
-  Future<AuthUser> register({
+  Future<void> register({
     required String username,
     required String email,
     required String password,
+    required String companyname,
   }) async {
     try {
       final response = await http.post(
@@ -83,33 +98,15 @@ class MSSQLAuthProvider implements AuthProvider {
           'username': username,
           'email': email,
           'password': password,
+          'companyname': companyname,
         }),
       );
 
-      final response2 = await http.post(
-        Uri.parse('$baseUrl/createWalletandDID'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'username': username,
-          'password': password,
-        }),
-      );
       devtools.log(
           'Register API Response: ${response.statusCode} ${response.body}');
-      devtools.log(
-          'Register Wallet In SAINO API Response: ${response2.statusCode} ${response2.body}');
 
       if (response.statusCode == 201) {
-        final responseData = jsonDecode(response.body);
-        _currentUser = AuthUser(
-          id: responseData['id'],
-          username: responseData['username'],
-          email: email,
-        );
-        await _saveUserToPreferences(_currentUser!);
-        return _currentUser!;
+
       } else if (response.statusCode == 400) {
         throw EmailAlreadyInUseAuthException();
       } else {
@@ -150,12 +147,14 @@ class MSSQLAuthProvider implements AuthProvider {
     final userId = prefs.getInt('userId');
     final username = prefs.getString('username');
     final email = prefs.getString('email');
+    final roleID = prefs.getInt('roleID');
 
-    if (userId != null && username != null && email != null) {
+    if (userId != null && username != null && email != null && roleID != null) {
       return AuthUser(
         id: userId,
         username: username,
         email: email,
+        roleID: roleID,
       );
     }
     return null;
@@ -427,7 +426,7 @@ class MSSQLAuthProvider implements AuthProvider {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-
+      
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as List<dynamic>;
       } else {
@@ -456,6 +455,67 @@ class MSSQLAuthProvider implements AuthProvider {
       }
     } catch (e) {
       throw Exception('Error updating verification status: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> registerVonNetwork({
+    required int userId,
+  }) async {
+    try {
+      // Step 1: Fetch user's email and password based on UserID
+      final fetchResponse = await http.post(
+        Uri.parse('$baseUrl/fetchUserAcc'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, int>{
+          'UserID': userId,
+        }),
+      );
+
+      devtools.log(
+          'Fetch User Account API Response: ${fetchResponse.statusCode} ${fetchResponse.body}');
+
+      if (fetchResponse.statusCode != 200) {
+        throw Exception(
+            'Failed to fetch user account details: ${fetchResponse.body}');
+      }
+
+      // Parse the fetched user data (assuming it's a Map<String, dynamic>)
+      final userData = jsonDecode(fetchResponse.body) as Map<String, dynamic>;
+      final String email = userData['email'];
+      final String password = userData['password'];
+
+      if (email.isEmpty || password.isEmpty) {
+        throw Exception('Email or password is missing for UserID $userId');
+      }
+
+      // Step 2: Send the email and password to the VON Network API
+      final vonResponse = await http.post(
+        Uri.parse('$baseUrl/createWalletandDID'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email, // Send the email to the VON network
+          'password': password, // Send the password to the VON network
+        }),
+      );
+
+      devtools.log(
+          'VON Network Register API Response: ${vonResponse.statusCode} ${vonResponse.body}');
+
+      if (vonResponse.statusCode == 200 || vonResponse.statusCode == 201) {
+        final responseData =
+            jsonDecode(vonResponse.body) as Map<String, dynamic>;
+        return responseData; // Return the parsed response data
+      } else {
+        throw Exception(
+            'Failed to register on VON Network: ${vonResponse.body}');
+      }
+    } catch (e) {
+      devtools.log('Error registering on VON Network for UserID $userId: $e');
+      throw Exception('Error registering on VON Network: $e');
     }
   }
 }

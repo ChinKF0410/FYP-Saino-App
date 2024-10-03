@@ -58,7 +58,7 @@ class _SettingsState extends State<Settings> {
             _buildButton('Feedback', Icons.feedback_outlined, () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const AdminViewHome(),
+                  builder: (context) =>  const AdminViewHome(),
                 ),
               );
             }),
