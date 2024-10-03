@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:saino_force/admin/adminViewAccount.dart';
+import 'package:saino_force/admin/adminViewHome.dart';
 import 'package:saino_force/pages/FeedbackPage.dart';
 import 'package:saino_force/pages/helpAndSupport.dart';
 import 'package:saino_force/pages/aboutUs.dart';
@@ -56,7 +58,7 @@ class _SettingsState extends State<Settings> {
             _buildButton('Feedback', Icons.feedback_outlined, () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const FeedbackPage(),
+                  builder: (context) => const AdminViewHome(),
                 ),
               );
             }),

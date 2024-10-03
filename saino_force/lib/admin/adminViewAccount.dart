@@ -29,15 +29,6 @@ class _AdminViewAccountState extends State<AdminViewAccount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "Account",
-          style: AppWidget.boldTextFieldStyle(),
-        ),
-        backgroundColor: const Color.fromARGB(255, 188, 203, 228),
-        centerTitle: true,
-        elevation: 0,
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 20.0),
         child: Center(
@@ -113,9 +104,8 @@ class _AdminViewAccountState extends State<AdminViewAccount> {
 
       // Ensure navigation only if the widget is still mounted
       if (_isMounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil(
+        Navigator.of(context).pushReplacementNamed(
           loginRoute,
-          (_) => false,
         );
       }
     } catch (e) {

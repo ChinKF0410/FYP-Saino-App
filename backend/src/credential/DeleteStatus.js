@@ -97,7 +97,7 @@ async function updateActive(issuance_date, credential_type, name, email) {
         
         // Send the required data to the external API
         await axios.post(
-            `http://172.16.20.25:4000/api/UpdateActive`,
+            `http://192.168.1.9:4000/api/UpdateActive`,
             {
                 issuance_date,
                 credential_type,

@@ -7,8 +7,8 @@ import 'dart:developer' as devtools show log;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MSSQLAuthProvider implements AuthProvider {
-  final String baseUrl = "http://172.16.20.25:3011/api";
-  final String toWalletDB = "http://172.16.20.25:4000/api";
+  final String baseUrl = "http://192.168.1.9:3011/api";
+  final String toWalletDB = "http://192.168.1.9:4000/api";
 
   AuthUser? _currentUser;
 
@@ -416,6 +416,46 @@ class MSSQLAuthProvider implements AuthProvider {
 
     if (response.statusCode != 200) {
       throw Exception('Failed to store feedback');
+    }
+  }
+
+  Future<List<dynamic>> fetchUnverifiedUsers() async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/get-unverified-users'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as List<dynamic>;
+      } else {
+        throw Exception('Failed to load unverified users');
+      }
+    } catch (e) {
+      throw Exception('Error fetching unverified users: $e');
+    }
+  }
+
+  Future<void> updateVerificationStatus(int userId, int status) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/verify-email'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'id': userId,
+          'VerifiedStatus': status,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update verification status');
+      }
+    } catch (e) {
+      throw Exception('Error updating verification status: $e');
     }
   }
 }
