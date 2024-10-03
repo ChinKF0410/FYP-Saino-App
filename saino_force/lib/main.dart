@@ -73,7 +73,7 @@ class HomePage extends StatelessWidget {
                 .currentUser; // Access currentUser from MSSQLAuthProvider
 
             if (user != null && user.email.isNotEmpty) {
-              devtools.log(user.toString());
+              devtools.log(user.roleID.toString());
               if (user.roleID == 2) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   Navigator.of(context).pushNamedAndRemoveUntil(

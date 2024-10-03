@@ -39,6 +39,16 @@ module.exports.VerifiedUserID = async (req, res) => {
             `);
 
         console.log(`Verified status for UserID ${id} updated to ${VerifiedStatus}`);
+        if (VerifiedStatus === 1) {
+            // Only call fetchUserAcc if VerifiedStatus is set to 1 (for example, "approved")
+            await module.exports.fetchUserAcc({
+                body: { UserID: id }
+            }, {
+                status: (code) => ({
+                    json: (message) => console.log(`fetchUserAcc status: ${code}, message: ${JSON.stringify(message)}`)
+                })
+            });
+        }
         res.status(200).json({ status: `Verified Status is updated to ${VerifiedStatus}` });
 
     } catch (err) {
@@ -107,7 +117,7 @@ module.exports.fetchUserAcc = async (req, res) => {
             return res.status(400).json({ message: 'Email or password is missing for this user.' });
         }
 
-        const vonApiUrl = 'http://192.168.1.9:3011/api/createWalletandDID'; // Replace with actual URL
+        const vonApiUrl = 'http://10.123.10.108:6011/api/createWalletandDID'; // Replace with actual URL
         const vonResponse = await axios.post(vonApiUrl, {
             email: email,
             password: password

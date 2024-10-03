@@ -7,8 +7,8 @@ import 'dart:developer' as devtools show log;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MSSQLAuthProvider implements AuthProvider {
-  final String baseUrl = "http://192.168.1.9:3011/api";
-  final String toWalletDB = "http://192.168.1.9:4000/api";
+  final String baseUrl = "http://103.52.192.245:6011/api";
+  final String toWalletDB = "http://103.52.192.245:4000/api";
 
   AuthUser? _currentUser;
 
@@ -41,7 +41,7 @@ class MSSQLAuthProvider implements AuthProvider {
           id: responseData['id'],
           username: responseData['username'],
           email: email,
-          roleID: 2,
+          roleID: responseData['userRoleID'],
         );
 
         await _saveUserToPreferences(_currentUser!);
@@ -51,7 +51,7 @@ class MSSQLAuthProvider implements AuthProvider {
           id: responseData['id'],
           username: responseData['username'],
           email: email,
-          roleID: 1,
+          roleID: responseData['userRoleID'],
         );
 
         await _saveUserToPreferences(_currentUser!);
@@ -106,7 +106,6 @@ class MSSQLAuthProvider implements AuthProvider {
           'Register API Response: ${response.statusCode} ${response.body}');
 
       if (response.statusCode == 201) {
-
       } else if (response.statusCode == 400) {
         throw EmailAlreadyInUseAuthException();
       } else {
@@ -426,7 +425,7 @@ class MSSQLAuthProvider implements AuthProvider {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-      
+
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as List<dynamic>;
       } else {
@@ -455,67 +454,6 @@ class MSSQLAuthProvider implements AuthProvider {
       }
     } catch (e) {
       throw Exception('Error updating verification status: $e');
-    }
-  }
-
-  Future<Map<String, dynamic>> registerVonNetwork({
-    required int userId,
-  }) async {
-    try {
-      // Step 1: Fetch user's email and password based on UserID
-      final fetchResponse = await http.post(
-        Uri.parse('$baseUrl/fetchUserAcc'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, int>{
-          'UserID': userId,
-        }),
-      );
-
-      devtools.log(
-          'Fetch User Account API Response: ${fetchResponse.statusCode} ${fetchResponse.body}');
-
-      if (fetchResponse.statusCode != 200) {
-        throw Exception(
-            'Failed to fetch user account details: ${fetchResponse.body}');
-      }
-
-      // Parse the fetched user data (assuming it's a Map<String, dynamic>)
-      final userData = jsonDecode(fetchResponse.body) as Map<String, dynamic>;
-      final String email = userData['email'];
-      final String password = userData['password'];
-
-      if (email.isEmpty || password.isEmpty) {
-        throw Exception('Email or password is missing for UserID $userId');
-      }
-
-      // Step 2: Send the email and password to the VON Network API
-      final vonResponse = await http.post(
-        Uri.parse('$baseUrl/createWalletandDID'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'email': email, // Send the email to the VON network
-          'password': password, // Send the password to the VON network
-        }),
-      );
-
-      devtools.log(
-          'VON Network Register API Response: ${vonResponse.statusCode} ${vonResponse.body}');
-
-      if (vonResponse.statusCode == 200 || vonResponse.statusCode == 201) {
-        final responseData =
-            jsonDecode(vonResponse.body) as Map<String, dynamic>;
-        return responseData; // Return the parsed response data
-      } else {
-        throw Exception(
-            'Failed to register on VON Network: ${vonResponse.body}');
-      }
-    } catch (e) {
-      devtools.log('Error registering on VON Network for UserID $userId: $e');
-      throw Exception('Error registering on VON Network: $e');
     }
   }
 }

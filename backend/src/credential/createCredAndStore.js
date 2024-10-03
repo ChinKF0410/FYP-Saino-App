@@ -2,7 +2,7 @@ const sql = require('mssql');  // Import directly from mssql
 const { handleConnection } = require('./Connection');
 const axios = require('axios');
 const dbConfig = require('../config/config');  // Database configuration
-const acaPyBaseUrl = 'http://192.168.1.9:6011';  // ACA-Py base URL
+const acaPyBaseUrl = 'http://103.52.192.245:8011';  // ACA-Py base URL
 
 // Initialize SQL connection pool
 let poolPromise = sql.connect(dbConfig)

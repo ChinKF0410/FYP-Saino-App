@@ -90,7 +90,9 @@ class _LoginViewState extends State<LoginView> {
             "- Email to sainocs@sainoforce.com\n"
             "- WhatsApp to 011-12345678");
         return;
-      } else if (response == 201) {
+      } 
+      devtools.log(user!.roleID.toString());
+      if (user?.roleID == 1) {
         // Admin login
         devtools.log('Admin login successful');
         showErrorDialog(
@@ -100,12 +102,12 @@ class _LoginViewState extends State<LoginView> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (context) => AdminViewHome(),
+            builder: (context) => const AdminViewHome(),
           ),
           (Route<dynamic> route) => false, // Removes all previous routes
         );
         return;
-      } else if (response == 200) {
+      } else if (user?.roleID == 2) {
         // Regular user login
         devtools.log('User login successful');
         Navigator.of(context).pushNamedAndRemoveUntil(

@@ -74,7 +74,7 @@ module.exports.login = async (req, res) => {
 // Register function
 module.exports.register = async (req, res) => {
     const { username, email, password, companyname } = req.body;
-    const userRoleID = 2;
+    const userRoleID = 1;
     const isVerified = 0; // Assume 0 means not verified yet
 
     try {
