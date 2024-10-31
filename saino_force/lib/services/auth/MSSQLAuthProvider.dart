@@ -1,3 +1,11 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:saino_force/models/auth_user.dart';
@@ -7,8 +15,8 @@ import 'dart:developer' as devtools show log;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MSSQLAuthProvider implements AuthProvider {
-  final String baseUrl = "http://103.52.192.245:6011/api";
-  final String toWalletDB = "http://103.52.192.245:4000/api";
+  final String baseUrl = "http://172.16.20.26:3010/api";
+  final String toWalletDB = "http://172.16.20.26:4000/api";
 
   AuthUser? _currentUser;
 

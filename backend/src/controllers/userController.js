@@ -1,3 +1,11 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 const sql = require('mssql');
 const bcrypt = require('bcryptjs');
 const dbConfig = require('../config/config');
@@ -74,7 +82,7 @@ module.exports.login = async (req, res) => {
 // Register function
 module.exports.register = async (req, res) => {
     const { username, email, password, companyname } = req.body;
-    const userRoleID = 1;
+    const userRoleID = 2; //assume 2 is company
     const isVerified = 0; // Assume 0 means not verified yet
 
     try {

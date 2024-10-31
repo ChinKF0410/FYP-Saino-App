@@ -1,6 +1,14 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 const app = require('./app');
-const port = process.env.PORT || 3011;
+const port = process.env.PORT || 3010;
 
 app.listen(port, () => {
-    console.log(`Server is running on http://103.52.192.245:${port}`);
+    console.log(`Server is running on http://192.168.1.9:${port}`);
 });

@@ -1,3 +1,11 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -60,7 +68,7 @@ class _HolderListPageState extends State<HolderListPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://103.52.192.245:6011/api/ViewCredential'),
+        Uri.parse('http://172.16.20.26:3010/api/ViewCredential'),
         headers: {'Content-Type': 'application/json'}, // Set content type
         body: json.encode({
           'Email': user?.email, // Pass 'Email' to the backend
@@ -110,7 +118,7 @@ class _HolderListPageState extends State<HolderListPage> {
     try {
       final response = await http.post(
         Uri.parse(
-            'http://103.52.192.245:6011/api/DeleteStatus'), // Update with correct backend URL
+            'http://172.16.20.26:3010/api/DeleteStatus'), // Update with correct backend URL
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'id': holder.id,

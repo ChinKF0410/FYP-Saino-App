@@ -1,3 +1,11 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 import 'package:flutter/material.dart';
 import 'package:saino_force/services/auth/MSSQLAuthProvider.dart'; // Import MSSQLAuthProvider directly
 import 'package:saino_force/services/auth/auth_exception.dart';
@@ -122,10 +130,13 @@ class _RegisterViewState extends State<RegisterView> {
         companyname : companyname,
       );
 
+      await showErrorDialog(context, 'Register Successfully');
+
       Navigator.of(context).pushNamedAndRemoveUntil(
         loginRoute,
         (_) => false,
       );
+
     } on EmailAlreadyInUseAuthException {
       devtools.log('Email already in use');
       await showErrorDialog(context, 'Email already in use');

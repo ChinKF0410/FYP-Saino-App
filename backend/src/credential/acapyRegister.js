@@ -1,9 +1,18 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 const axios = require('axios');
 const sql = require('mssql');
 const crypto = require('crypto');
 
 // ACA-Py API endpoint configuration
-const acaPyBaseUrl = 'http://103.52.192.245:8011';  // Issuer API URL || holder is 7011
+const acaPyBaseUrl = 'http://172.16.20.26:6011';  // Issuer API URL || holder is 7011
+
 
 // Database configuration (replace with your actual dbConfig)
 const dbConfig = require('../config/config');
@@ -68,7 +77,7 @@ async function storeWalletData(Email, walletid, publicDid) {
         await request
             .input('wallet_id', sql.NVarChar(255), walletid)
             .input('publicDid', sql.NVarChar(255), publicDid)
-            .input('Email', sql.NVarChar(200), Email) 
+            .input('Email', sql.NVarChar(200), Email)
             .query(query);
 
         console.log('Wallet data stored successfully.');
@@ -82,7 +91,7 @@ async function storeWalletData(Email, walletid, publicDid) {
 async function registerDIDatVon(DID, Verkey) {
     try {
         await axios.post(
-            `http://103.52.192.245:9000/register`,
+            `http://localhost:9000/register`, //need to change
             {
                 did: DID,
                 verkey: Verkey,
@@ -157,7 +166,7 @@ async function createWallet(walletName, wallet_key) {
     const currentDateTime = new Date(); // This gets the current date and time
     const combinedKey = `${wallet_key}${currentDateTime.toISOString()}`; // Use toISOString() for a standard format
 
-// Create a hash of the combinedKey
+    // Create a hash of the combinedKey
     const walletKeyHash = crypto.createHash('sha256').update(combinedKey).digest('hex');
     console.log(walletKeyHash);
     const walletData = {

@@ -1,3 +1,11 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 import 'package:flutter/material.dart';
 import 'package:saino_force/pages/scan.dart';
 import 'package:saino_force/pages/search.dart';

@@ -1,6 +1,13 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 const sql = require('mssql');  // Import directly from mssql
 const dbConfig = require('../config/config');  // Database configuration
-
 
 // Initialize SQL connection pool
 let poolPromise = sql.connect(dbConfig)

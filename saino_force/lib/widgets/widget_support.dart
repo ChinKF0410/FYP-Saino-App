@@ -1,5 +1,12 @@
-import 'package:flutter/material.dart';
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
 
+import 'package:flutter/material.dart';
 class AppWidget {
   static TextStyle boldTextFieldStyle() {
     return const TextStyle(

@@ -1,5 +1,12 @@
-import 'package:saino_force/models/auth_user.dart';
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
 
+import 'package:saino_force/models/auth_user.dart';
 abstract class AuthProvider {
   Future<int> login({
     required String email,

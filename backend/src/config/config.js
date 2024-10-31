@@ -1,3 +1,10 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
 
 const dbConfig = {
     user: 'sa',

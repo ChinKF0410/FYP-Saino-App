@@ -1,3 +1,11 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 // Import necessary modules
 const axios = require('axios');
 const sql = require('mssql');
@@ -117,7 +125,7 @@ module.exports.fetchUserAcc = async (req, res) => {
             return res.status(400).json({ message: 'Email or password is missing for this user.' });
         }
 
-        const vonApiUrl = 'http://10.123.10.108:6011/api/createWalletandDID'; // Replace with actual URL
+        const vonApiUrl = 'http://localhost:3010/api/createWalletandDID'; // Replace with actual URL
         const vonResponse = await axios.post(vonApiUrl, {
             email: email,
             password: password

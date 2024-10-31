@@ -1,3 +1,11 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 const sql = require('mssql');
 const dbConfig = require('../config/config');
 
@@ -111,19 +119,22 @@ module.exports.showDetails = async (req, res) => {
 
         // Fetch Profile information
         const profileQuery = `
-            SELECT StudentAccID, Name, Age, Email_Address, Mobile_Number, Address, Description
+            SELECT Photo As profile_image_path, StudentAccID, Name, Age, Email_Address, Mobile_Number, Address, Description
             FROM Profile 
             WHERE StudentAccID = @StudentAccID
         `;
         const profileResult = await pool.request()
             .input('StudentAccID', sql.Int, StudentAccID)
             .query(profileQuery);
-
+        console.log(profileResult);
         if (profileResult.recordset.length === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
 
         const userDetails = profileResult.recordset[0];
+        if (userDetails.profile_image_path) {
+            userDetails.profile_image_path = Buffer.from(userDetails.profile_image_path).toString('base64');
+        }
 
         // Fetch Education information
         const educationQuery = `

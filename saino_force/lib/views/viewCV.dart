@@ -1,5 +1,12 @@
-import 'package:flutter/material.dart';
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
 
+import 'package:flutter/material.dart';
 class ViewCV extends StatelessWidget {
   final Map<String, dynamic> data;
 

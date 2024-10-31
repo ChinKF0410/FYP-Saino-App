@@ -1,3 +1,11 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -33,16 +41,21 @@ class _AccountState extends State<Account> {
 
     if (user != null) {
       final profileData = await _authProvider.getProfile(user.id);
-
+      if (!mounted) return;
       devtools.log("Username: ${user.username}");
 
       if (profileData != null) {
+        if (!mounted) return;
+
         setState(() {
           _accountName = profileData['Nickname'];
           // Check if the profile picture exists and is not empty
           if (profileData['Photo'] != null && profileData['Photo'].isNotEmpty) {
             devtools.log('Profile picture exists, decoding...');
+            _accountName = profileData['Nickname'];
+
             _profilePictureBytes = base64Decode(profileData['Photo']);
+            _accountName = profileData['Nickname'];
           } else {
             devtools.log('No profile picture available.');
             _profilePictureBytes = null;

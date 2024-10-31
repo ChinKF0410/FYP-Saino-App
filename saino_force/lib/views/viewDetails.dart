@@ -1,3 +1,12 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
+import 'dart:convert';
 import 'package:flutter/material.dart';
 
 class ViewDetails extends StatelessWidget {
@@ -60,14 +69,36 @@ class ViewDetails extends StatelessWidget {
 
   Widget _buildProfileSection(Map<String, dynamic>? profile) {
     if (profile == null) return const SizedBox.shrink();
-    return _buildInfoBox([
-      'Name: ${profile['Name']}',
-      'Age: ${profile['Age']}',
-      'Email: ${profile['Email_Address']}',
-      'Phone: ${profile['Mobile_Number']}',
-      'Address: ${profile['Address']}',
-      'Description: ${profile['Description']}',
-    ]);
+
+    return Column(
+      children: [
+        if (profile['profile_image_path'] != null)
+          // Display the profile image
+          Container(
+            width: 100, // Set desired width
+            height: 100, // Set desired height
+            decoration: BoxDecoration(
+              shape: BoxShape.circle, // To make the image circular
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: MemoryImage(
+                  base64Decode(
+                      profile['profile_image_path']), // Decode base64 image
+                ),
+              ),
+            ),
+          ),
+        const SizedBox(height: 20), // Add space between the image and details
+        _buildInfoBox([
+          'Name: ${profile['Name']}',
+          'Age: ${profile['Age']}',
+          'Email: ${profile['Email_Address']}',
+          'Phone: ${profile['Mobile_Number']}',
+          'Address: ${profile['Address']}',
+          'Description: ${profile['Description']}',
+        ]),
+      ],
+    );
   }
 
   Widget _buildEducationSection(List<dynamic> education) {

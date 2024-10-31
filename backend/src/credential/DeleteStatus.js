@@ -1,3 +1,11 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 const sql = require('mssql');  // Import directly from mssql
 const axios = require('axios'); // For making external API requests
 const dbConfig = require('../config/config');  // Database configuration
@@ -97,7 +105,7 @@ async function updateActive(issuance_date, credential_type, name, email) {
         
         // Send the required data to the external API
         await axios.post(
-            `http://103.52.192.245:4000/api/UpdateActive`,
+            `http://172.16.20.26:4000/api/UpdateActive`,
             {
                 issuance_date,
                 credential_type,

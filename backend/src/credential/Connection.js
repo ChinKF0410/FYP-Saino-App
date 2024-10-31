@@ -1,9 +1,17 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 const axios = require('axios');
 const sql = require('mssql');
 const dbConfig = require('../config/config'); // Import database configuration
 
 // ACA-Py API endpoint configuration
-const acaPyBaseUrl = 'http://103.52.192.245:8011';  // Issuer API URL || holder is 7011
+const acaPyBaseUrl = 'http://172.16.20.26:6011';  // Issuer API URL || holder is 7011
 
 // Initialize SQL connection pool
 let poolPromise = sql.connect(dbConfig)
@@ -83,7 +91,7 @@ async function sendConnection(invitation, holder, issuer) {
         console.log(holder);
         console.log(issuer);
         const response = await axios.post(
-            `http://103.52.192.245:4000/api/receiveConnection`,
+            `http://172.16.20.26:4000/api/receiveConnection`,
             { invitation, holder, issuer }
         );
         console.log("\n\nsendConnection Ended");

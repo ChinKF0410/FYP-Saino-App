@@ -1,3 +1,11 @@
+/*
+A Collaborative Creation:
+CHIN KAH FUI
+CHIN XUAN HONG
+OLIVIA HUANG SI HAN
+LIM CHU QING
+*/
+
 const express = require('express');
 //User Controller
 const { login, register, logout, verifyPassword, changePassword, getProfile, saveProfile, saveFeedback } = require('../controllers/userController');
