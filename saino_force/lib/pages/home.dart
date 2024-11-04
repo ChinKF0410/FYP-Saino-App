@@ -38,7 +38,7 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
-      
+
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -48,12 +48,12 @@ class _HomeState extends State<Home> {
               Container(
                 padding: const EdgeInsets.all(15),
                 decoration: const BoxDecoration(
-                  // gradient: LinearGradient(
-                  //   colors: [Colors.blueAccent, Colors.lightBlueAccent],
-                  //   begin: Alignment.topLeft,
-                  //   end: Alignment.bottomRight,
-                  // ),
-                ),
+                    // gradient: LinearGradient(
+                    //   colors: [Colors.blueAccent, Colors.lightBlueAccent],
+                    //   begin: Alignment.topLeft,
+                    //   end: Alignment.bottomRight,
+                    // ),
+                    ),
                 child: const Column(
                   children: [
                     // Text(
@@ -64,7 +64,8 @@ class _HomeState extends State<Home> {
                     // SizedBox(height: 10),
                     Text(
                       'Scan, Search, and Manage Student Credentials Effortlessly',
-                      style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 0, 0, 0)),
+                      style: TextStyle(
+                          fontSize: 16, color: Color.fromARGB(255, 0, 0, 0)),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -85,7 +86,7 @@ class _HomeState extends State<Home> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const Scan()), 
+                          MaterialPageRoute(builder: (context) => const Scan()),
                         );
                       },
                     ),
@@ -94,11 +95,13 @@ class _HomeState extends State<Home> {
                     _buildFeatureCard(
                       icon: Icons.search,
                       title: 'Search CVs',
-                      description: 'Quickly search for students’ CVs based on skills and qualifications.',
+                      description:
+                          'Quickly search for students’ CVs based on skills and qualifications.',
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const Search()),
+                          MaterialPageRoute(
+                              builder: (context) => const Search()),
                         );
                       },
                     ),
@@ -106,12 +109,14 @@ class _HomeState extends State<Home> {
                     // Feature Card 3: Issue Credentials
                     _buildFeatureCard(
                       icon: Icons.verified_user,
-                      title: 'Issue Credentials',
-                      description: 'Issuers can easily issue credentials to students.',
+                      title: 'Issue Certification',
+                      description:
+                          'Issuers can easily issue certification to students.',
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const Credential()), 
+                          MaterialPageRoute(
+                              builder: (context) => const Credential()),
                         );
                       },
                     ),
@@ -119,12 +124,14 @@ class _HomeState extends State<Home> {
                     // Feature Card 4: View Issued Credentials
                     _buildFeatureCard(
                       icon: Icons.assignment,
-                      title: 'View Issued Credentials',
-                      description: 'Manage and view all issued credentials effortlessly.',
+                      title: 'View Issued Certifications',
+                      description:
+                          'Manage and view all issued certifications effortlessly.',
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => HolderListPage()), 
+                          MaterialPageRoute(
+                              builder: (context) => HolderListPage()),
                         );
                       },
                     ),
@@ -167,12 +174,14 @@ class _HomeState extends State<Home> {
                   children: <Widget>[
                     Text(
                       title,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 5),
                     Text(
                       description,
-                      style: const TextStyle(fontSize: 14, color: Colors.black54),
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black54),
                     ),
                   ],
                 ),

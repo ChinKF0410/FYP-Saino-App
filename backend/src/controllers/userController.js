@@ -40,16 +40,19 @@ module.exports.login = async (req, res) => {
             console.log("ISVERIFIED: ", user.isVerified);
             // Check if user is verified
             if (user.isVerified === 0) {
-                console.log("WHY");
+
                 return res.status(402).send('The Email is Not Verified');
 
             } else if (user.isVerified === 2) {
                 return res.status(403).send('REJECTED.');
             }
-            console.log("WHY2");
+
 
             // Compare the provided password with the stored hashed password
+            const hashedPassword = await bcrypt.hash(password, 10);
             const isPasswordValid = await bcrypt.compare(password, user.Password);
+            console.log('Password :', password);
+            console.log('Password hash:', hashedPassword);
             console.log('Password valid:', isPasswordValid);
 
             // If password is valid, return user details

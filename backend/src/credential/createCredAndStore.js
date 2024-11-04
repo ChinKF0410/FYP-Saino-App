@@ -10,7 +10,7 @@ const sql = require('mssql');  // Import directly from mssql
 const { handleConnection } = require('./Connection');
 const axios = require('axios');
 const dbConfig = require('../config/config');  // Database configuration
-const acaPyBaseUrl = 'http://172.16.20.26:6011';  // ACA-Py base URL
+const acaPyBaseUrl = 'http://127.0.0.1:6011';  // ACA-Py base URL
 
 // Initialize SQL connection pool
 let poolPromise = sql.connect(dbConfig)
@@ -101,7 +101,7 @@ async function storeHolder(transaction, holder, credentialId, state, Email) {
         .input('holderEmail', sql.NVarChar(255), holder.email)
         .input('holderPhone', sql.NVarChar(50), holder.phoneNo)
         .input('holderDescription', sql.NVarChar(500), holder.description)
-        .input('did', sql.NVarChar(255), holder.did)
+        .input('did', sql.NVarChar(255), holder.did) //modofy did
         .input('credentialId', sql.Int, credentialId)
         .input('state', sql.NVarChar(50), state)
         .input('Email', sql.NVarChar(50), Email)

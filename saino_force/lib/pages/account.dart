@@ -105,9 +105,9 @@ class _AccountState extends State<Account> {
             const SizedBox(height: 20.0),
             _buildButton('Change Password', Icons.lock_outline),
             const SizedBox(height: 20.0),
-            _buildButton('Create Credentials', Icons.add),
+            _buildButton('Create Certification', Icons.add),
             const SizedBox(height: 20.0),
-            _buildButton('View Created Credentials', Icons.list_alt),
+            _buildButton('View Created Certifications', Icons.list_alt),
           ],
         ),
       ),
@@ -123,7 +123,7 @@ class _AccountState extends State<Account> {
           minimumSize: const Size.fromHeight(56.0),
         ),
         onPressed: () async {
-          if (text == 'Create Credentials') {
+          if (text == 'Create Certification') {
             // Wait for result from Credential page
             final result = await Navigator.push(
               context,
@@ -142,7 +142,7 @@ class _AccountState extends State<Account> {
             if (result == true) {
               _loadCurrentUser(); // Refresh user data
             }
-          } else if (text == 'View Created Credentials') {
+          } else if (text == 'View Created Certifications') {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => HolderListPage()),

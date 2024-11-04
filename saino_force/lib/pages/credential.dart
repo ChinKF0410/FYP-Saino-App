@@ -58,7 +58,7 @@ class _CredentialState extends State<Credential> {
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Text(
-            "Credential Issue Screen",
+            "Issue Certification",
             style: AppWidget.boldTextFieldStyle(),
           ),
           backgroundColor: const Color.fromARGB(255, 188, 203, 228),
@@ -74,12 +74,12 @@ class _CredentialState extends State<Credential> {
                 TextFormField(
                   controller: _credentialTypeController,
                   decoration: const InputDecoration(
-                    labelText: 'Credential Type',
+                    labelText: 'Certification Type',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a credential type';
+                      return 'Please enter a Certifications type';
                     }
                     return null;
                   },
@@ -100,7 +100,7 @@ class _CredentialState extends State<Credential> {
                           Icon(Icons.label, color: Colors.black),
                           SizedBox(width: 8),
                           Text(
-                            'Credential Details',
+                            'Certification Details',
                             style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -169,8 +169,9 @@ class _CredentialState extends State<Credential> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Delete Holder'),
-        content: Text('Are you sure you want to delete this holder?'),
+        title: Text('Delete Certification'),
+        content: const Text(
+            "Are you sure you want to delete this holder's Certification?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(), // Dismiss dialog
@@ -207,13 +208,13 @@ class _CredentialState extends State<Credential> {
       bool success = await holderProvider.sendHolders();
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Holders sent successfully')),
+          SnackBar(content: Text('Certification sent successfully')),
         );
 // After sending successfully in the credential page
         Navigator.pop(context, true); // Pass true back to the account page
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send holders')),
+          SnackBar(content: Text('Failed to send Certification')),
         );
       }
     }

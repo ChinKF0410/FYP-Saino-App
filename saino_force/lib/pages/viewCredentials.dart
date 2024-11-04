@@ -68,7 +68,7 @@ class _HolderListPageState extends State<HolderListPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://172.16.20.26:3010/api/ViewCredential'),
+        Uri.parse('http://127.0.0.1:3010/api/ViewCredential'),
         headers: {'Content-Type': 'application/json'}, // Set content type
         body: json.encode({
           'Email': user?.email, // Pass 'Email' to the backend
@@ -118,7 +118,7 @@ class _HolderListPageState extends State<HolderListPage> {
     try {
       final response = await http.post(
         Uri.parse(
-            'http://172.16.20.26:3010/api/DeleteStatus'), // Update with correct backend URL
+            'http://127.0.0.1:3010/api/DeleteStatus'), // Update with correct backend URL
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'id': holder.id,
@@ -143,7 +143,7 @@ class _HolderListPageState extends State<HolderListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Holder Credentials'),
+        title: Text('Created Certifications'),
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator()) // Loading spinner
@@ -242,7 +242,8 @@ class HolderCard extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Confirm Delete'),
-          content: Text('Are you sure you want to delete this holder?'),
+          content: const Text(
+              "Are you sure you want to delete this holder's Certification?"),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(), // Dismiss dialog

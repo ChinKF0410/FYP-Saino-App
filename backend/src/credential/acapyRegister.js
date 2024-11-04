@@ -11,7 +11,7 @@ const sql = require('mssql');
 const crypto = require('crypto');
 
 // ACA-Py API endpoint configuration
-const acaPyBaseUrl = 'http://172.16.20.26:6011';  // Issuer API URL || holder is 7011
+const acaPyBaseUrl = 'http://127.0.0.1:6011';  // Issuer API URL || holder is 7011
 
 
 // Database configuration (replace with your actual dbConfig)

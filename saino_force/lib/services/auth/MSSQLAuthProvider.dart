@@ -15,8 +15,8 @@ import 'dart:developer' as devtools show log;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MSSQLAuthProvider implements AuthProvider {
-  final String baseUrl = "http://172.16.20.26:3010/api";
-  final String toWalletDB = "http://172.16.20.26:4000/api";
+  final String baseUrl = "http://127.0.0.1:3010/api";
+  final String toWalletDB = "http://127.0.0.1:4000/api";
 
   AuthUser? _currentUser;
 
